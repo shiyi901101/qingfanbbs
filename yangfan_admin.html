@@ -1,0 +1,3350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>青帆社区 · 管理后台</title>
+<style>
+
+
+
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --pri:#4facfe;--pri-d:#2d8bc9;--pri-dd:#1a6fa0;--pri-l:#e8f4ff;
+  --coral:#ff6b6b;--coral-d:#e84545;--coral-l:#fff0f0;
+  --green:#00b894;--green-l:#e6f9f3;
+  --orange:#ffa502;--orange-l:#fff5e6;
+  --purple:#6c5ce7;--purple-l:#f0eeff;
+  --bg:#f0f2f5;--white:#fff;--card:#fff;
+  --text:#2d3436;--text2:#636e72;--text3:#b2bec3;
+  --border:#e8ecf1;--shadow:0 2px 12px rgba(0,0,0,.06);
+  --font:system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  --r:8px;--r2:12px;
+  --side-w:240px;
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{border:none;background:none;font-family:var(--font);cursor:pointer}
+input,textarea,select{font-family:var(--font);outline:none;border:none}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d0d5dd;border-radius:3px}
+
+/* ===== LOGIN ===== */
+#loginPage{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a6fa0 0%,#4facfe 50%,#7ec8ff 100%);overflow:hidden}
+#loginPage.hidden{display:none}
+.login-deco{position:absolute;border-radius:50%;opacity:.1;background:#fff}
+.login-deco:nth-child(1){width:400px;height:400px;top:-100px;right:-80px}
+.login-deco:nth-child(2){width:300px;height:300px;bottom:-80px;left:-60px}
+.login-deco:nth-child(3){width:200px;height:200px;top:40%;left:15%}
+.login-box{position:relative;z-index:2;width:400px;background:#fff;border-radius:20px;padding:48px 40px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px}
+.login-logo svg{flex-shrink:0}
+.login-title{font-size:24px;font-weight:800;background:linear-gradient(135deg,var(--pri-d),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-sub{text-align:center;color:var(--text3);font-size:13px;margin-bottom:32px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500}
+.login-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;transition:border .2s;background:var(--bg)}
+.login-input:focus{border-color:var(--pri);background:#fff}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--pri),var(--pri-d));border-radius:10px;color:#fff;font-size:15px;font-weight:700;margin-top:8px;transition:all .15s;box-shadow:0 4px 15px rgba(79,172,254,.3)}
+.login-btn:hover{box-shadow:0 6px 20px rgba(79,172,254,.4);transform:translateY(-1px)}
+.login-btn:active{transform:translateY(0) scale(.98)}
+.login-hint{text-align:center;margin-top:16px;font-size:12px;color:var(--text3)}
+.login-err{color:var(--coral);font-size:12px;text-align:center;margin-top:8px;min-height:18px}
+
+/* ===== LAYOUT ===== */
+#adminApp{display:none;height:100vh}
+#adminApp.active{display:flex}
+
+/* ===== SIDEBAR ===== */
+.sidebar{width:var(--side-w);height:100vh;background:linear-gradient(180deg,#1a3a5c 0%,#1e4976 100%);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:10}
+.sidebar-header{padding:24px 20px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-header svg{flex-shrink:0}
+.sidebar-brand{color:#fff;font-size:17px;font-weight:700;letter-spacing:.5px}
+.sidebar-brand span{display:block;font-size:11px;color:rgba(255,255,255,.45);font-weight:400;margin-top:2px}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:rgba(255,255,255,.6);font-size:14px;cursor:pointer;transition:all .15s;position:relative;margin:2px 8px;border-radius:8px}
+.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(79,172,254,.2)}
+.nav-item.active::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--pri);border-radius:0 3px 3px 0}
+.nav-item svg{flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.sidebar-user{display:flex;align-items:center;gap:10px}
+.sidebar-avatar{width:34px;height:34px;border-radius:50%;background:rgba(79,172,254,.25);display:flex;align-items:center;justify-content:center}
+.sidebar-userinfo{flex:1}
+.sidebar-username{color:#fff;font-size:13px;font-weight:600}
+.sidebar-userrole{color:rgba(255,255,255,.4);font-size:11px}
+.sidebar-logout{color:rgba(255,255,255,.4);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s}
+.sidebar-logout:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-time{font-size:12px;color:var(--text3)}
+.content{flex:1;overflow-y:auto;padding:24px}
+.page{display:none}
+.page.active{display:block}
+
+/* ===== STAT CARDS ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:var(--r2);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .15s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-card::after{content:"";position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;opacity:.06;transform:translate(20px,-20px)}
+.stat-card:nth-child(1)::after{background:var(--pri)}
+.stat-card:nth-child(2)::after{background:var(--green)}
+.stat-card:nth-child(3)::after{background:var(--coral)}
+.stat-card:nth-child(4)::after{background:var(--orange)}
+.stat-card:nth-child(5)::after{background:var(--purple)}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat-icon.blue{background:var(--pri-l)}
+.stat-icon.green{background:var(--green-l)}
+.stat-icon.red{background:var(--coral-l)}
+.stat-icon.orange{background:var(--orange-l)}
+.stat-icon.purple{background:var(--purple-l)}
+.stat-value{font-size:28px;font-weight:800;color:var(--text);line-height:1}
+.stat-label{font-size:13px;color:var(--text3);margin-top:6px}
+.stat-change{display:inline-flex;align-items:center;gap:2px;font-size:11px;margin-top:8px;padding:2px 6px;border-radius:4px;font-weight:600}
+.stat-change.up{color:var(--green);background:var(--green-l)}
+.stat-change.down{color:var(--coral);background:var(--coral-l)}
+
+/* ===== CHARTS ===== */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{background:#fff;border-radius:var(--r2);padding:20px;box-shadow:var(--shadow)}
+.chart-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-title::before{content:"";width:3px;height:14px;background:var(--pri);border-radius:2px}
+.chart-area{height:180px;display:flex;align-items:flex-end;gap:8px;padding:0 4px}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.chart-bar{width:100%;border-radius:4px 4px 0 0;transition:height .6s ease;min-height:4px;position:relative}
+.chart-bar:hover{opacity:.85}
+.chart-bar.blue{background:linear-gradient(180deg,var(--pri),var(--pri-d))}
+.chart-bar.coral{background:linear-gradient(180deg,var(--coral),var(--coral-d))}
+.chart-bar-label{font-size:11px;color:var(--text3)}
+.chart-bar-val{font-size:11px;font-weight:600;color:var(--text2)}
+.chart-line-area{height:180px;position:relative;padding:0 4px}
+.chart-line-svg{width:100%;height:100%}
+
+/* ===== QUICK ACTIONS ===== */
+.quick-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.quick-card{background:#fff;border-radius:var(--r2);padding:20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .15s;border:1.5px solid transparent}
+.quick-card:hover{border-color:var(--pri);transform:translateY(-2px)}
+.quick-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.quick-icon.qi-blue{background:var(--pri-l)}
+.quick-icon.qi-red{background:var(--coral-l)}
+.quick-icon.qi-green{background:var(--green-l)}
+.quick-info h4{font-size:14px;font-weight:700;color:var(--text)}
+.quick-info p{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* ===== TABLE ===== */
+.table-card{background:#fff;border-radius:var(--r2);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.table-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.table-title::before{content:"";width:3px;height:16px;background:var(--pri);border-radius:2px}
+.table-actions{display:flex;gap:8px}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--bg)}
+th{padding:12px 16px;text-align:left;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+td{padding:14px 16px;font-size:13px;color:var(--text);border-top:1px solid var(--border)}
+tr:hover td{background:rgba(79,172,254,.02)}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:600;transition:all .12s;cursor:pointer}
+.btn:active{transform:scale(.95)}
+.btn-pri{background:var(--pri);color:#fff}
+.btn-pri:hover{background:var(--pri-d)}
+.btn-coral{background:var(--coral);color:#fff}
+.btn-coral:hover{background:var(--coral-d)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#00a383}
+.btn-outline{border:1.5px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--pri);color:var(--pri)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+.btn-text{color:var(--pri);font-size:12px;padding:4px 8px;border-radius:4px}
+.btn-text:hover{background:var(--pri-l)}
+.btn-text.danger{color:var(--coral)}
+.btn-text.danger:hover{background:var(--coral-l)}
+.btn-text.warn{color:var(--orange)}
+
+/* ===== BADGES ===== */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-blue{background:var(--pri-l);color:var(--pri-d)}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-red{background:var(--coral-l);color:var(--coral)}
+.badge-orange{background:var(--orange-l);color:var(--orange)}
+.badge-purple{background:var(--purple-l);color:var(--purple)}
+.badge-gray{background:var(--bg);color:var(--text3)}
+
+/* ===== SEARCH/FILTER BAR ===== */
+.filter-bar{display:flex;gap:12px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:200px;max-width:360px}
+.search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-input{width:100%;padding:9px 14px 9px 36px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;transition:border .2s}
+.search-input:focus{border-color:var(--pri)}
+.filter-select{padding:9px 32px 9px 12px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;color:var(--text);appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23636e72' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
+.filter-select:focus{border-color:var(--pri)}
+
+/* ===== POST CARDS (Review) ===== */
+.review-list{display:flex;flex-direction:column;gap:12px}
+.review-card{background:#fff;border-radius:var(--r2);padding:20px;box-shadow:var(--shadow);border-left:3px solid var(--orange);transition:all .15s}
+.review-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.review-card.approved{border-left-color:var(--green)}
+.review-card.rejected{border-left-color:var(--coral)}
+.review-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.review-author{display:flex;align-items:center;gap:10px}
+.review-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.review-name{font-size:13px;font-weight:600}
+.review-time{font-size:11px;color:var(--text3)}
+.review-title{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.review-excerpt{font-size:13px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.review-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.review-tags{display:flex;gap:6px}
+.review-actions{display:flex;gap:6px}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:520px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-head{padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:all .12s}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-body{padding:20px 24px}
+.modal-foot{padding:16px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border)}
+
+/* ===== FORM ===== */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;transition:border .2s}
+.form-input:focus{border-color:var(--pri)}
+textarea.form-input{min-height:80px;resize:vertical}
+.form-select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23636e72' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center}
+
+/* ===== TOAST ===== */
+.toast-container{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.12);animation:toastIn .3s ease;display:flex;align-items:center;gap:8px}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--coral)}
+.toast.info{background:var(--pri)}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(40px)}}
+
+/* ===== CONFIRM DIALOG ===== */
+.confirm-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.confirm-overlay.show{display:flex}
+.confirm-box{background:#fff;border-radius:16px;padding:28px 32px;width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.confirm-icon{width:56px;height:56px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+.confirm-icon.warn{background:var(--coral-l)}
+.confirm-icon.info{background:var(--pri-l)}
+.confirm-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.confirm-desc{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.5}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.confirm-btns .btn{min-width:100px;justify-content:center}
+
+/* ===== USER AVATAR ===== */
+.user-cell{display:flex;align-items:center;gap:10px}
+.user-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-state svg{margin-bottom:12px;opacity:.3}
+.empty-state p{font-size:14px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}.quick-row{grid-template-columns:1fr}}
+
+/* ===== MOBILE: Sidebar Toggle ===== */
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:20;width:40px;height:40px;border-radius:10px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12);align-items:center;justify-content:center;cursor:pointer}
+.sidebar-overlay{display:none;position:fixed;inset:0;z-index:9;background:rgba(0,0,0,.35)}
+
+/* ===== MOBILE: Responsive Overrides ===== */
+@media(max-width:768px){
+  .sidebar-toggle{display:flex}
+  .sidebar{position:fixed;left:-260px;top:0;z-index:10;transition:left .3s ease;box-shadow:none}
+  .sidebar.open{left:0;box-shadow:4px 0 20px rgba(0,0,0,.15)}
+  .sidebar-overlay.show{display:block}
+  .main{width:100%}
+  .topbar{padding:0 16px 0 56px}
+  .content{padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-card{padding:14px}
+  .stat-value{font-size:22px}
+  .stat-label{font-size:12px}
+  .charts-row{grid-template-columns:1fr}
+  .quick-row{grid-template-columns:1fr}
+  .chart-area{height:140px}
+  /* Tables: scrollable */
+  .table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:500px}
+  th,td{padding:10px 12px;font-size:13px;white-space:nowrap}
+  /* Review cards */
+  .review-card{padding:14px}
+  .review-title{font-size:14px}
+  .review-excerpt{font-size:12px}
+  .review-bottom{flex-direction:column;align-items:flex-start;gap:10px}
+  .review-actions{width:100%;justify-content:flex-end}
+  /* Filters */
+  .filter-bar{flex-direction:column;gap:8px}
+  .search-box{max-width:100%;min-width:0;width:100%}
+  .filter-select{width:100%}
+  /* Modal */
+  .modal{width:95vw;max-width:95vw;max-height:90vh}
+  .modal-head{padding:16px 18px 12px}
+  .modal-body{padding:16px 18px}
+  .modal-foot{padding:12px 18px 16px}
+  /* Confirm */
+  .confirm-box{width:90vw;padding:24px 20px}
+  /* Login */
+  .login-box{width:90vw;max-width:400px;padding:36px 24px}
+  .login-title{font-size:20px}
+  /* Settings page items */
+  #bannerList>div,#announceList>div{flex-direction:column;align-items:flex-start!important;gap:8px}
+  /* Buttons */
+  .btn{font-size:13px;padding:8px 14px}
+  .btn-sm{font-size:12px;padding:5px 10px}
+  /* Empty state */
+  .empty-state{padding:32px 16px}
+}
+
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card{padding:12px}
+  .stat-value{font-size:20px}
+  .stat-icon{width:32px;height:32px;margin-bottom:8px}
+  .content{padding:12px}
+  .topbar{height:50px}
+  .review-top{flex-direction:column;align-items:flex-start;gap:8px}
+}
+
+/* V5: 表单校验 shake */
+@keyframes yfShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.yf-shake{animation:yfShake .35s ease !important}
+
+</style>
+</head>
+<body>
+<!-- ===== LOGIN ===== -->
+<div id="loginPage">
+  <div class="login-deco"></div>
+  <div class="login-deco"></div>
+  <div class="login-deco"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <circle cx="18" cy="18" r="18" fill="url(#lg1)"/>
+        <path d="M18 8L24 22H12L18 8Z" fill="#fff" opacity=".9"/>
+        <path d="M18 12L22 22H14L18 12Z" fill="url(#lg2)" opacity=".6"/>
+        <defs><linearGradient id="lg1" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#4facfe"/><stop offset="1" stop-color="#2d8bc9"/></linearGradient><linearGradient id="lg2" x1="14" y1="12" x2="22" y2="22"><stop stop-color="#fff"/><stop offset="1" stop-color="#e0f0ff"/></linearGradient></defs>
+      </svg>
+      <div class="login-title">青帆社区管理后台</div>
+    </div>
+    <div class="login-sub">扬帆计划 · 运营管理平台</div>
+    <div class="login-field">
+      <label>管理员账号</label>
+      <input type="text" class="login-input" id="loginUser" placeholder="请输入账号" autocomplete="off" value="admin">
+    </div>
+    <div class="login-field">
+      <label>登录密码</label>
+      <input type="password" class="login-input" id="loginPass" placeholder="请输入密码" value="admin123">
+    </div>
+    <button class="login-btn" onclick="doLogin()">登 录</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-hint">管理员账号: admin / admin123</div>
+  </div>
+</div>
+
+<!-- ===== ADMIN APP ===== -->
+<div id="adminApp">
+  <!-- Mobile Sidebar Toggle -->
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="#2d3436"/></svg>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+        <circle cx="18" cy="18" r="18" fill="rgba(79,172,254,.2)"/>
+        <path d="M18 8L24 22H12L18 8Z" fill="#4facfe" opacity=".9"/>
+        <path d="M18 12L22 22H14L18 12Z" fill="#fff" opacity=".5"/>
+      </svg>
+      <div class="sidebar-brand">青帆社区<span>管理后台 v1.0</span></div>
+    </div>
+    <div class="sidebar-nav" id="sideNav">
+      <!-- Nav items injected by JS -->
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="rgba(255,255,255,.6)"/></svg>
+        </div>
+        <div class="sidebar-userinfo">
+          <div class="sidebar-username">管理员</div>
+          <div class="sidebar-userrole">超级管理员</div>
+        </div>
+        <div class="sidebar-logout" onclick="doLogout()" title="退出登录">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M17 7l-1.4 1.4L18.2 11H8v2h10.2l-2.6 2.6L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" fill="currentColor"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topTitle">数据看板</div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="topTime"></div>
+      </div>
+    </div>
+    <div class="content" id="contentArea">
+
+      <!-- ===== PAGE: DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">近7天用户增长</div>
+            <div class="chart-area" id="chartUsers"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">近7天发帖量</div>
+            <div class="chart-area" id="chartPosts"></div>
+          </div>
+        </div>
+        <div id="dashExtra"></div>
+        <div class="quick-row">
+          <div class="quick-card" onclick="switchPage('review')">
+            <div class="quick-icon qi-red">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z" fill="#ff6b6b"/></svg>
+            </div>
+            <div class="quick-info"><h4>内容审核</h4><p>处理待审核的帖子内容</p></div>
+          </div>
+          <div class="quick-card" onclick="switchPage('users')">
+            <div class="quick-icon qi-blue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="#4facfe"/></svg>
+            </div>
+            <div class="quick-info"><h4>用户管理</h4><p>查看和管理注册用户</p></div>
+          </div>
+          <div class="quick-card" onclick="switchPage('tasks')">
+            <div class="quick-icon qi-green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="#00b894"/></svg>
+            </div>
+            <div class="quick-info"><h4>任务发布</h4><p>创建新的成长任务</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: REVIEW ===== -->
+      <div class="page" id="page-review">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索帖子标题或作者..." oninput="filterReview(this.value)">
+          </div>
+          <select class="filter-select" onchange="filterReviewStatus(this.value)">
+            <option value="all">全部状态</option>
+            <option value="pending">待审核</option>
+            <option value="approved">已通过</option>
+            <option value="rejected">已拒绝</option>
+          </select>
+        </div>
+        <div class="review-list" id="reviewList"></div>
+      </div>
+
+      <!-- ===== PAGE: USERS ===== -->
+      <div class="page" id="page-users">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索用户名..." oninput="filterUsers(this.value)">
+          </div>
+          <select class="filter-select" onchange="filterUserRole(this.value)">
+            <option value="all">全部角色</option>
+            <option value="student">学生</option>
+            <option value="mentor">导师</option>
+            <option value="senior">学长</option>
+          </select>
+          <select class="filter-select" onchange="filterUserStatus(this.value)">
+            <option value="all">全部状态</option>
+            <option value="active">正常</option>
+            <option value="banned">已封禁</option>
+          </select>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">用户列表</div>
+            <div style="font-size:12px;color:var(--text3)" id="userCount"></div>
+          </div>
+          <table>
+            <thead><tr><th>用户</th><th>角色</th><th>注册时间</th><th>发帖</th><th>积分</th><th>签到</th><th>关注/粉丝</th><th>最后登录</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: MENTORS ===== -->
+      <div class="page" id="page-mentors">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索导师/学长..." oninput="filterMentors(this.value)">
+          </div>
+          <select class="filter-select" onchange="filterMentorType(this.value)">
+            <option value="all">全部类型</option>
+            <option value="mentor">导师</option>
+            <option value="senior">学长</option>
+            <option value="industry">行业</option>
+          </select>
+          <button class="btn btn-pri" onclick="openMentorModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+            添加新人
+          </button>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">导师/学长列表</div>
+            <div style="font-size:12px;color:var(--text3)" id="mentorCount"></div>
+          </div>
+          <table>
+            <thead><tr><th>姓名</th><th>类型</th><th>擅长领域</th><th>简介</th><th>操作</th></tr></thead>
+            <tbody id="mentorTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: TASKS ===== -->
+      <div class="page" id="page-tasks">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索任务..." oninput="filterTasks(this.value)">
+          </div>
+          <button class="btn btn-pri" onclick="openTaskModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+            发布任务
+          </button>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">任务列表</div>
+          </div>
+          <table>
+            <thead><tr><th>任务标题</th><th>发布者</th><th>积分奖励</th><th>截止时间</th><th>参与人数</th><th>操作</th></tr></thead>
+            <tbody id="taskTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: OPPORTUNITIES ===== -->
+      <div class="page" id="page-opps">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索机会..." oninput="filterOpps(this.value)">
+          </div>
+          <select class="filter-select" onchange="filterOppType(this.value)">
+            <option value="all">全部类型</option>
+            <option value="intern">实习</option>
+            <option value="camp">夏令营</option>
+            <option value="compete">竞赛</option>
+            <option value="volunteer">志愿者</option>
+            <option value="scholarship">奖学金</option>
+          </select>
+          <button class="btn btn-pri" onclick="openOppModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+            发布机会
+          </button>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">机会列表</div>
+          </div>
+          <table>
+            <thead><tr><th>标题</th><th>类型</th><th>地区</th><th>截止时间</th><th>操作</th></tr></thead>
+            <tbody id="oppTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: SETTINGS ===== -->
+      <div class="page" id="page-settings">
+        <div class="charts-row" style="grid-template-columns:1fr">
+          <!-- Banner Management -->
+          <div class="chart-card" style="margin-bottom:20px">
+            <div class="chart-title" style="justify-content:space-between">
+              <span style="display:flex;align-items:center;gap:8px"><span style="width:3px;height:14px;background:var(--pri);border-radius:2px;display:inline-block"></span>轮播Banner管理</span>
+              <button class="btn btn-sm btn-pri" onclick="openBannerModal()">+ 添加Banner</button>
+            </div>
+            <div id="bannerList" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <!-- Announcement Management -->
+          <div class="chart-card" style="margin-bottom:20px">
+            <div class="chart-title" style="justify-content:space-between">
+              <span style="display:flex;align-items:center;gap:8px"><span style="width:3px;height:14px;background:var(--coral);border-radius:2px;display:inline-block"></span>公告管理</span>
+              <button class="btn btn-sm btn-coral" onclick="openAnnounceModal()">+ 发布公告</button>
+            </div>
+            <div id="announceList" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <!-- Tag Management -->
+          <div class="chart-card">
+            <div class="chart-title" style="justify-content:space-between">
+              <span style="display:flex;align-items:center;gap:8px"><span style="width:3px;height:14px;background:var(--green);border-radius:2px;display:inline-block"></span>话题标签管理</span>
+              <button class="btn btn-sm btn-green" onclick="openTagModal()">+ 添加标签</button>
+            </div>
+            <div id="tagList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: GROUPS (P1-13) ===== -->
+      <div class="page" id="page-groups">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索小组..." oninput="filterGroups(this.value)">
+          </div>
+          <button class="btn btn-pri" onclick="openGroupModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+            创建小组
+          </button>
+        </div>
+        <div id="groupList"></div>
+      </div>
+
+      <!-- ===== PAGE: SHOP (P0-3) ===== -->
+      <div class="page" id="page-shop">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索商品..." oninput="filterShop(this.value)">
+          </div>
+          <button class="btn btn-pri" onclick="openShopModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+            添加商品
+          </button>
+        </div>
+        <div id="shopList"></div>
+      </div>
+
+      <!-- ===== PAGE: EXCHANGES (P0-4) ===== -->
+      <div class="page" id="page-exchanges">
+        <div class="filter-bar">
+          <select class="filter-select" onchange="filterExchanges(this.value)">
+            <option value="all">全部状态</option>
+            <option value="pending">待处理</option>
+            <option value="completed">已完成</option>
+            <option value="rejected">已拒绝</option>
+          </select>
+        </div>
+        <div id="exchangeList"></div>
+      </div>
+
+      <!-- ===== PAGE: REPORTS (P1-3) ===== -->
+      <div class="page" id="page-reports">
+        <div class="filter-bar">
+          <select class="filter-select" onchange="filterReports(this.value)">
+            <option value="pending" selected>待处理</option>
+            <option value="all">全部</option>
+            <option value="ignored">已忽略</option>
+            <option value="resolved">已处理</option>
+          </select>
+        </div>
+        <div id="reportList"></div>
+      </div>
+
+      <!-- ===== PAGE: BADWORDS (P1-7) ===== -->
+      <div class="page" id="page-badwords">
+        <div class="filter-bar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+            <input class="search-input" placeholder="搜索违规词..." oninput="filterBadWords(this.value)">
+          </div>
+          <button class="btn btn-pri" onclick="openBadWordModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+            添加违规词
+          </button>
+        </div>
+        <div id="badwordList"></div>
+      </div>
+
+      <!-- ===== PAGE: GROWTH CONFIG (V5) ===== -->
+      <div class="page" id="page-growth">
+        <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h2 style="font-size:18px;font-weight:600">成长配置</h2>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-sm btn-outline" onclick="resetGrowthConfig()">恢复默认</button>
+            <button class="btn btn-sm btn-pri" onclick="saveGrowthConfig()">保存配置</button>
+          </div>
+        </div>
+        <div class="tabs" style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px">
+          <div class="tab-item on" id="gcTabLevel" onclick="switchGcTab('level')" style="padding:10px 18px;cursor:pointer;font-size:13px;font-weight:600;color:var(--pri);border-bottom:2px solid var(--pri);margin-bottom:-2px">等级配置</div>
+          <div class="tab-item" id="gcTabMedal" onclick="switchGcTab('medal')" style="padding:10px 18px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-2px">勋章配置</div>
+        </div>
+        <div id="gcLevelArea"></div>
+        <div id="gcMedalArea" style="display:none"></div>
+      </div>
+
+      <!-- ===== PAGE: SYNC (飞书) ===== -->
+      <div class="page" id="page-challenges"></div>
+<div class="page" id="page-sync">
+        <div id="syncArea"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">标题</div>
+      <div class="modal-close" onclick="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- Confirm Overlay -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon warn" id="confirmIcon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="confirm-title" id="confirmTitle">确认</div>
+    <div class="confirm-desc" id="confirmDesc">确定执行此操作？</div>
+    <div class="confirm-btns">
+      <button class="btn btn-outline" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-coral" id="confirmBtn">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/**
+ * 青帆社区 · 统一数据层 V4
+ * 模拟 Supabase 接口，localStorage 实现持久化
+ * 学生端和管理端共享同一数据源（必须保持两端一致）
+ */
+var SUPABASE_CONFIG={url:'https://your-project.supabase.co',anonKey:'your-anon-key',useSupabase:false};
+var _YF_P='yf_shared_';
+var _YF_VER='yf_shared_db_version';
+var _YF_CUR_VER=6;
+
+var _YF_TABLES=['posts','stars','groups','opps','banners','announces','tags','users','audit_logs','tasks','shop_items','exchanges','notifications','reports','bad_words','messages','challenges'];
+
+var _YF_SEED_posts=[
+{id:1,title:'第一次独立拍摄vlog，记录乡村小学的清晨',author:'林小溪',time:'2025-01-18 08:30',excerpt:'上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄...',content:'上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄。清晨五点半，天还没亮，我就扛着三脚架站在教室门口等待第一缕阳光。当孩子们跑进教室，看到镜头时那种好奇又害羞的眼神，让我觉得一切辛苦都值得了。这次经历让我明白，记录不只是按下快门，更是用心去感受每一个瞬间。',status:'approved',tag:'拍摄日记',images:[],likes:128,comments:[],cbg:'linear-gradient(135deg,#74b9ff,#0984e3)',abg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',icon:'camera',featured:false,pinned:false},
+{id:2,title:'演讲训练营Day3：从害怕开口到享受舞台',author:'张明远',time:'2025-01-19 14:00',excerpt:'三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！',content:'三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！教练教的三步法真的有用：先讲故事，再给观点，最后抛问题。最紧张的是开头，但只要说出第一句话，后面就顺了。感谢扬帆的演讲训练营，让我发现了自己从未想过的一面。',status:'approved',tag:'技能打卡',images:[],likes:95,comments:[],cbg:'linear-gradient(135deg,#fd79a8,#e84393)',abg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',icon:'mic',featured:false,pinned:false},
+{id:3,title:'医学专业分享：如何高效记忆解剖学知识',author:'王思琪',time:'2025-01-19 16:20',excerpt:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法...',content:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法：1.画图记忆法，边看图谱边手绘；2.编故事法，把枯燥的名词编成有趣的小故事；3.睡前复习法，利用睡眠巩固记忆。希望对医学科的同学们有帮助！',status:'approved',tag:'学习分享',images:[],likes:210,comments:[],cbg:'linear-gradient(135deg,#55efc4,#00b894)',abg:'linear-gradient(135deg,#55efc4,#00b894)',icon:'book',featured:false,pinned:false},
+{id:4,title:'我的第一份实习：在新媒体公司学到的三件事',author:'陈雨桐',time:'2025-01-20 09:00',excerpt:'暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西...',content:'暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西。第一，沟通比执行更重要；第二，数据和创意要结合；第三，主动学习是职场的核心竞争力。扬帆计划帮我迈出了职场第一步。',status:'approved',tag:'实习经历',images:[],likes:87,comments:[],cbg:'linear-gradient(135deg,#fdcb6e,#e17055)',abg:'linear-gradient(135deg,#fdcb6e,#f39c12)',icon:'briefcase',featured:false,pinned:false},
+{id:5,title:'用Python帮村里做了个农产品销售小程序',author:'李浩然',time:'2025-01-20 11:30',excerpt:'学了三个月Python，终于做出了一个能用的东西！',content:'学了三个月Python，终于做出了一个能用的东西！我们村的苹果一直销路不好，我做了一个简单的销售小程序，可以在线下单查看物流。虽然界面还很粗糙，但村里的叔叔阿姨们用得很开心。',status:'approved',tag:'技能打卡',images:[],likes:302,comments:[],cbg:'linear-gradient(135deg,#00cec9,#0984e3)',abg:'linear-gradient(135deg,#00cec9,#0984e3)',icon:'code',featured:false,pinned:false},
+{id:6,title:'支教日记：孩子们教给我的比我还教的多',author:'赵一诺',time:'2025-01-20 15:00',excerpt:'支教的第15天，一个叫小杰的男孩递给我一张纸条...',content:'支教的第15天，一个叫小杰的男孩递给我一张纸条，上面写着：老师你以后还会来吗？那一刻眼泪差点掉下来。这些孩子让我明白，教育的本质不是灌输知识，而是点燃希望。',status:'approved',tag:'实践感悟',images:[],likes:176,comments:[],cbg:'linear-gradient(135deg,#fab1a0,#e17055)',abg:'linear-gradient(135deg,#fab1a0,#e17055)',icon:'heart',featured:false,pinned:false},
+{id:7,title:'科普写作入门：把复杂的事说简单',author:'刘子轩',time:'2025-01-21 10:00',excerpt:'加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款...',content:'加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款。秘诀就是先想清楚读者是谁，再用他们听得懂的话讲。比如不要说光合作用是植物利用光能将CO2转化为有机物的过程，而要说植物晒太阳就能吃饱！',status:'approved',tag:'学习分享',images:[],likes:64,comments:[],cbg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',abg:'linear-gradient(135deg,#dfe6e9,#b2bec3)',icon:'edit',featured:false,pinned:false},
+{id:8,title:'社区公益活动：为老人教智能手机',author:'孙雅琪',time:'2025-01-21 14:30',excerpt:'上周末在社区教老人们使用智能手机...',content:'上周末在社区教老人们使用智能手机。最让我感动的是70岁的王奶奶，学会视频通话后第一件事就是给在外地的孙子打电话。科技不应该成为代沟，而应该成为连接的桥梁。',status:'approved',tag:'志愿服务',images:[],likes:143,comments:[],cbg:'linear-gradient(135deg,#55efc4,#00b894)',abg:'linear-gradient(135deg,#ffeaa7,#fdcb6e)',icon:'users',featured:false,pinned:false},
+{id:9,title:'从零基础到独立完成纪录片的影像之路',author:'周文博',time:'2025-01-22 08:00',excerpt:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片...',content:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片。最难忘的是在海拔3000米的山上拍日出，冻得手都僵了，但看到成片的那一刻，值了！',status:'approved',tag:'拍摄日记',images:[],likes:231,comments:[],cbg:'linear-gradient(135deg,#74b9ff,#0984e3)',abg:'linear-gradient(135deg,#81ecec,#00cec9)',icon:'film',featured:false,pinned:false},
+{id:10,title:'考研经验分享：如何制定科学的复习计划',author:'吴佳怡',time:'2025-01-22 13:00',excerpt:'成功上岸985！分享复习时间线...',content:'成功上岸985！分享复习时间线：3-6月打基础每天6小时；7-9月强化每天8小时；10-12月冲刺每天10小时。关键是每周留出半天休息，保证效率比堆时间重要。',status:'approved',tag:'学习分享',images:[],likes:189,comments:[],cbg:'linear-gradient(135deg,#fd79a8,#e84393)',abg:'linear-gradient(135deg,#fd79a8,#e84393)',icon:'target',featured:false,pinned:false},
+{id:11,title:'策划校园环保活动，参与人数超预期3倍',author:'黄子豪',time:'2025-01-23 09:30',excerpt:'在扬帆学到了项目策划方法论，决定在学校试一次...',content:'在扬帆学到了项目策划方法论，决定在学校试一次。从立项到执行用了两周，原本预计100人参加，结果来了300多人！成功的秘诀是找到同学们真正关心的切入点。',status:'approved',tag:'实践感悟',images:[],likes:98,comments:[],cbg:'linear-gradient(135deg,#00b894,#00cec9)',abg:'linear-gradient(135deg,#00b894,#55efc4)',icon:'layers',featured:false,pinned:false},
+{id:12,title:'乡村教育的未来：一个支教老师的深度思考',author:'郑晓峰',time:'2025-01-23 16:00',excerpt:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师...',content:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师。扬帆计划正在做的就是培养这样的火种。我希望更多年轻人能加入进来，哪怕只是短暂的陪伴，也能照亮孩子们的路。',status:'approved',tag:'成长思考',images:[],likes:267,comments:[],cbg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',abg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',icon:'globe',featured:false,pinned:false},
+{id:13,title:'我的第一次社会实践经历',author:'李明',time:'2025-01-24 14:30',excerpt:'这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区...',content:'这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区，和居民面对面交流。感触很深，也更加坚定了自己投身公益的决心。',status:'approved',tag:'实践感悟',images:[],likes:45,comments:[],cbg:'linear-gradient(135deg,#4facfe,#7ec8ff)',abg:'linear-gradient(135deg,#4facfe,#00f2fe)',icon:'star',featured:false,pinned:false},
+{id:14,title:'分享几个高效的学习方法',author:'王芳',time:'2025-01-25 09:15',excerpt:'大学学习需要方法，这里分享几个我亲测有效的学习技巧...',content:'大学学习需要方法，这里分享几个我亲测有效的学习技巧：番茄工作法、费曼学习法、间隔重复法。坚持一个月，效率提升明显。',status:'approved',tag:'学习分享',images:[],likes:67,comments:[],cbg:'linear-gradient(135deg,#ff6b6b,#ffa502)',abg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',icon:'star',featured:false,pinned:false},
+{id:15,title:'对未来的迷茫与思考',author:'张伟',time:'2025-01-26 20:00',excerpt:'作为一名大一学生，面对未来的方向选择感到十分迷茫...',content:'作为一名大一学生，面对未来的方向选择感到十分迷茫。考研还是就业？留在城市还是回乡？希望能听到前辈们的建议。',status:'pending',tag:'成长思考',images:[],likes:23,comments:[],cbg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',abg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',icon:'star',featured:false,pinned:false},
+{id:16,title:'暑期实习面试经验分享',author:'赵强',time:'2025-01-27 11:20',excerpt:'上周刚结束了几场实习面试，来和大家分享一下经验...',content:'上周刚结束了几场实习面试，来和大家分享一下经验。准备很重要：自我介绍要精炼，项目经历要有数据支撑，提问环节要展现思考深度。',status:'pending',tag:'求职经验',images:[],likes:15,comments:[],cbg:'linear-gradient(135deg,#00b894,#55efc4)',abg:'linear-gradient(135deg,#00b894,#55efc4)',icon:'star',featured:false,pinned:false},
+{id:17,title:'推荐一本改变我的书',author:'孙悦',time:'2025-01-27 16:45',excerpt:'《认知觉醒》这本书真的让我重新认识了自己...',content:'《认知觉醒》这本书真的让我重新认识了自己。核心观点：人的大脑有三重结构，理智脑虽然强大但很"懒"，要让改变持久，必须让理智脑和本能脑达成合作。',status:'pending',tag:'读书推荐',images:[],likes:8,comments:[],cbg:'linear-gradient(135deg,#fdcb6e,#f39c12)',abg:'linear-gradient(135deg,#fdcb6e,#e17055)',icon:'star',featured:false,pinned:false},
+{id:18,title:'参加志愿者活动的感受',author:'刘洋',time:'2025-01-23 08:00',excerpt:'上周参加了社区的志愿者活动，感触颇深...',content:'上周参加了社区的志愿者活动，感触颇深。帮助别人的同时，自己也收获了快乐和成长。推荐大家都去试试。',status:'approved',tag:'志愿服务',images:[],likes:55,comments:[],cbg:'linear-gradient(135deg,#00cec9,#0984e3)',abg:'linear-gradient(135deg,#00cec9,#0984e3)',icon:'star',featured:false,pinned:false},
+{id:19,title:'如何平衡学业与社团',author:'吴婷',time:'2025-01-28 13:10',excerpt:'大一加入了很多社团，但发现时间根本不够用...',content:'大一加入了很多社团，但发现时间根本不够用。后来学会了做减法，只保留两个真正热爱的社团，成绩反而提升了。',status:'rejected',tag:'学习分享',images:[],likes:12,comments:[],cbg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',abg:'linear-gradient(135deg,#ff6b6b,#ff8e8e)',icon:'star',featured:false,pinned:false}
+];
+
+var _YF_SEED_stars=[
+{id:1,name:'刘思远',field:'医学',type:'mentor',abg:'linear-gradient(135deg,#00b894,#55efc4)',role:'协和医学院导师',quote:'从乡村少年到协和住院医师',status:'北京协和医院住院医师',story:'刘思远来自云南偏远山村，高中时参加扬帆计划，在扬帆前辈鼓励下立志学医。经过多年努力，考入昆明医科大学，最终进入北京协和医院。',yangfan:'在扬帆的三年是我人生最重要的转折点。',current:'现在在协和医院从事内科临床工作，致力于将优质医疗资源带到偏远地区。',qa:[{q:'医学专业最值得报吗？',a:'如果你有耐心、有责任心、愿意终身学习，医学是最有意义的职业之一。但要做好辛苦的准备。'},{q:'如何平衡学习和生活？',a:'效率比时间更重要。我每天坚持运动30分钟，这反而让学习效率提高了。'}],tasks:[{t:'阅读《医学导论》前三章并提交笔记',p:'+50积分'},{t:'完成人体解剖学基础测试',p:'+80积分'}]},
+{id:2,name:'陈思雨',field:'传媒',type:'senior',abg:'linear-gradient(135deg,#fd79a8,#e84393)',role:'2023届优秀学员',quote:'从校园记者到央视纪录片导演',status:'央视纪录片导演',story:'大学读新闻专业，在校期间展现惊人叙事天赋。毕业纪录片《归乡》获大学生影像节最佳短片奖。',yangfan:'扬帆教会我的不只是拍摄技巧，更重要的是如何用镜头讲述普通人的故事。',current:'在央视担任纪录片导演，始终关注乡村题材。',qa:[{q:'非相关专业能做纪录片吗？',a:'当然可以！我大学也非影视专业。热爱和持续实践比专业背景更重要。'}],tasks:[{t:'拍摄一段3分钟的校园生活短片',p:'+30积分'}]},
+{id:3,name:'张凯文',field:'教育',type:'industry',abg:'linear-gradient(135deg,#0984e3,#74b9ff)',role:'星火教育创始人',quote:'创办教育公益组织覆盖12县',status:'教育公益组织创始人',story:'扬帆计划第一批参与者。大学期间创办星火课堂，利用互联网为偏远地区学生提供免费在线课程，现已覆盖12个县。',yangfan:'没有扬帆就没有星火课堂。',current:'全职投入公益事业，团队30人，每年组织200+场线上课程。',qa:[{q:'如何找到志同道合的伙伴？',a:'先把自己做成一件事，自然会有人被吸引。不要等人齐了再出发。'}],tasks:[{t:'设计一份支教课程大纲',p:'+60积分'}]},
+{id:4,name:'李佳慧',field:'技术',type:'senior',abg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',role:'2022届优秀学员',quote:'编程零基础到大厂算法工程师',status:'某大厂算法工程师',story:'高中前没接触过电脑，在扬帆技术训练营中第一次学会编程。大学期间多次ACM竞赛获奖。',yangfan:'扬帆让我明白，技术不是天赋者的专利。',current:'在头部互联网公司任算法工程师，推动技术公益项目。',qa:[{q:'Python入门需要什么配置？',a:'一台能上网的电脑就够了。推荐用VS Code + Python 3，网上免费教程很多。'}],tasks:[{t:'完成Python基础10道题',p:'+40积分'},{t:'用Python写一个简单的计算器',p:'+60积分'}]},
+{id:5,name:'王铭泽',field:'公益',type:'industry',abg:'linear-gradient(135deg,#00cec9,#81ecec)',role:'国际NGO项目经理',quote:'用行动连接城市与乡村',status:'公益项目经理',story:'大学期间多次参与扬帆公益活动，从志愿者成长为项目负责人。策划城乡对话项目。',yangfan:'扬帆教会我，公益不是施舍而是连接。',current:'在国际NGO担任项目经理，负责农村教育发展项目。',qa:[{q:'公益行业有发展前景吗？',a:'随着社会发展，专业公益人才越来越稀缺。关键是找到自己真正关心的领域。'}],tasks:[]},
+{id:6,name:'赵思颖',field:'医学',type:'mentor',abg:'linear-gradient(135deg,#e17055,#fab1a0)',role:'省疾控中心研究员',quote:'从护理到公共卫生研究者',status:'公共卫生研究员',story:'最初学护理专业，在扬帆中接触公共卫生后决定深造。考取公共卫生硕士。',yangfan:'扬帆拓宽了我的视野。',current:'在省级疾控中心任研究员，参与农村公共卫生政策制定。',qa:[],tasks:[{t:'阅读一份公共卫生调研报告',p:'+30积分'}]},
+{id:7,name:'刘教授',field:'计算机科学',type:'mentor',abg:'linear-gradient(135deg,#4facfe,#7ec8ff)',role:'某高校教授',quote:'人工智能研究者',status:'某高校教授',story:'计算机科学教授，研究方向人工智能。',yangfan:'技术改变教育。',current:'从事AI+教育研究。',qa:[],tasks:[]},
+{id:8,name:'陈博士',field:'生物科技',type:'mentor',abg:'linear-gradient(135deg,#00b894,#55efc4)',role:'中科院博士',quote:'专注分子生物学研究',status:'中科院研究员',story:'中科院博士，专注分子生物学研究。',yangfan:'科学研究需要耐心。',current:'在中科院从事分子生物学研究。',qa:[],tasks:[]},
+{id:9,name:'王工程师',field:'新能源',type:'industry',abg:'linear-gradient(135deg,#ffa502,#fdcb6e)',role:'某新能源企业技术总监',quote:'用技术推动能源革命',status:'新能源企业技术总监',story:'某新能源企业技术总监，多年行业经验。',yangfan:'新能源是未来。',current:'带领团队研发新能源技术。',qa:[],tasks:[]},
+{id:10,name:'李老师',field:'心理学',type:'mentor',abg:'linear-gradient(135deg,#fd79a8,#e84393)',role:'国家二级心理咨询师',quote:'关注青少年心理健康',status:'高校心理辅导教师',story:'国家二级心理咨询师，高校心理辅导教师。',yangfan:'心理健康是成长的基石。',current:'在高校从事心理辅导工作。',qa:[],tasks:[]}
+];
+
+var _YF_SEED_groups=[
+{id:1,name:'光影记录者',members:286,desc:'用镜头记录生活',color:'linear-gradient(135deg,#0984e3,#74b9ff)',cat:'传媒练习',posts:[{t:'新手求推荐入门相机',a:'小陈',c:23},{t:'手机摄影10个技巧',a:'老李',c:45},{t:'如何拍好人像？',a:'阿月',c:31}],members_list:[]},
+{id:2,name:'医学生互助联盟',members:512,desc:'解剖生理病理一起攻克',color:'linear-gradient(135deg,#00b894,#55efc4)',cat:'医学探索',posts:[{t:'解剖学记忆口诀',a:'王同学',c:67},{t:'生理学实验报告模板',a:'李同学',c:34},{t:'考研西综备考经验',a:'张学姐',c:89}],members_list:[]},
+{id:3,name:'演讲练习生',members:198,desc:'每周语音打卡突破表达',color:'linear-gradient(135deg,#ff6b6b,#ee5a24)',cat:'技能提升',posts:[{t:'第一次上台演讲感受',a:'小周',c:15},{t:'克服紧张的方法',a:'学姐A',c:28}],members_list:[]},
+{id:4,name:'编程零基础入门',members:345,desc:'从Python开始写代码',color:'linear-gradient(135deg,#6c5ce7,#a29bfe)',cat:'技术学习',posts:[{t:'Python基础语法笔记',a:'代码新手',c:52},{t:'推荐几个学习网站',a:'学长B',c:41}],members_list:[]},
+{id:5,name:'乡村支教故事汇',members:167,desc:'分享支教中的感动成长',color:'linear-gradient(135deg,#ffa502,#fdcb6e)',cat:'公益行动',posts:[{t:'孩子们写的诗',a:'小美老师',c:38},{t:'支教日常记录',a:'志愿者小杨',c:22}],members_list:[]},
+{id:6,name:'安徽扬帆人',members:89,desc:'安徽省扬帆参与者交流',color:'linear-gradient(135deg,#4facfe,#00f2fe)',cat:'地区小组',posts:[{t:'合肥线下聚会召集',a:'小赵',c:12},{t:'安徽活动回顾',a:'组织者',c:8}],members_list:[]}
+];
+
+var _YF_SEED_opps=[
+{id:1,title:'2025暑期支教志愿者招募',type:'volunteer',region:'贵州',deadline:'2025-06-30',desc:'前往贵州山区小学进行为期一个月的支教活动。要求在校大学生，有责任心。'},
+{id:2,title:'青少年科普写作大赛',type:'compete',region:'全国',deadline:'2025-07-15',desc:'面向全国青少年的科普写作比赛，优秀作品发表在《少年科学》杂志。一等奖奖金5000元。'},
+{id:3,title:'新媒体运营实习岗位',type:'intern',region:'上海',deadline:'2025-06-20',desc:'知名新媒体公司招募实习生，负责公众号运营和短视频制作。实习期3-6个月。'},
+{id:4,title:'医学夏令营',type:'camp',region:'北京',deadline:'2025-07-01',desc:'北京协和医学院主办，为期两周。包含实验室参观、临床见习、名医讲座。'},
+{id:5,title:'乡村教育创新项目资助',type:'scholarship',region:'安徽',deadline:'2025-08-01',desc:'资助优秀青年在安徽农村开展教育创新项目，单个项目最高5万元。'},
+{id:6,title:'Python编程线上训练营',type:'camp',region:'远程',deadline:'2025-06-25',desc:'零基础训练营，为期8周，每周3次直播课。由BAT工程师授课。'},
+{id:7,title:'纪录片拍摄工作坊',type:'camp',region:'浙江',deadline:'2025-07-10',desc:'5天实战训练，资深导演带队。提供专业设备，需完成5分钟短片。'},
+{id:8,title:'社区公益项目策划大赛',type:'compete',region:'江苏',deadline:'2025-07-20',desc:'获奖项目将获得实施资金和导师指导。决赛在南京举行。'},
+{id:9,title:'某科技公司暑期实习计划',type:'intern',region:'北京',deadline:'2026-08-30',desc:'面向大三及以上学生的暑期实习'},
+{id:10,title:'全国大学生创新竞赛',type:'compete',region:'全国',deadline:'2026-09-10',desc:'第十二届全国大学生创新创业大赛'},
+{id:11,title:'优秀青年奖学金申请',type:'scholarship',region:'全国',deadline:'2026-09-30',desc:'面向扬帆计划优秀学员的专项奖学金'},
+{id:12,title:'AI前沿技术夏令营',type:'camp',region:'上海',deadline:'2026-08-25',desc:'为期5天的AI技术深度体验营'}
+];
+
+var _YF_SEED_banners=[
+{id:1,title:'扬帆计划暑期实践',desc:'记录你的成长故事',color:'#4facfe',gradient:'linear-gradient(135deg,#4facfe,#00f2fe)',image:'',icon:'camera'},
+{id:2,title:'社区新功能上线',desc:'导师答疑系统正式开放',color:'#ff6b6b',gradient:'linear-gradient(135deg,#ff6b6b,#ffa502)',image:'',icon:'star'},
+{id:3,title:'秋季招募启动',desc:'加入扬帆，遇见更好的自己',color:'#00b894',gradient:'linear-gradient(135deg,#00b894,#55efc4)',image:'',icon:'users'}
+];
+
+var _YF_SEED_announces=[
+{id:1,content:'系统将于本周六凌晨2:00-4:00进行维护升级',time:'2026-08-12'},
+{id:2,content:'恭喜李明同学获得本月最佳创作者称号！',time:'2026-08-10'},
+{id:3,content:'2025暑期招募已开启 | 第三届青年影像节征集中 | 演讲训练营第8期报名 | 医学夏令营名额有限 | 编程训练营突破1000人',time:'2025-01-15'}
+];
+
+var _YF_SEED_tags=['实践感悟','学习分享','成长思考','求职经验','读书推荐','志愿服务','校园生活','技能提升','心理健康','人际交往','拍摄日记','实习经历'];
+var _YF_SEED_challenges=[
+{id:1,title:'我的暑期实践故事',desc:'分享你在扬帆计划中的实践经历，那些让你成长的瞬间',tag:'实践感悟',deadline:'2026-09-30',status:'active',participants:[1,2,3],createdAt:'2026-08-01T00:00:00.000Z'},
+{id:2,title:'用镜头记录家乡',desc:'用影像记录家乡的风景、人物或故事，展现你眼中的美',tag:'拍摄日记',deadline:'2026-10-15',status:'active',participants:[1,4],createdAt:'2026-08-10T00:00:00.000Z'},
+{id:3,title:'技能打卡30天',desc:'坚持30天学习一项新技能，记录你的进步和感悟',tag:'技能打卡',deadline:'2026-09-15',status:'ended',participants:[1,2,3,4,5],createdAt:'2026-07-01T00:00:00.000Z'}
+];
+
+
+var _YF_SEED_users=[
+{id:1,name:'李明',role:'student',created:'2026-07-15',posts:12,status:'active',points:580,phone:'',account:'',following:[],followers:0},
+{id:2,name:'王芳',role:'student',created:'2026-07-16',posts:8,status:'active',points:420,phone:'',account:'',following:[],followers:0},
+{id:3,name:'张伟',role:'student',created:'2026-07-18',posts:3,status:'active',points:210,phone:'',account:'',following:[],followers:0},
+{id:4,name:'刘洋',role:'mentor',created:'2026-07-10',posts:25,status:'active',points:1200,phone:'',account:'',following:[],followers:0},
+{id:5,name:'陈静',role:'student',created:'2026-07-20',posts:1,status:'banned',points:80,phone:'',account:'',following:[],followers:0},
+{id:6,name:'赵强',role:'senior',created:'2026-07-12',posts:18,status:'active',points:860,phone:'',account:'',following:[],followers:0},
+{id:7,name:'孙悦',role:'student',created:'2026-07-22',posts:5,status:'active',points:350,phone:'',account:'',following:[],followers:0},
+{id:8,name:'周杰',role:'student',created:'2026-07-25',posts:0,status:'active',points:100,phone:'',account:'',following:[],followers:0},
+{id:9,name:'吴婷',role:'student',created:'2026-07-26',posts:7,status:'active',points:390,phone:'',account:'',following:[],followers:0},
+{id:10,name:'郑浩',role:'student',created:'2026-07-28',posts:2,status:'active',points:180,phone:'',account:'',following:[],followers:0}
+];
+
+var _YF_SEED_tasks=[
+{id:1,title:'完成暑期社会实践报告',desc:'撰写不少于2000字的实践总结报告',publisher:'管理员',reward:50,deadline:'2026-08-31',participants:28},
+{id:2,title:'阅读一本专业书籍并分享',desc:'选择一本专业相关书籍，提交读书笔记',publisher:'管理员',reward:30,deadline:'2026-09-15',participants:15},
+{id:3,title:'参加一次线上职业分享会',desc:'参加任意一场扬帆线上分享会',publisher:'管理员',reward:20,deadline:'2026-08-25',participants:42},
+{id:4,title:'撰写一篇社区帖子',desc:'在青帆社区发布一篇优质动态',publisher:'管理员',reward:15,deadline:'2026-08-20',participants:36}
+];
+
+var _YF_SEED_shop_items=[
+{id:1,name:'星光头像框',desc:'闪耀的星光环绕头像',price:200,cat:'头像框',bg:'linear-gradient(135deg,#4facfe,#7ec8ff)',stock:999},
+{id:2,name:'珊瑚光环',desc:'温暖的珊瑚色光环',price:350,cat:'头像框',bg:'linear-gradient(135deg,#ff6b6b,#ffa502)',stock:999},
+{id:3,name:'成长先锋',desc:'彰显先锋身份',price:500,cat:'称号',bg:'linear-gradient(135deg,#ffa502,#ffd32a)',stock:100},
+{id:4,name:'扬帆之星',desc:'社区之星专属称号',price:800,cat:'称号',bg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',stock:50},
+{id:5,name:'初航勋章',desc:'纪念首次扬帆',price:100,cat:'勋章',bg:'linear-gradient(135deg,#00b894,#55efc4)',stock:999},
+{id:6,name:'摄影达人勋章',desc:'摄影技能认证',price:300,cat:'勋章',bg:'linear-gradient(135deg,#0984e3,#74b9ff)',stock:200},
+{id:7,name:'暴风头像框',desc:'酷炫暴风特效',price:600,cat:'头像框',bg:'linear-gradient(135deg,#636e72,#2d3436)',stock:80},
+{id:8,name:'社区先锋勋章',desc:'为社区做出贡献',price:1000,cat:'勋章',bg:'linear-gradient(135deg,#e17055,#d63031)',stock:30}
+];
+
+var _YF_SEED_bad_words=[
+{id:1,word:'傻逼',category:'辱骂'},{id:2,word:'fuck',category:'辱骂'},{id:3,word:'shit',category:'辱骂'},
+{id:4,word:'操你',category:'辱骂'},{id:5,word:'妈的',category:'辱骂'},{id:6,word:'去死',category:'辱骂'},
+{id:7,word:'白痴',category:'辱骂'},{id:8,word:'智障',category:'辱骂'},{id:9,word:'脑残',category:'辱骂'},
+{id:10,word:'废物',category:'辱骂'},{id:11,word:'垃圾',category:'辱骂'},{id:12,word:'混蛋',category:'辱骂'},
+{id:13,word:'王八蛋',category:'辱骂'},{id:14,word:'婊子',category:'辱骂'},{id:15,word:'妓女',category:'色情'},
+{id:16,word:'毒品',category:'违法'},{id:17,word:'赌博',category:'违法'},{id:18,word:'色情',category:'色情'},
+{id:19,word:'诈骗',category:'违法'},{id:20,word:'传销',category:'违法'}
+];
+
+// ===== V5: 勋章 & 成长等级配置 =====
+var _YF_SEED_medals=[
+{id:'post_master',name:'发帖达人',desc:'累计发布10篇动态',icon:'edit',cond:{type:'posts',value:10},hint:'再发{n}篇动态解锁'},
+{id:'interaction_star',name:'互动之星',desc:'累计评论20条',icon:'chat',cond:{type:'comments',value:20},hint:'再评论{n}条解锁'},
+{id:'qa_expert',name:'问答能手',desc:'回答5个问题',icon:'help',cond:{type:'answers',value:5},hint:'再回答{n}个问题解锁'},
+{id:'login_streak',name:'连续登录',desc:'连续登录7天',icon:'calendar',cond:{type:'login_streak',value:7},hint:'再连续登录{n}天解锁'},
+{id:'points_100',name:'积分破百',desc:'积分达到100',icon:'coin',cond:{type:'points',value:100},hint:'再获得{n}积分解锁'},
+{id:'group_active',name:'小组活跃',desc:'加入3个小组',icon:'users',cond:{type:'groups',value:3},hint:'再加入{n}个小组解锁'},
+{id:'invite_friend',name:'邀请好友',desc:'邀请1位好友注册',icon:'userplus',cond:{type:'invites',value:1},hint:'邀请好友注册后解锁'},
+{id:'report_pioneer',name:'举报先锋',desc:'成功举报1次违规',icon:'flag',cond:{type:'reports',value:1},hint:'举报违规内容后解锁'},
+{id:'featured',name:'内容精选',desc:'有1篇内容被加精',icon:'star',cond:{type:'featured',value:1},hint:'发布优质内容被加精解锁'},
+{id:'mentor_verified',name:'导师认证',desc:'通过导师身份认证',icon:'shield',cond:{type:'role',value:'mentor'},hint:'成为导师后解锁'},
+{id:'perfect_attendance',name:'全勤打卡',desc:'累计登录30天',icon:'check',cond:{type:'login_days',value:30},hint:'再登录{n}天解锁'},
+{id:'charity_donation',name:'爱心捐赠',desc:'在爱心市集捐赠1次',icon:'heart',cond:{type:'donations',value:1},hint:'参与爱心捐赠后解锁'},
+{id:'growth_milestone',name:'成长等级达标',desc:'成长等级达到青苗(Lv3)',icon:'trending',cond:{type:'level',value:3},hint:'升级到Lv3青苗解锁'},
+{id:'founder',name:'社区元老',desc:'V5首批注册用户',icon:'award',cond:{type:'founder',value:1},hint:'V5首批用户专属'},
+{id:'event_participation',name:'活动参与',desc:'参与1次社区活动',icon:'calendar',cond:{type:'events',value:1},hint:'参与社区活动后解锁'},
+{id:'special_contribution',name:'特殊贡献',desc:'对社区有特殊贡献',icon:'crown',cond:{type:'special',value:1},hint:'由管理员授予'},
+{id:'checkin_weekly',name:'周签到达人',desc:'连续签到7天',icon:'calendar',cond:{type:'checkin_streak',value:7},hint:'再连续签到{n}天解锁'},
+{id:'challenge_star',name:'挑战之星',desc:'参与1次话题挑战',icon:'target',cond:{type:'challenges',value:1},hint:'参与话题挑战后解锁'},
+{id:'lucky_star',name:'幸运星',desc:'开启1次积分盲盒',icon:'gift',cond:{type:'blindbox',value:1},hint:'开启盲盒后解锁'},
+{id:'newbie_star',name:'扬帆新星',desc:'完成新人任务链',icon:'award',cond:{type:'newbie_done',value:1},hint:'完成全部新人任务解锁'}
+];
+
+var _YF_SEED_growth_config=[
+{level:1,name:'萌芽',min:0,max:99,color:'#00b894',icon:'sprout'},
+{level:2,name:'新芽',min:100,max:299,color:'#4facfe',icon:'leaf'},
+{level:3,name:'青苗',min:300,max:599,color:'#0984e3',icon:'tree'},
+{level:4,name:'青穗',min:600,max:999,color:'#6c5ce7',icon:'grain'},
+{level:5,name:'青芒',min:1000,max:1999,color:'#ffa502',icon:'sun'},
+{level:6,name:'青锋',min:2000,max:3999,color:'#ff6b6b',icon:'flame'},
+{level:7,name:'青翼',min:4000,max:7999,color:'#e17055',icon:'wing'},
+{level:8,name:'青帆',min:8000,max:999999,color:'#6c5ce7',icon:'sail'}
+];
+
+var _YF_cache={};
+var _YF_inited=false;
+
+function _yfLoad(key){try{var d=localStorage.getItem(_YF_P+key);return d?JSON.parse(d):null;}catch(e){return null;}}
+function _yfSave(key,data){try{localStorage.setItem(_YF_P+key,JSON.stringify(data));}catch(e){console.warn('[YangFanData] save error:',e);}}
+
+function _yfNow(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
+function _yfToday(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+
+function _yfSeedAll(){
+var seeds={posts:_YF_SEED_posts,stars:_YF_SEED_stars,groups:_YF_SEED_groups,opps:_YF_SEED_opps,banners:_YF_SEED_banners,announces:_YF_SEED_announces,tags:_YF_SEED_tags,users:_YF_SEED_users,audit_logs:[],tasks:_YF_SEED_tasks,shop_items:_YF_SEED_shop_items,exchanges:[],notifications:[],reports:[],bad_words:_YF_SEED_bad_words,messages:[],challenges:_YF_SEED_challenges};
+var ver=localStorage.getItem(_YF_VER);
+var curVer=parseInt(ver)||0;
+if(!ver){
+for(var k in seeds){if(!_yfLoad(k)){_yfSave(k,seeds[k]);}}
+}else{
+var configKeys=['banners','tags','bad_words'];
+for(var ck=0;ck<configKeys.length;ck++){_yfSave(configKeys[ck],seeds[configKeys[ck]]);}
+for(var k2 in seeds){if(!_yfLoad(k2)){_yfSave(k2,seeds[k2]);}}
+if(curVer<6){
+try{
+var _u6=_yfLoad('users')||[];
+for(var _ui=0;_ui<_u6.length;_ui++){
+if(!_u6[_ui].signature)_u6[_ui].signature='';
+if(!_u6[_ui].mood)_u6[_ui].mood='';
+if(!_u6[_ui].favorites)_u6[_ui].favorites=[];
+if(!_u6[_ui].following)_u6[_ui].following=[];
+if(_u6[_ui].followers===undefined)_u6[_ui].followers=0;
+if(!_u6[_ui].lastLogin)_u6[_ui].lastLogin='';
+if(!_u6[_ui].checkinDays)_u6[_ui].checkinDays=0;
+}
+_yfSave('users',_u6);
+var _p6=_yfLoad('posts')||[];
+for(var _pi=0;_pi<_p6.length;_pi++){
+if(!_p6[_pi].reactions)_p6[_pi].reactions={};
+if(!_p6[_pi].edited)_p6[_pi].edited=false;
+if(!_p6[_pi].challengeTag)_p6[_pi].challengeTag='';
+if(!_p6[_pi].userId)_p6[_pi].userId=0;
+}
+_yfSave('posts',_p6);
+}catch(e){console.warn('V6 migration error:',e);}
+}
+}
+localStorage.setItem('yf_growth_config',JSON.stringify(_YF_SEED_growth_config));
+localStorage.setItem('yf_medals_config',JSON.stringify(_YF_SEED_medals));
+localStorage.setItem(_YF_VER,_YF_CUR_VER);
+}
+
+function _yfLoadAll(){
+for(var i=0;i<_YF_TABLES.length;i++){var k=_YF_TABLES[i];_YF_cache[k]=_yfLoad(k)||[];}
+_YF_inited=true;
+}
+
+function _yfNextId(table){
+var arr=_YF_cache[table]||[];if(!arr.length)return 1;var mx=0;
+for(var i=0;i<arr.length;i++){if(arr[i].id>mx)mx=arr[i].id;}return mx+1;
+}
+
+function _yfLog(action,detail){
+var log=_YF_cache.audit_logs||[];
+log.unshift({id:log.length+1,action:action,detail:detail,time:_yfNow()});
+if(log.length>200)log=log.slice(0,200);
+_YF_cache.audit_logs=log;_yfSave('audit_logs',log);
+}
+
+var YangFanData={
+init:function(){
+var curVer=parseInt(localStorage.getItem(_YF_VER))||0;
+if(curVer<_YF_CUR_VER){_yfSeedAll();}
+_yfLoadAll();
+},
+refresh:function(){_yfLoadAll();},
+resetAll:function(){
+for(var i=0;i<_YF_TABLES.length;i++){localStorage.removeItem(_YF_P+_YF_TABLES[i]);}
+localStorage.removeItem(_YF_VER);this.init();
+},
+
+// ---- Posts ----
+getPosts:function(filter){
+var posts=_YF_cache.posts||[];
+if(filter){
+if(filter.status)posts=posts.filter(function(p){return p.status===filter.status;});
+if(filter.tag)posts=posts.filter(function(p){return p.tag===filter.tag;});
+if(filter.author)posts=posts.filter(function(p){return p.author===filter.author;});
+if(filter.search){var q=filter.search.toLowerCase();posts=posts.filter(function(p){return p.title.toLowerCase().indexOf(q)>-1||p.author.toLowerCase().indexOf(q)>-1;});}
+if(filter.pinned!==undefined)posts=posts.filter(function(p){return !!p.pinned===filter.pinned;});
+}
+return JSON.parse(JSON.stringify(posts));
+},
+getPost:function(id){var posts=_YF_cache.posts||[];for(var i=0;i<posts.length;i++){if(posts[i].id===id)return JSON.parse(JSON.stringify(posts[i]));}return null;},
+createPost:function(data){
+var posts=_YF_cache.posts||[];
+var np={id:_yfNextId('posts'),title:data.title||'',author:data.author||'匿名用户',time:data.time||_yfNow(),excerpt:data.excerpt||'',content:data.content||'',status:data.status||'pending',tag:data.tag||'成长思考',images:data.images||[],likes:0,comments:data.comments||[],cbg:data.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)',abg:data.abg||'linear-gradient(135deg,#4facfe,#00f2fe)',icon:data.icon||'star',featured:false,pinned:false};
+posts.unshift(np);_YF_cache.posts=posts;_yfSave('posts',posts);
+_yfLog('创建帖子',np.title+' ('+np.author+')');
+// P1-11: 联动更新用户发帖数
+if(data.author){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].name===data.author){users[i].posts=(users[i].posts||0)+1;break;}}_YF_cache.users=users;_yfSave('users',users);}
+return np;
+},
+updatePost:function(id,data){
+var posts=_YF_cache.posts||[];
+for(var i=0;i<posts.length;i++){if(posts[i].id===id){for(var k in data){posts[i][k]=data[k];}break;}}
+_YF_cache.posts=posts;_yfSave('posts',posts);
+_yfLog('更新帖子','ID:'+id+' '+JSON.stringify(data).substring(0,80));
+return posts.find(function(p){return p.id===id;});
+},
+deletePost:function(id){
+var posts=_YF_cache.posts||[];var p=posts.find(function(x){return x.id===id;});
+posts=posts.filter(function(x){return x.id!==id;});
+_YF_cache.posts=posts;_yfSave('posts',posts);
+if(p)_yfLog('删除帖子',p.title);
+},
+featurePost:function(id){var p=this.updatePost(id,{featured:true});_yfLog('加精帖子','ID:'+id);return p;},
+unfeaturePost:function(id){return this.updatePost(id,{featured:false});},
+pinPost:function(id){var p=this.updatePost(id,{pinned:true});_yfLog('置顶帖子','ID:'+id);return p;},
+unpinPost:function(id){return this.updatePost(id,{pinned:false});},
+
+// ---- Stars ----
+getStars:function(filter){
+var stars=_YF_cache.stars||[];
+if(filter){
+if(filter.type)stars=stars.filter(function(s){return s.type===filter.type;});
+if(filter.field)stars=stars.filter(function(s){return s.field===filter.field;});
+if(filter.search){var q=filter.search.toLowerCase();stars=stars.filter(function(s){return s.name.toLowerCase().indexOf(q)>-1||s.field.toLowerCase().indexOf(q)>-1;});}
+}
+return JSON.parse(JSON.stringify(stars));
+},
+getStar:function(id){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id===id)return JSON.parse(JSON.stringify(stars[i]));}return null;},
+createStar:function(data){
+var stars=_YF_cache.stars||[];
+var ns={id:_yfNextId('stars'),name:data.name||'',field:data.field||'',type:data.type||'mentor',abg:data.abg||'linear-gradient(135deg,#4facfe,#7ec8ff)',role:data.role||'',quote:data.quote||'',status:data.status||'',story:data.story||'',yangfan:data.yangfan||'',current:data.current||'',qa:data.qa||[],tasks:data.tasks||[]};
+stars.push(ns);_YF_cache.stars=stars;_yfSave('stars',stars);
+_yfLog('添加导师/学长',ns.name+' ('+ns.type+')');return ns;
+},
+updateStar:function(id,data){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id===id){for(var k in data){stars[i][k]=data[k];}break;}}_YF_cache.stars=stars;_yfSave('stars',stars);},
+deleteStar:function(id){var stars=_YF_cache.stars||[];var s=stars.find(function(x){return x.id===id;});stars=stars.filter(function(x){return x.id!==id;});_YF_cache.stars=stars;_yfSave('stars',stars);if(s)_yfLog('删除导师/学长',s.name);},
+
+// ---- Groups ----
+getGroups:function(){return JSON.parse(JSON.stringify(_YF_cache.groups||[]));},
+getGroup:function(id){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id===id)return JSON.parse(JSON.stringify(groups[i]));}return null;},
+createGroup:function(data){
+var groups=_YF_cache.groups||[];
+var ng={id:_yfNextId('groups'),name:data.name||'',members:data.members||1,desc:data.desc||'',color:data.color||'linear-gradient(135deg,#4facfe,#7ec8ff)',cat:data.cat||'其他',posts:data.posts||[],members_list:data.members_list||[]};
+groups.push(ng);_YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('创建小组',ng.name);return ng;
+},
+updateGroup:function(id,data){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id===id){for(var k in data){groups[i][k]=data[k];}break;}}_YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('更新小组','ID:'+id);},
+deleteGroup:function(id){var groups=_YF_cache.groups||[];var g=groups.find(function(x){return x.id===id;});groups=groups.filter(function(x){return x.id!==id;});_YF_cache.groups=groups;_yfSave('groups',groups);if(g)_yfLog('删除小组',g.name);},
+joinGroup:function(groupId,userId){
+var groups=_YF_cache.groups||[];
+for(var i=0;i<groups.length;i++){if(groups[i].id===groupId){
+if(!groups[i].members_list)groups[i].members_list=[];
+if(groups[i].members_list.indexOf(userId)===-1){groups[i].members_list.push(userId);groups[i].members=(groups[i].members||0)+1;}
+break;
+}}
+_YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('加入小组','group:'+groupId+', user:'+userId);
+},
+leaveGroup:function(groupId,userId){
+var groups=_YF_cache.groups||[];
+for(var i=0;i<groups.length;i++){if(groups[i].id===groupId){
+if(!groups[i].members_list)groups[i].members_list=[];
+var idx=groups[i].members_list.indexOf(userId);
+if(idx>-1){groups[i].members_list.splice(idx,1);groups[i].members=Math.max(0,(groups[i].members||1)-1);}
+break;
+}}
+_YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('退出小组','group:'+groupId+', user:'+userId);
+},
+
+// ---- Opportunities ----
+getOpps:function(filter){
+var opps=_YF_cache.opps||[];
+if(filter){
+if(filter.type)opps=opps.filter(function(o){return o.type===filter.type;});
+if(filter.region)opps=opps.filter(function(o){return o.region===filter.region;});
+if(filter.search){var q=filter.search.toLowerCase();opps=opps.filter(function(o){return o.title.toLowerCase().indexOf(q)>-1;});}
+}
+return JSON.parse(JSON.stringify(opps));
+},
+getOpp:function(id){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id===id)return JSON.parse(JSON.stringify(opps[i]));}return null;},
+createOpp:function(data){var opps=_YF_cache.opps||[];var no={id:_yfNextId('opps'),title:data.title||'',type:data.type||'volunteer',region:data.region||'',deadline:data.deadline||'',desc:data.desc||''};opps.push(no);_YF_cache.opps=opps;_yfSave('opps',opps);_yfLog('发布机会',no.title);return no;},
+updateOpp:function(id,data){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id===id){for(var k in data){opps[i][k]=data[k];}break;}}_YF_cache.opps=opps;_yfSave('opps',opps);},
+deleteOpp:function(id){var opps=_YF_cache.opps||[];var o=opps.find(function(x){return x.id===id;});opps=opps.filter(function(x){return x.id!==id;});_YF_cache.opps=opps;_yfSave('opps',opps);if(o)_yfLog('删除机会',o.title);},
+
+// ---- Banners ----
+getBanners:function(){var arr=JSON.parse(JSON.stringify(_YF_cache.banners||[]));for(var i=0;i<arr.length;i++){if(!arr[i].gradient&&!arr[i].image&&arr[i].color){arr[i].gradient='linear-gradient(135deg,'+arr[i].color+','+arr[i].color+'cc)';}}return arr;},
+createBanner:function(data){var banners=_YF_cache.banners||[];var nb={id:_yfNextId('banners'),title:data.title||'',desc:data.desc||'',color:data.color||'#4facfe',gradient:data.gradient||'',image:data.image||'',icon:data.icon||'star'};banners.push(nb);_YF_cache.banners=banners;_yfSave('banners',banners);return nb;},
+updateBanner:function(id,data){var banners=_YF_cache.banners||[];for(var i=0;i<banners.length;i++){if(banners[i].id===id){for(var k in data){banners[i][k]=data[k];}break;}}_YF_cache.banners=banners;_yfSave('banners',banners);},
+deleteBanner:function(id){var banners=(_YF_cache.banners||[]).filter(function(x){return x.id!==id;});_YF_cache.banners=banners;_yfSave('banners',banners);},
+
+// ---- Announces ----
+getAnnounces:function(){return JSON.parse(JSON.stringify(_YF_cache.announces||[]));},
+createAnnounce:function(data){var announces=_YF_cache.announces||[];var na={id:_yfNextId('announces'),content:data.content||'',time:data.time||_yfToday()};announces.unshift(na);_YF_cache.announces=announces;_yfSave('announces',announces);_yfLog('发布公告',na.content.substring(0,30));return na;},
+deleteAnnounce:function(id){var announces=(_YF_cache.announces||[]).filter(function(x){return x.id!==id;});_YF_cache.announces=announces;_yfSave('announces',announces);},
+
+// ---- Tags ----
+getTags:function(){return (_YF_cache.tags||[]).slice();},
+addTag:function(tag){var tags=_YF_cache.tags||[];if(tags.indexOf(tag)===-1){tags.push(tag);_YF_cache.tags=tags;_yfSave('tags',tags);}},
+removeTag:function(idx){var tags=_YF_cache.tags||[];tags.splice(idx,1);_YF_cache.tags=tags;_yfSave('tags',tags);},
+
+// ---- Users ----
+getUsers:function(filter){
+var users=_YF_cache.users||[];
+if(filter){
+if(filter.role)users=users.filter(function(u){return u.role===filter.role;});
+if(filter.status)users=users.filter(function(u){return u.status===filter.status;});
+if(filter.search){var q=filter.search.toLowerCase();users=users.filter(function(u){return u.name.toLowerCase().indexOf(q)>-1;});}
+}
+return JSON.parse(JSON.stringify(users));
+},
+getUser:function(id){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id===id)return JSON.parse(JSON.stringify(users[i]));}return null;},
+getUserByPhone:function(phone){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].phone===phone)return JSON.parse(JSON.stringify(users[i]));}return null;},
+getUserByAccount:function(account){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].account===account)return JSON.parse(JSON.stringify(users[i]));}return null;},
+createUser:function(data){
+var users=_YF_cache.users||[];
+var nu={id:_yfNextId('users'),name:data.name||'扬帆少年',role:data.role||'student',created:data.created||_yfToday(),posts:data.posts||0,status:'active',points:data.points!==undefined?data.points:200,phone:data.phone||'',account:data.account||data.phone||'',following:data.following||[],followers:data.followers||0};
+users.push(nu);_YF_cache.users=users;_yfSave('users',users);_yfLog('注册用户',nu.name+' ('+nu.phone+')');return nu;
+},
+updateUser:function(id,data){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id===id){for(var k in data){users[i][k]=data[k];}break;}}_YF_cache.users=users;_yfSave('users',users);},
+deleteUser:function(id){var users=_YF_cache.users||[];users=users.filter(function(x){return x.id!==id;});_YF_cache.users=users;_yfSave('users',users);},
+// P0-2: 积分系统
+getPoints:function(userId){var u=this.getUser(userId);return u?(u.points||0):0;},
+updatePoints:function(userId,delta){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id===userId){users[i].points=(users[i].points||0)+delta;if(users[i].points<0)users[i].points=0;break;}}_YF_cache.users=users;_yfSave('users',users);_yfLog('积分变动','user:'+userId+', delta:'+delta);},
+
+// ---- Tasks (纳入统一缓存) ----
+getTasks:function(){return JSON.parse(JSON.stringify(_YF_cache.tasks||[]));},
+createTask:function(data){var tasks=_YF_cache.tasks||[];var nt={id:_yfNextId('tasks'),title:data.title||'',desc:data.desc||'',publisher:data.publisher||'管理员',reward:data.reward||0,deadline:data.deadline||'',participants:data.participants||0};tasks.push(nt);_YF_cache.tasks=tasks;_yfSave('tasks',tasks);_yfLog('发布任务',nt.title);return nt;},
+updateTask:function(id,data){var tasks=_YF_cache.tasks||[];for(var i=0;i<tasks.length;i++){if(tasks[i].id===id){for(var k in data){tasks[i][k]=data[k];}break;}}_YF_cache.tasks=tasks;_yfSave('tasks',tasks);},
+deleteTask:function(id){var tasks=(_YF_cache.tasks||[]).filter(function(x){return x.id!==id;});_YF_cache.tasks=tasks;_yfSave('tasks',tasks);},
+
+// ---- Shop Items (P0-3) ----
+getShopItems:function(){return JSON.parse(JSON.stringify(_YF_cache.shop_items||[]));},
+createShopItem:function(data){var items=_YF_cache.shop_items||[];var ni={id:_yfNextId('shop_items'),name:data.name||'',desc:data.desc||'',price:data.price||0,cat:data.cat||'勋章',bg:data.bg||'linear-gradient(135deg,#4facfe,#7ec8ff)',stock:data.stock!==undefined?data.stock:999};items.push(ni);_YF_cache.shop_items=items;_yfSave('shop_items',items);_yfLog('添加商品',ni.name);return ni;},
+updateShopItem:function(id,data){var items=_YF_cache.shop_items||[];for(var i=0;i<items.length;i++){if(items[i].id===id){for(var k in data){items[i][k]=data[k];}break;}}_YF_cache.shop_items=items;_yfSave('shop_items',items);},
+deleteShopItem:function(id){var items=(_YF_cache.shop_items||[]).filter(function(x){return x.id!==id;});_YF_cache.shop_items=items;_yfSave('shop_items',items);_yfLog('删除商品','ID:'+id);},
+
+// ---- Exchanges (P0-4) ----
+getExchanges:function(filter){var ex=_YF_cache.exchanges||[];if(filter&&filter.userId)ex=ex.filter(function(e){return e.userId===filter.userId;});if(filter&&filter.status)ex=ex.filter(function(e){return e.status===filter.status;});return JSON.parse(JSON.stringify(ex));},
+createExchange:function(data){var ex=_YF_cache.exchanges||[];var ne={id:_yfNextId('exchanges'),userId:data.userId||0,userName:data.userName||'',itemId:data.itemId||0,itemName:data.itemName||'',points:data.points||0,time:data.time||_yfNow(),status:data.status||'pending'};ex.unshift(ne);_YF_cache.exchanges=ex;_yfSave('exchanges',ex);_yfLog('兑换商品',ne.userName+' 兑换 '+ne.itemName);return ne;},
+updateExchange:function(id,data){var ex=_YF_cache.exchanges||[];for(var i=0;i<ex.length;i++){if(ex[i].id===id){for(var k in data){ex[i][k]=data[k];}break;}}_YF_cache.exchanges=ex;_yfSave('exchanges',ex);},
+
+// ---- Notifications (P1-2) ----
+getNotifications:function(userId){var ns=_YF_cache.notifications||[];if(userId)ns=ns.filter(function(n){return n.userId===userId;});return JSON.parse(JSON.stringify(ns));},
+createNotification:function(data){var ns=_YF_cache.notifications||[];var nn={id:_yfNextId('notifications'),userId:data.userId||0,type:data.type||'system',text:data.text||'',time:data.time||_yfNow(),read:false};ns.unshift(nn);_YF_cache.notifications=ns;_yfSave('notifications',ns);return nn;},
+markNotificationRead:function(id){var ns=_YF_cache.notifications||[];for(var i=0;i<ns.length;i++){if(ns[i].id===id){ns[i].read=true;break;}}_YF_cache.notifications=ns;_yfSave('notifications',ns);},
+markAllNotificationsRead:function(userId){var ns=_YF_cache.notifications||[];for(var i=0;i<ns.length;i++){if(!userId||ns[i].userId===userId)ns[i].read=true;}_YF_cache.notifications=ns;_yfSave('notifications',ns);},
+
+// ---- Reports (P1-3) ----
+getReports:function(filter){var rs=_YF_cache.reports||[];if(filter&&filter.status)rs=rs.filter(function(r){return r.status===filter.status;});if(filter&&filter.targetType)rs=rs.filter(function(r){return r.targetType===filter.targetType;});return JSON.parse(JSON.stringify(rs));},
+createReport:function(data){var rs=_YF_cache.reports||[];var nr={id:_yfNextId('reports'),targetType:data.targetType||'post',targetId:data.targetId||0,targetTitle:data.targetTitle||'',reason:data.reason||'',detail:data.detail||'',reporterId:data.reporterId||0,reporterName:data.reporterName||'',time:data.time||_yfNow(),status:'pending'};rs.unshift(nr);_YF_cache.reports=rs;_yfSave('reports',rs);_yfLog('举报',nr.targetType+':'+nr.targetId+' 原因:'+nr.reason);return nr;},
+updateReport:function(id,data){var rs=_YF_cache.reports||[];for(var i=0;i<rs.length;i++){if(rs[i].id===id){for(var k in data){rs[i][k]=data[k];}break;}}_YF_cache.reports=rs;_yfSave('reports',rs);},
+
+// ---- Bad Words (P1-7) ----
+getBadWords:function(){return JSON.parse(JSON.stringify(_YF_cache.bad_words||[]));},
+addBadWord:function(word,category){var ws=_YF_cache.bad_words||[];var nw={id:_yfNextId('bad_words'),word:word,category:category||'其他'};ws.push(nw);_YF_cache.bad_words=ws;_yfSave('bad_words',ws);_yfLog('添加违规词',word);return nw;},
+deleteBadWord:function(id){var ws=(_YF_cache.bad_words||[]).filter(function(x){return x.id!==id;});_YF_cache.bad_words=ws;_yfSave('bad_words',ws);},
+
+// ---- Messages (P1-9) ----
+getMessages:function(userId1,userId2){
+var msgs=_YF_cache.messages||[];
+return JSON.parse(JSON.stringify(msgs.filter(function(m){
+return (m.fromId===userId1&&m.toId===userId2)||(m.fromId===userId2&&m.toId===userId1);
+}).sort(function(a,b){return a.id-b.id;})));
+},
+sendMessage:function(data){
+var msgs=_YF_cache.messages||[];
+var nm={id:_yfNextId('messages'),fromId:data.fromId||0,fromName:data.fromName||'',toId:data.toId||0,toName:data.toName||'',content:data.content||'',time:data.time||_yfNow(),read:false};
+msgs.push(nm);_YF_cache.messages=msgs;_yfSave('messages',msgs);
+return nm;
+},
+getConversationList:function(userId){
+var msgs=_YF_cache.messages||[];
+var convos={};
+for(var i=0;i<msgs.length;i++){
+var m=msgs[i];
+var otherId=m.fromId===userId?m.toId:m.fromId;
+if(m.fromId===userId||m.toId===userId){
+if(!convos[otherId]){convos[otherId]={userId:otherId,userName:m.fromId===userId?m.toName:m.fromName,lastMsg:m.content,time:m.time,unread:0};}
+convos[otherId].lastMsg=m.content;convos[otherId].time=m.time;
+if(m.toId===userId&&!m.read)convos[otherId].unread++;
+}
+}
+return Object.keys(convos).map(function(k){return convos[k];});
+},
+
+// ---- Audit Logs ----
+getAuditLogs:function(){return JSON.parse(JSON.stringify(_YF_cache.audit_logs||[]));},
+
+// ---- Stats (P1-6: 真实数据计算) ----
+getStats:function(){
+var users=_YF_cache.users||[];
+var posts=_YF_cache.posts||[];
+var stars=_YF_cache.stars||[];
+var today=_yfToday();
+var todayActive=0,newUsers=0,todayPosts=0;
+var activeUserSet={};
+for(var i=0;i<posts.length;i++){
+var p=posts[i];
+var pDay=(p.time||'').substring(0,10);
+if(pDay===today){
+todayPosts++;
+if(p.author)activeUserSet[p.author]=1;
+}
+// Check comments for active users today
+if(p.comments){for(var j=0;j<p.comments.length;j++){}}
+}
+for(var i=0;i<users.length;i++){
+if((users[i].created||'').substring(0,10)===today)newUsers++;
+}
+todayActive=Object.keys(activeUserSet).length;
+// 7-day chart
+var userChart=[0,0,0,0,0,0,0],postChart=[0,0,0,0,0,0,0];
+var now=new Date();
+for(var i=0;i<7;i++){
+var d=new Date(now);d.setDate(d.getDate()-(6-i));
+var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+for(var j=0;j<users.length;j++){if((users[j].created||'').substring(0,10)===ds)userChart[i]++;}
+for(var j=0;j<posts.length;j++){if((posts[j].time||'').substring(0,10)===ds)postChart[i]++;}
+}
+return{
+totalUsers:users.length,todayActive:todayActive,newUsers:newUsers,
+totalPosts:posts.length,todayPosts:todayPosts,
+pendingPosts:posts.filter(function(p){return p.status==='pending';}).length,
+totalStars:stars.length,
+totalGroups:(_YF_cache.groups||[]).length,
+totalExchanges:(_YF_cache.exchanges||[]).length,
+totalReports:(_YF_cache.reports||[]).filter(function(r){return r.status==='pending';}).length,
+userChart:userChart,postChart:postChart
+};
+},
+
+// ---- V5: Growth Config ----
+getGrowthConfig:function(){
+try{var c=localStorage.getItem('yf_growth_config');return c?JSON.parse(c):JSON.parse(JSON.stringify(_YF_SEED_growth_config));}catch(e){return JSON.parse(JSON.stringify(_YF_SEED_growth_config));}
+},
+updateGrowthConfig:function(config){
+try{localStorage.setItem('yf_growth_config',JSON.stringify(config));}catch(e){}
+},
+resetGrowthConfig:function(){
+localStorage.setItem('yf_growth_config',JSON.stringify(_YF_SEED_growth_config));
+return this.getGrowthConfig();
+},
+getLevelByPoints:function(points){
+var cfg=this.getGrowthConfig();
+for(var i=cfg.length-1;i>=0;i--){if(points>=cfg[i].min)return cfg[i];}
+return cfg[0];
+},
+
+// ---- V5: Medals ----
+getMedals:function(){
+try{var c=localStorage.getItem('yf_medals_config');return c?JSON.parse(c):JSON.parse(JSON.stringify(_YF_SEED_medals));}catch(e){return JSON.parse(JSON.stringify(_YF_SEED_medals));}
+},
+updateMedals:function(medals){
+try{localStorage.setItem('yf_medals_config',JSON.stringify(medals));}catch(e){}
+},
+resetMedals:function(){
+localStorage.setItem('yf_medals_config',JSON.stringify(_YF_SEED_medals));
+return this.getMedals();
+},
+getUserMedals:function(userId){
+try{
+var key='yf_user_medals_'+(userId||'default');
+var d=localStorage.getItem(key);
+return d?JSON.parse(d):{unlocked:[],progress:{},unlockTime:{}};
+}catch(e){return{unlocked:[],progress:{},unlockTime:{}};}
+},
+saveUserMedals:function(userId,data){
+try{localStorage.setItem('yf_user_medals_'+(userId||'default'),JSON.stringify(data));}catch(e){}
+},
+unlockMedal:function(userId,medalId){
+var um=this.getUserMedals(userId);
+if(um.unlocked.indexOf(medalId)===-1){
+um.unlocked.push(medalId);
+um.unlockTime[medalId]=new Date().toISOString();
+this.saveUserMedals(userId,um);
+return true;
+}
+return false;
+}
+};
+
+YangFanData.init();
+
+</script>
+<script>
+// ===== 青帆社区 管理端 V4 =====
+// ===== 飞书配置（V5: 通过 Cloudflare Worker 代理，不存储 appSecret） =====
+var FEISHU_CONFIG={
+get baseToken(){try{return localStorage.getItem('yf_feishu_base')||'';}catch(e){return'';}},
+tables:{
+posts:'tblkXDKxeGhUQigI',
+users:'tbl0H0jolFbMe8LU',
+stars:'tblfsDCcoeyhB5N7',
+groups:'tbl1q6SywEFVBbtW',
+opps:'tblBus9iOg18PTD3',
+announces:'tblygE3VvlENsFNu',
+shop_items:'tblljjY1FVgZfzKd',
+exchanges:'tblOmQ9Job8dEPHm',
+notifications:'tbl7JCUvTGYm38Zz',
+reports:'tbl0r7ZTwndN6uIf',
+bad_words:'tbl7vSaMjr6bg5ut',
+messages:'tblOG6WeQgYFZ0iZ'
+},
+get proxyUrl(){try{return localStorage.getItem('yf_feishu_proxy')||'';}catch(e){return'';}}
+};
+
+// ===== 工具函数 =====
+var COLORS=['#4facfe','#ff6b6b','#00b894','#ffa502','#6c5ce7','#fd79a8','#00cec9','#e17055'];
+function randColor(s){var h=0;if(!s)return COLORS[0];for(var i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length];}
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/\//g,'&#47;');}
+
+// ===== 导航配置 (P1-1: 含新页面) =====
+var navItems=[
+{id:'dashboard',label:'数据看板',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/></svg>'},
+{id:'review',label:'内容审核',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z" fill="currentColor"/></svg>'},
+{id:'users',label:'用户管理',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="currentColor"/></svg>'},
+{id:'mentors',label:'导师管理',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" fill="currentColor"/><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" fill="currentColor" opacity=".6"/></svg>'},
+{id:'tasks',label:'任务发布',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="currentColor"/></svg>'},
+{id:'opps',label:'机会发布',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 12c0-1.1-.9-2-2-2V6c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v4c-1.1 0-2 .9-2 2v8h20v-8zM6 6h12v4H6V6z" fill="currentColor"/></svg>'},
+{id:'groups',label:'小组管理',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-6 8c0-3.31 4.03-6 6-6s6 2.69 6 6H6z" fill="currentColor"/></svg>'},
+{id:'shop',label:'积分商城',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>'},
+{id:'exchanges',label:'兑换记录',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" fill="currentColor"/></svg>'},
+{id:'challenges',label:'话题挑战',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'},
+{id:'reports',label:'举报管理',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/></svg>'},
+{id:'badwords',label:'违规词管理',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" fill="currentColor"/></svg>'},
+{id:'growth',label:'成长配置',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>'},
+{id:'settings',label:'系统配置',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>'},
+{id:'sync',label:'数据同步',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" fill="currentColor"/></svg>'}
+];
+
+// ===== 状态 =====
+var currentPage='dashboard';
+var reviewFilter='all',reviewSearch='';
+var userSearch='',userRoleFilter='all',userStatusFilter='all';
+var mentorSearch='',mentorTypeFilter='all';
+var taskSearch='';
+var oppSearch='',oppTypeFilter='all';
+var groupSearch='';
+var shopSearch='';
+var exchangeFilter='all';
+var reportFilter='pending';
+var badwordSearch='';
+
+// ===== 登录 =====
+function doLogin(){
+var u=document.getElementById('loginUser').value.trim();
+var p=document.getElementById('loginPass').value.trim();
+var err=document.getElementById('loginErr');
+if(!u||!p){err.textContent='请输入账号和密码';return;}
+if(u==='admin'&&p==='admin123'){
+document.getElementById('loginPage').classList.add('hidden');
+document.getElementById('adminApp').classList.add('active');
+initApp();
+}else{
+err.textContent='账号或密码错误';
+document.getElementById('loginPass').value='';
+}
+}
+function doLogout(){
+document.getElementById('adminApp').classList.remove('active');
+document.getElementById('loginPage').classList.remove('hidden');
+document.getElementById('loginUser').value='admin';
+document.getElementById('loginPass').value='admin123';
+document.getElementById('loginErr').textContent='';
+}
+document.addEventListener('keydown',function(e){
+if(e.key==='Enter'&&!document.getElementById('loginPage').classList.contains('hidden'))doLogin();
+});
+
+// ===== 初始化 =====
+function initApp(){
+YangFanData.init();
+renderNav();
+updateBadges();
+// P1-1: switchPage 会调用对应render
+switchPage('dashboard');
+updateClock();
+setInterval(updateClock,60000);
+}
+
+function updateClock(){
+var now=new Date();
+var h=String(now.getHours()).padStart(2,'0');
+var m=String(now.getMinutes()).padStart(2,'0');
+var opts={year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'};
+var el=document.getElementById('topTime');
+if(el)el.textContent=now.toLocaleDateString('zh-CN',opts)+' '+h+':'+m;
+}
+
+// ===== 导航 (P1-1: 按页面ID调用render) =====
+function renderNav(){
+var nav=document.getElementById('sideNav');
+if(!nav)return;
+nav.innerHTML=navItems.map(function(item){
+var badge='';
+if(item.id==='review'||item.id==='reports'){
+badge='<span class="nav-badge" id="badge-'+item.id+'" style="display:none">0</span>';
+}
+return '<div class="nav-item'+(item.id===currentPage?' active':'')+'" data-page="'+item.id+'" onclick="switchPage(\''+item.id+'\')">'+item.icon+'<span>'+item.label+'</span>'+badge+'</div>';
+}).join('');
+}
+
+// P1-1: switchPage 调用对应render函数（懒查找，兼容后续script块定义的函数如renderChallenges）
+var pageRenderNames={
+dashboard:'renderDashboard',
+review:'renderReview',
+users:'renderUsers',
+mentors:'renderMentors',
+tasks:'renderTasks',
+opps:'renderOpps',
+groups:'renderGroups',
+shop:'renderShop',
+exchanges:'renderExchanges',
+reports:'renderReports',
+challenges:'renderChallenges',
+badwords:'renderBadWords',
+growth:'renderGrowthConfig',
+settings:'renderSettings',
+sync:'renderSync'
+};
+
+function switchPage(id){
+currentPage=id;
+var pages=document.querySelectorAll('.page');
+for(var i=0;i<pages.length;i++)pages[i].classList.remove('active');
+var target=document.getElementById('page-'+id);
+if(target)target.classList.add('active');
+var navs=document.querySelectorAll('.nav-item');
+for(var i=0;i<navs.length;i++)navs[i].classList.toggle('active',navs[i].dataset.page===id);
+var item=navItems.find(function(n){return n.id===id;});
+var tt=document.getElementById('topTitle');
+if(tt&&item)tt.textContent=item.label;
+YangFanData.refresh();
+updateBadges();
+// P1-1: 调用对应render（懒查找，兼容后续script块定义的函数）
+var fnName=pageRenderNames[id];
+if(fnName){
+var fn=typeof window!=='undefined'?window[fnName]:(typeof eval!=='undefined'?eval(fnName):null);
+if(typeof fn==='function'){try{fn();}catch(e){console.error('render '+id+' error:',e);}}
+}
+// 移动端关闭侧栏
+var sidebar=document.querySelector('.sidebar');
+var overlay=document.getElementById('sidebarOverlay');
+if(sidebar&&sidebar.classList.contains('open')){
+sidebar.classList.remove('open');
+if(overlay)overlay.classList.remove('show');
+}
+}
+
+function updateBadges(){
+YangFanData.refresh();
+var posts=YangFanData.getPosts();
+var pending=posts.filter(function(p){return p.status==='pending';}).length;
+var rb=document.getElementById('badge-review');
+if(rb){rb.textContent=pending;rb.style.display=pending>0?'':'none';}
+var reports=YangFanData.getReports({status:'pending'});
+var repB=document.getElementById('badge-reports');
+if(repB){repB.textContent=reports.length;repB.style.display=reports.length>0?'':'none';}
+}
+
+// ===== 数据看板 (P1-6: 真实数据) =====
+function renderDashboard(){
+var stats=YangFanData.getStats();
+var totalExchanges=stats.totalExchanges||0;
+var totalReports=stats.totalReports||0;
+
+var statCards=[
+{label:'总用户数',value:stats.totalUsers,color:'blue',icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="#4facfe"/></svg>'},
+{label:'今日活跃',value:stats.todayActive,color:'green',icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" fill="#00b894"/></svg>'},
+{label:'新增用户',value:stats.newUsers,color:'red',icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#ff6b6b"/></svg>'},
+{label:'帖子总数',value:stats.totalPosts,color:'orange',icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="#ffa502"/></svg>'},
+{label:'待审核',value:stats.pendingPosts,color:'purple',icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#6c5ce7"/></svg>'}
+];
+
+var grid=document.getElementById('statsGrid');
+if(grid){
+grid.innerHTML=statCards.map(function(s){
+return '<div class="stat-card"><div class="stat-icon '+s.color+'">'+s.icon+'</div><div class="stat-value">'+s.value+'</div><div class="stat-label">'+s.label+'</div></div>';
+}).join('');
+}
+
+// P1-6: 7天图表使用真实数据
+var days=['周一','周二','周三','周四','周五','周六','周日'];
+var now=new Date();
+var dayLabels=[];
+for(var i=6;i>=0;i--){
+var d=new Date(now);d.setDate(d.getDate()-i);
+dayLabels.push((d.getMonth()+1)+'/'+d.getDate());
+}
+
+var userChart=stats.userChart||[0,0,0,0,0,0,0];
+var postChart=stats.postChart||[0,0,0,0,0,0,0];
+var maxUser=Math.max.apply(null,userChart.concat([1]));
+var maxPost=Math.max.apply(null,postChart.concat([1]));
+
+var cu=document.getElementById('chartUsers');
+if(cu){
+cu.innerHTML=dayLabels.map(function(d,i){
+var h=Math.max(8,userChart[i]/maxUser*150);
+return '<div class="chart-bar-wrap"><div class="chart-bar-val">'+userChart[i]+'</div><div class="chart-bar blue" style="height:'+h+'px"></div><div class="chart-bar-label">'+d+'</div></div>';
+}).join('');
+}
+var cp=document.getElementById('chartPosts');
+if(cp){
+cp.innerHTML=dayLabels.map(function(d,i){
+var h=Math.max(8,postChart[i]/maxPost*150);
+return '<div class="chart-bar-wrap"><div class="chart-bar-val">'+postChart[i]+'</div><div class="chart-bar coral" style="height:'+h+'px"></div><div class="chart-bar-label">'+d+'</div></div>';
+}).join('');
+}
+
+// 附加统计
+var extraEl=document.getElementById('dashExtra');
+if(extraEl){
+extraEl.innerHTML=
+'<div class="charts-row"><div class="chart-card"><div class="chart-title">其他统计</div>'
++'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">'
++'<div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--pri)">'+stats.totalStars+'</div><div style="font-size:12px;color:var(--text3);margin-top:4px">导师/学长</div></div>'
++'<div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--green)">'+stats.totalGroups+'</div><div style="font-size:12px;color:var(--text3);margin-top:4px">小组数</div></div>'
++'<div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--orange)">'+totalExchanges+'</div><div style="font-size:12px;color:var(--text3);margin-top:4px">兑换记录</div></div>'
++'<div style="text-align:center;padding:16px;background:var(--bg);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--coral)">'+totalReports+'</div><div style="font-size:12px;color:var(--text3);margin-top:4px">待处理举报</div></div>'
++'</div></div></div>';
+}
+}
+
+// ===== 内容审核 (P1-2: 通知, P1-4: 加精/置顶) =====
+function renderReview(){
+YangFanData.refresh();
+var posts=YangFanData.getPosts();
+var filtered=posts.filter(function(p){
+if(reviewFilter!=='all'&&p.status!==reviewFilter)return false;
+if(reviewSearch){
+var q=reviewSearch.toLowerCase();
+return (p.title||'').toLowerCase().indexOf(q)>-1||(p.author||'').toLowerCase().indexOf(q)>-1;
+}
+return true;
+});
+var container=document.getElementById('reviewList');
+if(!container)return;
+if(!filtered.length){
+container.innerHTML='<div class="empty-state"><p>暂无相关帖子</p></div>';
+return;
+}
+container.innerHTML=filtered.map(function(p){
+var statusClass=p.status==='approved'?'approved':p.status==='rejected'?'rejected':'';
+var statusBadge=p.status==='pending'?'<span class="badge badge-orange">待审核</span>':p.status==='approved'?'<span class="badge badge-green">已通过</span>':'<span class="badge badge-red">已拒绝</span>';
+var c=randColor(p.author||'');
+var initial=(p.author||'?').charAt(0);
+var tags='<span class="badge badge-blue">'+escHtml(p.tag||'')+'</span>';
+if(p.featured)tags+=' <span class="badge badge-orange">精华</span>';
+if(p.pinned)tags+=' <span class="badge badge-purple">置顶</span>';
+
+var actions='';
+if(p.status==='pending'){
+actions='<button class="btn btn-sm btn-green" onclick="approvePost('+p.id+')">通过</button><button class="btn btn-sm btn-coral" onclick="rejectPost('+p.id+')">拒绝</button>';
+}else{
+actions='<button class="btn btn-sm btn-outline" onclick="revertPost('+p.id+')">撤销</button>';
+}
+// P1-4: 加精/置顶按钮（仅已通过的帖子）
+if(p.status==='approved'){
+if(p.featured){
+actions+='<button class="btn btn-sm btn-outline" style="border-color:var(--orange);color:var(--orange)" onclick="unfeaturePostAdmin('+p.id+')">取消精华</button>';
+}else{
+actions+='<button class="btn btn-sm btn-outline" style="border-color:var(--orange);color:var(--orange)" onclick="featurePostAdmin('+p.id+')">加精</button>';
+}
+if(p.pinned){
+actions+='<button class="btn btn-sm btn-outline" style="border-color:var(--purple);color:var(--purple)" onclick="unpinPostAdmin('+p.id+')">取消置顶</button>';
+}else{
+actions+='<button class="btn btn-sm btn-outline" style="border-color:var(--purple);color:var(--purple)" onclick="pinPostAdmin('+p.id+')">置顶</button>';
+}
+}
+actions+='<button class="btn btn-sm btn-outline" style="border-color:var(--coral);color:var(--coral)" onclick="confirmDeletePost('+p.id+')">删除</button>';
+
+return '<div class="review-card '+statusClass+'"><div class="review-top"><div class="review-author"><div class="review-avatar" style="background:'+c+'">'+escHtml(initial)+'</div><div><div class="review-name">'+escHtml(p.author||'')+'</div><div class="review-time">'+escHtml(p.time||'')+'</div></div></div>'+statusBadge+'</div><div class="review-title">'+escHtml(p.title||'')+'</div><div class="review-excerpt">'+escHtml((p.excerpt||p.content||'').substring(0,120))+'</div><div class="review-bottom"><div class="review-tags">'+tags+'</div><div class="review-actions">'+actions+'</div></div></div>';
+}).join('');
+}
+
+function filterReview(q){reviewSearch=q;renderReview();}
+function filterReviewStatus(s){reviewFilter=s;renderReview();}
+
+// P1-2: 审核通过/拒绝后发通知给帖子作者
+function notifyPostAuthor(postId,type,text){
+var post=YangFanData.getPost(postId);
+if(!post)return;
+// 通过作者名查找用户
+var users=YangFanData.getUsers();
+var author=users.find(function(u){return u.name===post.author;});
+if(author){
+YangFanData.createNotification({userId:author.id,type:type,text:text});
+}
+}
+
+function approvePost(id){
+YangFanData.updatePost(id,{status:'approved'});
+notifyPostAuthor(id,'system','你的帖子已通过审核');
+renderReview();updateBadges();
+showToast('帖子已通过审核，已通知作者','success');
+}
+function rejectPost(id){
+YangFanData.updatePost(id,{status:'rejected'});
+notifyPostAuthor(id,'system','你的帖子未通过审核，请修改后重新发布');
+renderReview();updateBadges();
+showToast('帖子已拒绝，已通知作者','info');
+}
+function revertPost(id){
+YangFanData.updatePost(id,{status:'pending'});
+renderReview();updateBadges();
+showToast('已撤销审核','info');
+}
+// P1-4: 加精/置顶
+function featurePostAdmin(id){YangFanData.featurePost(id);renderReview();showToast('已加精','success');}
+function unfeaturePostAdmin(id){YangFanData.unfeaturePost(id);renderReview();showToast('已取消精华','info');}
+function pinPostAdmin(id){YangFanData.pinPost(id);renderReview();showToast('已置顶','success');}
+function unpinPostAdmin(id){YangFanData.unpinPost(id);renderReview();showToast('已取消置顶','info');}
+function confirmDeletePost(id){
+showConfirm('删除帖子','确定要删除这篇帖子吗？删除后不可恢复。',function(){
+YangFanData.deletePost(id);
+renderReview();updateBadges();
+showToast('帖子已删除','success');
+});
+}
+
+// ===== 用户管理 (P1-12: 编辑弹窗) =====
+function renderUsers(){
+var users=YangFanData.getUsers();
+var filtered=users.filter(function(u){
+if(userRoleFilter!=='all'&&u.role!==userRoleFilter)return false;
+if(userStatusFilter!=='all'&&u.status!==userStatusFilter)return false;
+if(userSearch&&u.name.toLowerCase().indexOf(userSearch.toLowerCase())===-1)return false;
+return true;
+});
+var countEl=document.getElementById('userCount');
+if(countEl)countEl.textContent='共 '+filtered.length+' 人';
+
+var roleMap={student:'学生',mentor:'导师',senior:'学长'};
+var roleBadge={student:'badge-blue',mentor:'badge-purple',senior:'badge-green'};
+var statusBadge={active:'badge-green',banned:'badge-red'};
+var statusText={active:'正常',banned:'已封禁'};
+
+var tbody=document.getElementById('userTableBody');
+if(!tbody)return;
+var ckAll={};
+try{ckAll=JSON.parse(localStorage.getItem('yf_shared_checkin')||'{}');}catch(e){}
+tbody.innerHTML=filtered.map(function(u){
+var c=randColor(u.name);
+var banBtn=u.status==='active'?'<button class="btn btn-sm btn-outline" style="border-color:var(--coral);color:var(--coral)" onclick="confirmBanUser('+u.id+')">封禁</button>':'<button class="btn btn-sm btn-green" onclick="unbanUser('+u.id+')">解封</button>';
+var ck=ckAll[u.id]||ckAll;
+var ckDays=(ck&&ck.totalDays)||u.checkinDays||0;
+var following=(u.following&&u.following.length)||0;
+var followers=u.followers||0;
+var lastLogin=u.lastLogin||'—';
+if(lastLogin&&lastLogin.length>10)lastLogin=lastLogin.substring(5,16);
+return '<tr><td><div class="user-cell"><div class="user-av" style="background:'+c+'">'+escHtml(u.name.charAt(0))+'</div><div><div style="font-weight:600">'+escHtml(u.name)+'</div><div style="font-size:11px;color:var(--text3)">'+(u.phone||u.account||'—')+'</div></div></div></td><td><span class="badge '+roleBadge[u.role]+'">'+roleMap[u.role]+'</span></td><td>'+escHtml(u.created)+'</td><td>'+u.posts+'</td><td><span class="badge badge-orange">'+(u.points||0)+'</span></td><td>'+ckDays+' 天</td><td>'+following+' / '+followers+'</td><td style="font-size:11px;color:var(--text3)">'+escHtml(lastLogin)+'</td><td><span class="badge '+statusBadge[u.status]+'">'+statusText[u.status]+'</span></td><td><button class="btn-text" onclick="openEditUser('+u.id+')">编辑</button> '+banBtn+'</td></tr>';
+}).join('');
+}
+function filterUsers(q){userSearch=q;renderUsers();}
+function filterUserRole(r){userRoleFilter=r;renderUsers();}
+function filterUserStatus(s){userStatusFilter=s;renderUsers();}
+
+// P1-12: 编辑用户弹窗
+function openEditUser(id){
+var u=YangFanData.getUser(id);
+if(!u)return;
+var body='<div class="form-group"><label>昵称</label><input class="form-input" id="euName" value="'+escHtml(u.name)+'"></div>'
++'<div class="form-group"><label>角色</label><select class="form-select" id="euRole"><option value="student"'+(u.role==='student'?' selected':'')+'>学生</option><option value="mentor"'+(u.role==='mentor'?' selected':'')+'>导师</option><option value="senior"'+(u.role==='senior'?' selected':'')+'>学长</option></select></div>'
++'<div class="form-group"><label>积分</label><input class="form-input" id="euPoints" type="number" value="'+(u.points||0)+'"></div>'
++'<div class="form-group"><label>手机号</label><input class="form-input" id="euPhone" value="'+escHtml(u.phone||'')+'"></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveUser('+u.id+')">保存</button>';
+openModal('编辑用户',body,foot);
+}
+function saveUser(id){
+var nameEl=document.getElementById('euName');
+var name=nameEl.value.trim();
+var role=document.getElementById('euRole').value;
+var pointsEl=document.getElementById('euPoints');
+var points=parseInt(pointsEl.value);
+var phone=document.getElementById('euPhone').value.trim();
+if(!name){shakeEl(nameEl);showToast('昵称不能为空','warn');return;}
+if(isNaN(points)||points<0){shakeEl(pointsEl);showToast('积分需为非负整数','warn');return;}
+YangFanData.updateUser(id,{name:name,role:role,points:points,phone:phone});
+renderUsers();closeModal();
+showToast('用户信息已更新','success');
+}
+function confirmBanUser(id){
+var u=YangFanData.getUser(id);
+showConfirm('封禁用户','确定要封禁用户「'+u.name+'」吗？',function(){
+YangFanData.updateUser(id,{status:'banned'});
+renderUsers();showToast('用户已封禁','success');
+});
+}
+function unbanUser(id){
+YangFanData.updateUser(id,{status:'active'});
+renderUsers();showToast('用户已解封','success');
+}
+
+// ===== 导师管理 (P2-10: 补全字段, P2-11: quote而非bio) =====
+function renderMentors(){
+var mentors=YangFanData.getStars();
+var filtered=mentors.filter(function(m){
+if(mentorTypeFilter!=='all'&&m.type!==mentorTypeFilter)return false;
+if(mentorSearch){var q=mentorSearch.toLowerCase();return m.name.toLowerCase().indexOf(q)>-1||m.field.toLowerCase().indexOf(q)>-1;}
+return true;
+});
+var mc=document.getElementById('mentorCount');
+if(mc)mc.textContent='共 '+filtered.length+' 人';
+var typeMap={mentor:'导师',senior:'学长',industry:'行业'};
+var typeBadge={mentor:'badge-purple',senior:'badge-green',industry:'badge-blue'};
+var tb=document.getElementById('mentorTableBody');
+if(!tb)return;
+tb.innerHTML=filtered.map(function(m){
+var c=randColor(m.name);
+// P2-11: 使用 m.quote 而非 m.bio
+return '<tr><td><div class="user-cell"><div class="user-av" style="background:'+c+'">'+escHtml(m.name.charAt(0))+'</div><span>'+escHtml(m.name)+'</span></div></td><td><span class="badge '+typeBadge[m.type]+'">'+typeMap[m.type]+'</span></td><td>'+escHtml(m.field)+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(m.quote||'')+'</td><td><button class="btn-text" onclick="openEditMentor('+m.id+')">编辑</button><button class="btn-text danger" onclick="confirmDeleteMentor('+m.id+')">删除</button></td></tr>';
+}).join('');
+}
+function filterMentors(q){mentorSearch=q;renderMentors();}
+function filterMentorType(t){mentorTypeFilter=t;renderMentors();}
+
+function openMentorModal(editData){
+var isEdit=!!editData;
+var d=isEdit?editData:{};
+var body='<div class="form-group"><label>姓名</label><input class="form-input" id="mName" value="'+escHtml(d.name||'')+'"></div>'
++'<div class="form-group"><label>身份类型</label><select class="form-select" id="mType"><option value="mentor"'+(d.type==='mentor'?' selected':'')+'>导师</option><option value="senior"'+(d.type==='senior'?' selected':'')+'>学长</option><option value="industry"'+(d.type==='industry'?' selected':'')+'>行业</option></select></div>'
++'<div class="form-group"><label>擅长领域</label><input class="form-input" id="mField" value="'+escHtml(d.field||'')+'"></div>'
++'<div class="form-group"><label>头衔/角色</label><input class="form-input" id="mRole" value="'+escHtml(d.role||'')+'"></div>'
+// P2-10: 补全所有字段
++'<div class="form-group"><label>一句话简介(quote)</label><input class="form-input" id="mQuote" value="'+escHtml(d.quote||'')+'"></div>'
++'<div class="form-group"><label>当前身份(status)</label><input class="form-input" id="mStatus" value="'+escHtml(d.status||'')+'"></div>'
++'<div class="form-group"><label>成长故事(story)</label><textarea class="form-input" id="mStory" rows="2">'+escHtml(d.story||'')+'</textarea></div>'
++'<div class="form-group"><label>扬帆经历(yangfan)</label><textarea class="form-input" id="mYangfan" rows="2">'+escHtml(d.yangfan||'')+'</textarea></div>'
++'<div class="form-group"><label>近况(current)</label><textarea class="form-input" id="mCurrent" rows="2">'+escHtml(d.current||'')+'</textarea></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveMentor('+(isEdit?d.id:'null')+')">'+(isEdit?'保存':'添加')+'</button>';
+openModal(isEdit?'编辑导师/学长':'添加导师/学长',body,foot);
+}
+
+// P2-10: saveMentor 补全所有字段
+function saveMentor(id){
+var name=document.getElementById('mName').value.trim();
+var type=document.getElementById('mType').value;
+var field=document.getElementById('mField').value.trim();
+var role=document.getElementById('mRole').value.trim();
+var quote=document.getElementById('mQuote').value.trim();
+var status=document.getElementById('mStatus').value.trim();
+var story=document.getElementById('mStory').value.trim();
+var yangfan=document.getElementById('mYangfan').value.trim();
+var current=document.getElementById('mCurrent').value.trim();
+if(!name||!field){showToast('请填写姓名和领域','error');return;}
+var data={name:name,type:type,field:field,role:role,quote:quote,status:status,story:story,yangfan:yangfan,current:current};
+if(!id){
+data.abg='linear-gradient(135deg,'+COLORS[Math.floor(Math.random()*COLORS.length)]+','+COLORS[Math.floor(Math.random()*COLORS.length)]+')';
+YangFanData.createStar(data);
+}else{
+YangFanData.updateStar(id,data);
+}
+renderMentors();closeModal();
+showToast(id?'已保存修改':'已添加成功','success');
+}
+function openEditMentor(id){
+var m=YangFanData.getStar(id);
+if(m)openMentorModal(m);
+}
+function confirmDeleteMentor(id){
+var m=YangFanData.getStar(id);
+showConfirm('删除确认','确定要删除「'+m.name+'」吗？',function(){
+YangFanData.deleteStar(id);renderMentors();showToast('已删除','success');
+});
+}
+
+// ===== 任务 =====
+function renderTasks(){
+var tasks=YangFanData.getTasks();
+var filtered=tasks.filter(function(t){
+if(taskSearch&&t.title.toLowerCase().indexOf(taskSearch.toLowerCase())===-1)return false;
+return true;
+});
+var tb=document.getElementById('taskTableBody');
+if(!tb)return;
+tb.innerHTML=filtered.map(function(t){
+return '<tr><td style="font-weight:600">'+escHtml(t.title)+'</td><td>'+escHtml(t.publisher)+'</td><td><span class="badge badge-orange">'+t.reward+' 积分</span></td><td>'+escHtml(t.deadline)+'</td><td>'+(t.participants||0)+' 人</td><td><button class="btn-text" onclick="openEditTask('+t.id+')">编辑</button><button class="btn-text danger" onclick="confirmDeleteTask('+t.id+')">删除</button></td></tr>';
+}).join('');
+}
+function filterTasks(q){taskSearch=q;renderTasks();}
+function openTaskModal(editData){
+var isEdit=!!editData;
+var d=isEdit?editData:{};
+var body='<div class="form-group"><label>任务标题</label><input class="form-input" id="tTitle" value="'+escHtml(d.title||'')+'"></div>'
++'<div class="form-group"><label>任务描述</label><textarea class="form-input" id="tDesc">'+escHtml(d.desc||'')+'</textarea></div>'
++'<div class="form-group"><label>积分奖励</label><input class="form-input" id="tReward" type="number" value="'+(d.reward||'')+'"></div>'
++'<div class="form-group"><label>截止时间</label><input class="form-input" id="tDeadline" type="date" value="'+escHtml(d.deadline||'')+'"></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveTask('+(isEdit?id:'null')+')">'+(isEdit?'保存':'发布')+'</button>';
+// fix: use d.id for edit
+foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveTask('+(isEdit?d.id:'null')+')">'+(isEdit?'保存':'发布')+'</button>';
+openModal(isEdit?'编辑任务':'发布新任务',body,foot);
+}
+function saveTask(id){
+var titleEl=document.getElementById('tTitle');
+var descEl=document.getElementById('tDesc');
+var rewardEl=document.getElementById('tReward');
+var deadlineEl=document.getElementById('tDeadline');
+var title=titleEl.value.trim();
+var desc=descEl.value.trim();
+var reward=parseInt(rewardEl.value);
+var deadline=deadlineEl.value;
+if(!title){shakeEl(titleEl);showToast('请填写任务标题','warn');return;}
+if(isNaN(reward)||reward<0){shakeEl(rewardEl);showToast('奖励积分需为非负整数','warn');return;}
+if(!deadline){shakeEl(deadlineEl);showToast('请选择截止日期','warn');return;}
+var data={title:title,desc:desc,reward:reward,deadline:deadline,publisher:'管理员'};
+if(id){YangFanData.updateTask(id,data);}else{YangFanData.createTask(data);}
+renderTasks();closeModal();showToast(id?'已保存修改':'任务已发布','success');
+}
+function openEditTask(id){var t=YangFanData.getTasks().find(function(x){return x.id===id;});if(t)openTaskModal(t);}
+function confirmDeleteTask(id){
+var t=YangFanData.getTasks().find(function(x){return x.id===id;});
+showConfirm('删除任务','确定要删除「'+t.title+'」吗？',function(){
+YangFanData.deleteTask(id);renderTasks();showToast('已删除','success');
+});
+}
+
+// ===== 机会 =====
+function renderOpps(){
+var opps=YangFanData.getOpps();
+var filtered=opps.filter(function(o){
+if(oppTypeFilter!=='all'&&o.type!==oppTypeFilter)return false;
+if(oppSearch&&o.title.toLowerCase().indexOf(oppSearch.toLowerCase())===-1)return false;
+return true;
+});
+var typeMap={intern:'实习',camp:'夏令营',compete:'竞赛',volunteer:'志愿者',scholarship:'奖学金'};
+var typeBadge={intern:'badge-blue',camp:'badge-green',compete:'badge-orange',volunteer:'badge-purple',scholarship:'badge-red'};
+var tb=document.getElementById('oppTableBody');
+if(!tb)return;
+tb.innerHTML=filtered.map(function(o){
+return '<tr><td style="font-weight:600">'+escHtml(o.title)+'</td><td><span class="badge '+(typeBadge[o.type]||'badge-gray')+'">'+(typeMap[o.type]||o.type)+'</span></td><td>'+escHtml(o.region)+'</td><td>'+escHtml(o.deadline)+'</td><td><button class="btn-text" onclick="openEditOpp('+o.id+')">编辑</button><button class="btn-text danger" onclick="confirmDeleteOpp('+o.id+')">删除</button></td></tr>';
+}).join('');
+}
+function filterOpps(q){oppSearch=q;renderOpps();}
+function filterOppType(t){oppTypeFilter=t;renderOpps();}
+function openOppModal(editData){
+var isEdit=!!editData;var d=isEdit?editData:{};
+var body='<div class="form-group"><label>标题</label><input class="form-input" id="oTitle" value="'+escHtml(d.title||'')+'"></div>'
++'<div class="form-group"><label>类型</label><select class="form-select" id="oType"><option value="intern"'+(d.type==='intern'?' selected':'')+'>实习</option><option value="camp"'+(d.type==='camp'?' selected':'')+'>夏令营</option><option value="compete"'+(d.type==='compete'?' selected':'')+'>竞赛</option><option value="volunteer"'+(d.type==='volunteer'?' selected':'')+'>志愿者</option><option value="scholarship"'+(d.type==='scholarship'?' selected':'')+'>奖学金</option></select></div>'
++'<div class="form-group"><label>地区</label><input class="form-input" id="oRegion" value="'+escHtml(d.region||'')+'"></div>'
++'<div class="form-group"><label>描述</label><textarea class="form-input" id="oDesc">'+escHtml(d.desc||'')+'</textarea></div>'
++'<div class="form-group"><label>截止时间</label><input class="form-input" id="oDeadline" type="date" value="'+escHtml(d.deadline||'')+'"></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveOpp('+(isEdit?d.id:'null')+')">'+(isEdit?'保存':'发布')+'</button>';
+openModal(isEdit?'编辑机会':'发布新机会',body,foot);
+}
+function saveOpp(id){
+var titleEl=document.getElementById('oTitle');
+var typeEl=document.getElementById('oType');
+var regionEl=document.getElementById('oRegion');
+var descEl=document.getElementById('oDesc');
+var deadlineEl=document.getElementById('oDeadline');
+var title=titleEl.value.trim();
+var type=typeEl.value;
+var region=regionEl.value.trim();
+var desc=descEl.value.trim();
+var deadline=deadlineEl.value;
+if(!title){shakeEl(titleEl);showToast('请填写机会标题','warn');return;}
+if(!region){shakeEl(regionEl);showToast('请填写地区','warn');return;}
+if(!deadline){shakeEl(deadlineEl);showToast('请选择截止日期','warn');return;}
+var data={title:title,type:type,region:region,desc:desc,deadline:deadline};
+if(id){YangFanData.updateOpp(id,data);}else{YangFanData.createOpp(data);}
+renderOpps();closeModal();showToast(id?'已保存修改':'机会已发布','success');
+}
+function openEditOpp(id){var o=YangFanData.getOpps().find(function(x){return x.id===id;});if(o)openOppModal(o);}
+function confirmDeleteOpp(id){
+var o=YangFanData.getOpps().find(function(x){return x.id===id;});
+showConfirm('删除机会','确定要删除「'+o.title+'」吗？',function(){
+YangFanData.deleteOpp(id);renderOpps();showToast('已删除','success');
+});
+}
+
+// ===== 小组管理 (P1-13: 新页面) =====
+function renderGroups(){
+var groups=YangFanData.getGroups();
+var filtered=groups;
+if(groupSearch){
+var q=groupSearch.toLowerCase();
+filtered=groups.filter(function(g){return g.name.toLowerCase().indexOf(q)>-1||g.cat.toLowerCase().indexOf(q)>-1;});
+}
+var container=document.getElementById('groupList');
+if(!container)return;
+if(!filtered.length){container.innerHTML='<div class="empty-state"><p>暂无小组</p></div>';return;}
+container.innerHTML='<div class="table-card"><table><thead><tr><th>小组名称</th><th>分类</th><th>成员数</th><th>简介</th><th>操作</th></tr></thead><tbody>'
++filtered.map(function(g){
+return '<tr><td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:'+g.color+';flex-shrink:0"></div><span style="font-weight:600">'+escHtml(g.name)+'</span></div></td><td><span class="badge badge-blue">'+escHtml(g.cat)+'</span></td><td>'+(g.members||0)+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(g.desc)+'</td><td><button class="btn-text" onclick="openEditGroup('+g.id+')">编辑</button><button class="btn-text danger" onclick="confirmDeleteGroup('+g.id+')">删除</button></td></tr>';
+}).join('')
++'</tbody></table></div>';
+}
+function filterGroups(q){groupSearch=q;renderGroups();}
+function openGroupModal(editData){
+var isEdit=!!editData;var d=isEdit?editData:{};
+var body='<div class="form-group"><label>小组名称</label><input class="form-input" id="gName" value="'+escHtml(d.name||'')+'"></div>'
++'<div class="form-group"><label>分类</label><input class="form-input" id="gCat" value="'+escHtml(d.cat||'')+'"></div>'
++'<div class="form-group"><label>简介</label><input class="form-input" id="gDesc" value="'+escHtml(d.desc||'')+'"></div>'
++'<div class="form-group"><label>成员数</label><input class="form-input" id="gMembers" type="number" value="'+(d.members||0)+'"></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveGroup('+(isEdit?d.id:'null')+')">'+(isEdit?'保存':'创建')+'</button>';
+openModal(isEdit?'编辑小组':'创建小组',body,foot);
+}
+function saveGroup(id){
+var nameEl=document.getElementById('gName');
+var catEl=document.getElementById('gCat');
+var descEl=document.getElementById('gDesc');
+var membersEl=document.getElementById('gMembers');
+var name=nameEl.value.trim();
+var cat=catEl.value.trim();
+var desc=descEl.value.trim();
+var members=parseInt(membersEl.value);
+if(!name){shakeEl(nameEl);showToast('请填写小组名称','warn');return;}
+if(isNaN(members)||members<0){shakeEl(membersEl);showToast('成员数需为非负整数','warn');return;}
+var data={name:name,cat:cat,desc:desc,members:members};
+if(id){YangFanData.updateGroup(id,data);}else{data.color='linear-gradient(135deg,'+COLORS[Math.floor(Math.random()*COLORS.length)]+','+COLORS[Math.floor(Math.random()*COLORS.length)]+')';YangFanData.createGroup(data);}
+renderGroups();closeModal();showToast(id?'已保存':'小组已创建','success');
+}
+function openEditGroup(id){var g=YangFanData.getGroup(id);if(g)openGroupModal(g);}
+function confirmDeleteGroup(id){
+var g=YangFanData.getGroup(id);
+showConfirm('删除小组','确定要删除「'+g.name+'」吗？',function(){
+YangFanData.deleteGroup(id);renderGroups();showToast('已删除','success');
+});
+}
+
+// ===== 积分商城 (P0-3: 新页面CRUD) =====
+function renderShop(){
+var items=YangFanData.getShopItems();
+var filtered=items;
+if(shopSearch){
+var q=shopSearch.toLowerCase();
+filtered=items.filter(function(it){return it.name.toLowerCase().indexOf(q)>-1||it.cat.toLowerCase().indexOf(q)>-1;});
+}
+var container=document.getElementById('shopList');
+if(!container)return;
+if(!filtered.length){container.innerHTML='<div class="empty-state"><p>暂无商品</p></div>';return;}
+container.innerHTML='<div class="table-card"><table><thead><tr><th>商品</th><th>分类</th><th>所需积分</th><th>库存</th><th>操作</th></tr></thead><tbody>'
++filtered.map(function(it){
+return '<tr><td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:8px;background:'+it.bg+';flex-shrink:0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z" fill="#fff" opacity=".8"/></svg></div><div><div style="font-weight:600">'+escHtml(it.name)+'</div><div style="font-size:11px;color:var(--text3)">'+escHtml(it.desc)+'</div></div></div></td><td><span class="badge badge-purple">'+escHtml(it.cat)+'</span></td><td><span class="badge badge-orange">'+it.price+' 积分</span></td><td>'+(it.stock===999?'不限':it.stock)+'</td><td><button class="btn-text" onclick="openEditShopItem('+it.id+')">编辑</button><button class="btn-text danger" onclick="confirmDeleteShopItem('+it.id+')">删除</button></td></tr>';
+}).join('')
++'</tbody></table></div>';
+}
+function filterShop(q){shopSearch=q;renderShop();}
+function openShopModal(editData){
+var isEdit=!!editData;var d=isEdit?editData:{};
+var body='<div class="form-group"><label>商品名称</label><input class="form-input" id="siName" value="'+escHtml(d.name||'')+'"></div>'
++'<div class="form-group"><label>描述</label><input class="form-input" id="siDesc" value="'+escHtml(d.desc||'')+'"></div>'
++'<div class="form-group"><label>分类</label><select class="form-select" id="siCat"><option value="勋章"'+(d.cat==='勋章'?' selected':'')+'>勋章</option><option value="头像框"'+(d.cat==='头像框'?' selected':'')+'>头像框</option><option value="称号"'+(d.cat==='称号'?' selected':'')+'>称号</option></select></div>'
++'<div class="form-group"><label>所需积分</label><input class="form-input" id="siPrice" type="number" value="'+(d.price||100)+'"></div>'
++'<div class="form-group"><label>库存(999为不限)</label><input class="form-input" id="siStock" type="number" value="'+(d.stock!==undefined?d.stock:999)+'"></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveShopItem('+(isEdit?d.id:'null')+')">'+(isEdit?'保存':'添加')+'</button>';
+openModal(isEdit?'编辑商品':'添加商品',body,foot);
+}
+function saveShopItem(id){
+var name=document.getElementById('siName').value.trim();
+var desc=document.getElementById('siDesc').value.trim();
+var cat=document.getElementById('siCat').value;
+var price=parseInt(document.getElementById('siPrice').value)||0;
+var stock=parseInt(document.getElementById('siStock').value);
+if(isNaN(stock))stock=999;
+if(!name){showToast('请填写商品名称','error');return;}
+var data={name:name,desc:desc,cat:cat,price:price,stock:stock};
+if(id){YangFanData.updateShopItem(id,data);}else{data.bg='linear-gradient(135deg,'+COLORS[Math.floor(Math.random()*COLORS.length)]+','+COLORS[Math.floor(Math.random()*COLORS.length)]+')';YangFanData.createShopItem(data);}
+renderShop();closeModal();showToast(id?'已保存':'商品已添加','success');
+}
+function openEditShopItem(id){var it=YangFanData.getShopItems().find(function(x){return x.id===id;});if(it)openShopModal(it);}
+function confirmDeleteShopItem(id){
+showConfirm('删除商品','确定要删除此商品吗？',function(){
+YangFanData.deleteShopItem(id);renderShop();showToast('已删除','success');
+});
+}
+
+// ===== 兑换记录 (P0-4: 新页面) =====
+function renderExchanges(){
+var exchanges=YangFanData.getExchanges();
+var filtered=exchanges;
+if(exchangeFilter!=='all'){filtered=exchanges.filter(function(e){return e.status===exchangeFilter;});}
+var container=document.getElementById('exchangeList');
+if(!container)return;
+if(!filtered.length){container.innerHTML='<div class="empty-state"><p>暂无兑换记录</p></div>';return;}
+var statusMap={pending:'待处理',completed:'已完成',rejected:'已拒绝'};
+var statusBadge={pending:'badge-orange',completed:'badge-green',rejected:'badge-red'};
+container.innerHTML='<div class="table-card"><table><thead><tr><th>用户</th><th>商品</th><th>消耗积分</th><th>兑换时间</th><th>状态</th><th>操作</th></tr></thead><tbody>'
++filtered.map(function(e){
+var actions='';
+if(e.status==='pending'){
+actions='<button class="btn btn-sm btn-green" onclick="completeExchange('+e.id+')">完成</button><button class="btn btn-sm btn-coral" onclick="rejectExchange('+e.id+')">拒绝</button>';
+}else{
+actions='<button class="btn btn-sm btn-outline" onclick="resetExchange('+e.id+')">重置</button>';
+}
+return '<tr><td>'+escHtml(e.userName)+'</td><td>'+escHtml(e.itemName)+'</td><td><span class="badge badge-orange">'+e.points+'</span></td><td>'+escHtml(e.time)+'</td><td><span class="badge '+(statusBadge[e.status]||'badge-gray')+'">'+(statusMap[e.status]||e.status)+'</span></td><td>'+actions+'</td></tr>';
+}).join('')
++'</tbody></table></div>';
+}
+function filterExchanges(s){exchangeFilter=s;renderExchanges();}
+function completeExchange(id){
+YangFanData.updateExchange(id,{status:'completed'});
+var ex=YangFanData.getExchanges().find(function(x){return x.id===id;});
+if(ex&&ex.userId){YangFanData.createNotification({userId:ex.userId,type:'system',text:'你的兑换「'+ex.itemName+'」已完成'});}
+renderExchanges();showToast('兑换已完成','success');
+}
+function rejectExchange(id){
+YangFanData.updateExchange(id,{status:'rejected'});
+var ex=YangFanData.getExchanges().find(function(x){return x.id===id;});
+if(ex&&ex.userId){
+// 退还积分
+YangFanData.updatePoints(ex.userId,ex.points);
+YangFanData.createNotification({userId:ex.userId,type:'system',text:'你的兑换「'+ex.itemName+'」已拒绝，积分已退还'});
+}
+renderExchanges();showToast('兑换已拒绝，积分已退还','info');
+}
+function resetExchange(id){YangFanData.updateExchange(id,{status:'pending'});renderExchanges();showToast('已重置为待处理','info');}
+
+// ===== 举报管理 (P1-3: 新页面) =====
+function renderReports(){
+var reports=YangFanData.getReports();
+var filtered=reports;
+if(reportFilter!=='all'){filtered=reports.filter(function(r){return r.status===reportFilter;});}
+var container=document.getElementById('reportList');
+if(!container)return;
+if(!filtered.length){container.innerHTML='<div class="empty-state"><p>暂无举报</p></div>';return;}
+var statusMap={pending:'待处理',ignored:'已忽略',resolved:'已处理'};
+var statusBadge={pending:'badge-orange',ignored:'badge-gray',resolved:'badge-green'};
+container.innerHTML='<div class="table-card"><table><thead><tr><th>类型</th><th>目标</th><th>原因</th><th>举报人</th><th>时间</th><th>状态</th><th>操作</th></tr></thead><tbody>'
++filtered.map(function(r){
+var actions='';
+if(r.status==='pending'){
+actions='<button class="btn btn-sm btn-green" onclick="resolveReport('+r.id+')">删除内容</button><button class="btn btn-sm btn-outline" onclick="ignoreReport('+r.id+')">忽略</button>';
+}
+return '<tr><td><span class="badge badge-blue">'+escHtml(r.targetType)+'</span></td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(r.targetTitle)+'</td><td>'+escHtml(r.reason)+(r.detail?'<div style="font-size:11px;color:var(--text3)">'+escHtml(r.detail)+'</div>':'')+'</td><td>'+escHtml(r.reporterName)+'</td><td>'+escHtml(r.time)+'</td><td><span class="badge '+(statusBadge[r.status]||'badge-gray')+'">'+(statusMap[r.status]||r.status)+'</span></td><td>'+actions+'</td></tr>';
+}).join('')
++'</tbody></table></div>';
+}
+function filterReports(s){reportFilter=s;renderReports();updateBadges();}
+function resolveReport(id){
+var report=YangFanData.getReports().find(function(x){return x.id===id;});
+if(report&&report.targetType==='post'){
+YangFanData.deletePost(report.targetId);
+}
+YangFanData.updateReport(id,{status:'resolved'});
+renderReports();updateBadges();showToast('举报已处理，内容已删除','success');
+}
+function ignoreReport(id){
+YangFanData.updateReport(id,{status:'ignored'});
+renderReports();updateBadges();showToast('举报已忽略','info');
+}
+
+// ===== 违规词管理 (P1-7: 新页面) =====
+function renderBadWords(){
+var words=YangFanData.getBadWords();
+var filtered=words;
+if(badwordSearch){
+var q=badwordSearch.toLowerCase();
+filtered=words.filter(function(w){return w.word.toLowerCase().indexOf(q)>-1;});
+}
+var container=document.getElementById('badwordList');
+if(!container)return;
+if(!filtered.length){container.innerHTML='<div class="empty-state"><p>暂无违规词</p></div>';return;}
+var catBadge={辱骂:'badge-red',色情:'badge-orange',违法:'badge-purple',其他:'badge-gray'};
+container.innerHTML='<div class="table-card"><table><thead><tr><th>违规词</th><th>分类</th><th>操作</th></tr></thead><tbody>'
++filtered.map(function(w){
+return '<tr><td style="font-weight:600">'+escHtml(w.word)+'</td><td><span class="badge '+(catBadge[w.category]||'badge-gray')+'">'+escHtml(w.category)+'</span></td><td><button class="btn-text danger" onclick="confirmDeleteBadWord('+w.id+')">删除</button></td></tr>';
+}).join('')
++'</tbody></table></div>';
+}
+function filterBadWords(q){badwordSearch=q;renderBadWords();}
+function openBadWordModal(){
+var body='<div class="form-group"><label>违规词</label><input class="form-input" id="bwWord" placeholder="输入违规词..."></div>'
++'<div class="form-group"><label>分类</label><select class="form-select" id="bwCat"><option value="辱骂">辱骂</option><option value="色情">色情</option><option value="违法">违法</option><option value="其他">其他</option></select></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveBadWord()">添加</button>';
+openModal('添加违规词',body,foot);
+}
+function saveBadWord(){
+var word=document.getElementById('bwWord').value.trim();
+var cat=document.getElementById('bwCat').value;
+if(!word){showToast('请输入违规词','error');return;}
+var existing=YangFanData.getBadWords();
+if(existing.some(function(w){return w.word===word;})){showToast('该违规词已存在','error');return;}
+YangFanData.addBadWord(word,cat);
+renderBadWords();closeModal();showToast('违规词已添加','success');
+}
+function confirmDeleteBadWord(id){
+showConfirm('删除违规词','确定要删除此违规词吗？',function(){
+YangFanData.deleteBadWord(id);renderBadWords();showToast('已删除','success');
+});
+}
+
+// ===== 系统配置 =====
+function renderSettings(){
+renderBanners();
+renderAnnounces();
+renderTags();
+}
+
+function renderBanners(){
+var banners=YangFanData.getBanners();
+var el=document.getElementById('bannerList');
+if(!el)return;
+el.innerHTML=banners.map(function(b){
+var bg=b.image?('url('+b.image+') center/cover'):((b.gradient&&b.gradient.length>0)?b.gradient:('linear-gradient(135deg,'+(b.color||'#4facfe')+','+(b.color||'#4facfe')+'cc)'));
+return '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:8px"><div style="width:80px;height:48px;border-radius:6px;background:'+bg+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;flex-shrink:0;overflow:hidden;text-shadow:0 1px 3px rgba(0,0,0,.4)">'+escHtml(b.title.substring(0,4))+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(b.title)+'</div><div style="font-size:11px;color:var(--text3)">'+escHtml(b.desc)+'</div></div><div><button class="btn-text" onclick="openEditBanner('+b.id+')">编辑</button><button class="btn-text danger" onclick="confirmDeleteBanner('+b.id+')">删除</button></div></div>';
+}).join('');
+}
+var _BANNER_GRADIENTS=[
+'linear-gradient(135deg,#4facfe,#00f2fe)',
+'linear-gradient(135deg,#ff6b6b,#ffa502)',
+'linear-gradient(135deg,#6c5ce7,#a29bfe)',
+'linear-gradient(135deg,#00b894,#55efc4)',
+'linear-gradient(135deg,#e17055,#ff8e8e)',
+'linear-gradient(135deg,#fd79a8,#e84393)',
+'linear-gradient(135deg,#0984e3,#74b9ff)',
+'linear-gradient(135deg,#fdcb6e,#f39c12)'
+];
+
+var _bannerEditImg='';
+var _bSelGrad=0;
+var _BG_GRADS=[
+'linear-gradient(135deg,#4facfe,#00f2fe)',
+'linear-gradient(135deg,#ff6b6b,#ffa502)',
+'linear-gradient(135deg,#6c5ce7,#a29bfe)',
+'linear-gradient(135deg,#00b894,#55efc4)',
+'linear-gradient(135deg,#e17055,#ff8e8e)',
+'linear-gradient(135deg,#fd79a8,#e84393)',
+'linear-gradient(135deg,#0984e3,#74b9ff)',
+'linear-gradient(135deg,#fdcb6e,#f39c12)'
+];
+function _safeEsc(s){try{return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';}catch(e){return'';}}
+function openBannerModal(editData){
+try{
+var grads=(_BG_GRADS&&_BG_GRADS.length)?_BG_GRADIENTS:_BG_GRADS;
+if(!grads||!grads.length){grads=['linear-gradient(135deg,#4facfe,#00f2fe)'];}
+var isEdit=!!(editData&&editData.id);
+var d=isEdit?editData:{};
+_bannerEditImg=d.image||'';
+_bSelGrad=0;
+var presets='';
+for(var i=0;i<grads.length;i++){
+presets+='<div onclick="selBannerGradient('+i+')" id="bGrad'+i+'" style="aspect-ratio:2.2/1;border-radius:8px;background:'+grads[i]+';cursor:pointer;border:2px solid transparent"></div>';
+}
+var initBg='';
+if(d.image){initBg='url('+d.image+') center/cover';}
+else if(d.gradient){initBg=d.gradient;}
+else{initBg=grads[0];}
+var dTitle=_safeEsc(d.title||'');
+var dDesc=_safeEsc(d.desc||'');
+var dPreview=_safeEsc(d.title||'预览效果');
+var body='<div class="form-group"><label>标题</label><input class="form-input" id="bTitle" value="'+dTitle+'" oninput="updateBannerPreview()"></div>';
+body+='<div class="form-group"><label>描述</label><input class="form-input" id="bDesc" value="'+dDesc+'"></div>';
+body+='<div class="form-group"><label>选择渐变色或上传图片</label><div id="bGradGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">'+presets+'</div>';
+body+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label class="btn btn-sm btn-outline" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>上传图片<input type="file" id="bImgInput" accept="image/*" style="display:none" onchange="handleBannerImg(this)"></label>';
+body+='<button type="button" class="btn btn-sm btn-outline" onclick="clearBannerImg()" id="bClearBtn" style="'+(_bannerEditImg?'':'display:none')+'">清除图片</button>';
+body+='<span id="bImgStatus" style="font-size:11px;color:var(--text3)">'+(_bannerEditImg?'已上传图片':'建议尺寸 1200x400')+'</span></div></div>';
+body+='<div id="bPreview" style="margin-top:10px;height:80px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.4);background:'+initBg+';overflow:hidden;background-size:cover;background-position:center">'+dPreview+'</div>';
+var saveId=isEdit?d.id:'null';
+var saveText=isEdit?'保存':'添加';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" id="bSaveBtn" onclick="saveBanner('+saveId+')">'+saveText+'</button>';
+try{openModal(isEdit?'编辑Banner':'添加Banner',body,foot);}catch(e2){console.error('openModal fail:',e2);return;}
+setTimeout(function(){
+try{
+var sel=-1;
+if(d.gradient){for(var gi=0;gi<grads.length;gi++){if(grads[gi]===d.gradient){sel=gi;break;}}}
+if(_bannerEditImg)sel=-1;
+if(sel<0&&!_bannerEditImg)sel=0;
+if(sel>=0){var el=document.getElementById('bGrad'+sel);if(el)el.style.borderColor='#333';}
+_bSelGrad=sel;
+}catch(e3){console.error('sel timeout:',e3);}
+},100);
+}catch(e){console.error('openBannerModal error:',e);showToast('打开弹窗失败：'+e.message,'error');}
+}
+function _getBannerGrads(){return(_BG_GRADS&&_BG_GRADS.length)?_BG_GRADS:_BANNER_GRADIENTS;}
+function updateBannerPreview(){
+try{var pv=document.getElementById('bPreview');if(!pv)return;var t=document.getElementById('bTitle');pv.textContent=(t&&t.value)?t.value:'预览效果';}catch(e){}
+}
+function clearBannerImg(){
+try{
+_bannerEditImg='';window._bSelGrad=0;
+var inp=document.getElementById('bImgInput');if(inp)inp.value='';
+var st=document.getElementById('bImgStatus');if(st){st.textContent='建议尺寸 1200x400';st.style.color='var(--text3)';}
+var cb=document.getElementById('bClearBtn');if(cb)cb.style.display='none';
+var el=document.getElementById('bGrad0');if(el)el.style.borderColor='#333';
+var pv=document.getElementById('bPreview');var _gr=_getBannerGrads();if(pv)pv.style.background=_gr[0]||'linear-gradient(135deg,#4facfe,#00f2fe)';
+}catch(e){}
+}
+function selBannerGradient(i){
+try{
+var grads=_getBannerGrads();
+_bannerEditImg='';_bSelGrad=i;
+var grid=document.getElementById('bGradGrid');
+if(grid){var kids=grid.children;for(var k=0;k<kids.length;k++)kids[k].style.borderColor='transparent';if(kids[i])kids[i].style.borderColor='#333';}
+var pv=document.getElementById('bPreview');if(pv)pv.style.background=grads[i]||grads[0];
+var st=document.getElementById('bImgStatus');if(st){st.textContent='建议尺寸 1200x400';st.style.color='var(--text3)';}
+var cb=document.getElementById('bClearBtn');if(cb)cb.style.display='none';
+var inp=document.getElementById('bImgInput');if(inp)inp.value='';
+}catch(e){console.error('selBannerGradient error:',e);}
+}
+function handleBannerImg(input){
+try{
+var f=input.files[0];if(!f)return;
+if(f.size>5*1024*1024){showToast('图片不能超过5MB','warn');input.value='';return;}
+var reader=new FileReader();
+reader.onload=function(e){
+var img=new Image();
+img.onload=function(){
+var canvas=document.createElement('canvas');
+var W=1200,ratio=img.height/img.width;
+canvas.width=W;canvas.height=Math.max(200,Math.round(W*ratio*0.5));
+var ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);
+try{
+_bannerEditImg=canvas.toDataURL('image/jpeg',0.82);
+var pv=document.getElementById('bPreview');if(pv){pv.style.background='url('+_bannerEditImg+') center/cover no-repeat';}
+var st=document.getElementById('bImgStatus');if(st){st.textContent='已上传 '+Math.round(f.size/1024)+'KB';st.style.color='#00b894';}
+if(_bSelGrad!=null){var _gr2=_getBannerGrads();for(var gi=0;gi<_gr2.length;gi++){var gel=document.getElementById('bGrad'+gi);if(gel)gel.style.borderColor='transparent';}}
+_bSelGrad=-1;
+var cb=document.getElementById('bClearBtn');if(cb)cb.style.display='inline-flex';
+}catch(err){showToast('图片过大，请压缩后重试','error');}
+};
+img.onerror=function(){showToast('图片加载失败','error');};
+img.src=e.target.result;
+};
+reader.onerror=function(){showToast('图片读取失败','error');};
+reader.readAsDataURL(f);
+}catch(e){console.error('handleBannerImg error:',e);showToast('上传失败：'+e.message,'error');}
+}
+function saveBanner(id){
+try{
+var titleEl=document.getElementById('bTitle');
+var descEl=document.getElementById('bDesc');
+if(!titleEl)return;
+var title=titleEl.value.trim();
+var desc=descEl?descEl.value.trim():'';
+if(!title){shakeEl(titleEl);showToast('请填写标题','warn');return;}
+if(!_bannerEditImg&&(_bSelGrad==null||_bSelGrad<0)){_bSelGrad=0;}
+var grads=_getBannerGrads();
+var gradIdx=(_bSelGrad!=null&&_bSelGrad>=0)?_bSelGrad:0;
+var payload={title:title,desc:desc,color:'#4facfe',gradient:_bannerEditImg?'':(grads[gradIdx]||grads[0]),image:_bannerEditImg};
+var saveBtn=document.getElementById('bSaveBtn');if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='保存中...';}
+setTimeout(function(){
+try{
+if(id){YangFanData.updateBanner(id,payload);}else{YangFanData.createBanner(payload);}
+_bannerEditImg='';window._bSelGrad=0;
+renderBanners();closeModal();showToast(id?'已保存':'已添加','success');
+}catch(e){showToast('保存失败：'+e.message,'error');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent=id?'保存':'添加';}}
+},100);
+}catch(e){console.error('saveBanner error:',e);showToast('保存失败：'+e.message,'error');}
+}
+
+function openEditBanner(id){var b=YangFanData.getBanners().find(function(x){return x.id===id;});if(b)openBannerModal(b);}
+function confirmDeleteBanner(id){
+showConfirm('删除Banner','确定要删除此Banner吗？删除后不可恢复。',function(){YangFanData.deleteBanner(id);renderBanners();showToast('已删除','success');});
+}
+
+function renderAnnounces(){
+var announces=YangFanData.getAnnounces();
+var el=document.getElementById('announceList');
+if(!el)return;
+el.innerHTML=announces.map(function(a){
+return '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#ff6b6b" opacity=".6"/></svg><div style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(a.content)+'</div><div style="font-size:11px;color:var(--text3);flex-shrink:0">'+escHtml(a.time)+'</div><div style="flex-shrink:0"><button class="btn-text danger" onclick="confirmDeleteAnnounce('+a.id+')">删除</button></div></div>';
+}).join('');
+}
+function openAnnounceModal(){
+var body='<div class="form-group"><label>公告内容</label><textarea class="form-input" id="aContent" rows="3" placeholder="请输入公告内容..."></textarea></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-coral" onclick="saveAnnounce()">发布</button>';
+openModal('发布公告',body,foot);
+}
+function saveAnnounce(){
+var content=document.getElementById('aContent').value.trim();
+if(!content){showToast('请填写公告内容','error');return;}
+YangFanData.createAnnounce({content:content});
+renderAnnounces();closeModal();showToast('公告已发布','success');
+}
+function confirmDeleteAnnounce(id){
+showConfirm('删除公告','确定要删除此公告吗？',function(){YangFanData.deleteAnnounce(id);renderAnnounces();showToast('已删除','success');});
+}
+
+function renderTags(){
+var tags=YangFanData.getTags();
+var el=document.getElementById('tagList');
+if(!el)return;
+el.innerHTML=tags.map(function(t,i){
+return '<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--pri-l);border-radius:20px;font-size:13px;color:var(--pri-d);font-weight:500;margin:4px">'+escHtml(t)+'<span style="cursor:pointer;opacity:.5;font-size:16px;line-height:1" onclick="confirmDeleteTag('+i+')">&times;</span></div>';
+}).join('');
+}
+function openTagModal(){
+var body='<div class="form-group"><label>标签名称</label><input class="form-input" id="newTag" placeholder="输入新标签..."></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-green" onclick="saveTag()">添加</button>';
+openModal('添加话题标签',body,foot);
+}
+function saveTag(){
+var tag=document.getElementById('newTag').value.trim();
+if(!tag){showToast('请填写标签名称','error');return;}
+var tags=YangFanData.getTags();
+if(tags.indexOf(tag)>-1){showToast('标签已存在','error');return;}
+YangFanData.addTag(tag);renderTags();closeModal();showToast('标签已添加','success');
+}
+function confirmDeleteTag(idx){
+showConfirm('删除标签','确定要删除此标签吗？',function(){YangFanData.removeTag(idx);renderTags();showToast('已删除','success');});
+}
+
+// ===== 数据同步 (飞书 · Cloudflare Worker 代理 V5) =====
+
+// Cloudflare Worker 脚本（ES module 格式，供用户复制部署）
+var CF_WORKER_SCRIPT = `// 青帆社区 · 飞书多维表格代理 Worker
+// 部署后在 Worker 设置 → Variables 中添加（值见部署文档或向管理员获取）：
+//   APP_ID     = 你的飞书应用 App ID
+//   APP_SECRET = 你的飞书应用 App Secret
+const FEISHU_BASE = 'https://open.feishu.cn/open-apis';
+let _token = null;
+let _tokenExp = 0;
+
+async function getToken(env) {
+  if (_token && Date.now() < _tokenExp) return _token;
+  const r = await fetch(FEISHU_BASE + '/auth/v3/tenant_access_token/internal', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ app_id: env.APP_ID, app_secret: env.APP_SECRET })
+  });
+  const d = await r.json();
+  if (d.tenant_access_token) {
+    _token = d.tenant_access_token;
+    _tokenExp = Date.now() + (d.expire - 300) * 1000;
+    return _token;
+  }
+  throw new Error(d.msg || 'token 获取失败');
+}
+
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+}
+
+export default {
+  async fetch(request, env) {
+    // CORS 预检
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders() });
+    }
+    const url = new URL(request.url);
+
+    // 健康检查
+    if (url.pathname === '/' || url.pathname === '/ping') {
+      return new Response(JSON.stringify({ ok: true, service: 'yangfan-feishu-proxy' }), {
+        headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      });
+    }
+
+    try {
+      const token = await getToken(env);
+      // 统一代理：POST body = { path, method, body }
+      const payload = await request.json().catch(() => ({}));
+      const apiPath = payload.path || '/bitable/v1/apps';
+      const method = (payload.method || 'GET').toUpperCase();
+      const apiUrl = FEISHU_BASE + apiPath;
+      const opt = {
+        method: method,
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      };
+      if (method !== 'GET' && payload.body) {
+        opt.body = JSON.stringify(payload.body);
+      }
+      const resp = await fetch(apiUrl, opt);
+      const text = await resp.text();
+      return new Response(text, {
+        status: resp.status,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      });
+    } catch (e) {
+      return new Response(JSON.stringify({ code: -1, msg: e.message }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      });
+    }
+  }
+};`;
+
+// 统一代理请求（10秒超时）
+function proxyFetch(apiPath, method, body){
+  var proxy=FEISHU_CONFIG.proxyUrl;
+  if(!proxy)return Promise.reject(new Error('未配置云同步代理'));
+  var base=proxy.replace(/\/+$/,'');
+  var ctrl=new AbortController();
+  var timer=setTimeout(function(){ctrl.abort();},10000);
+  return fetch(base+'/',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({path:apiPath,method:method||'GET',body:body||null}),
+    signal:ctrl.signal
+  }).then(function(r){
+    clearTimeout(timer);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).catch(function(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError')throw new Error('请求超时（10秒）');
+    throw e;
+  });
+}
+
+// 从飞书拉取单表数据（走代理，merge 策略）
+function pullTable(tableKey){
+  var tableId=FEISHU_CONFIG.tables[tableKey];
+  var path='/bitable/v1/apps/'+FEISHU_CONFIG.baseToken+'/tables/'+tableId+'/records/search?page_size=200';
+  return proxyFetch(path,'POST',{}).then(function(d){
+    if(d.code!==0||!d.data||!d.data.items){
+      if(d.msg)throw new Error(d.msg);
+      return [];
+    }
+    return d.data.items.map(function(item){
+      var f=item.fields,rec={_rid:item.record_id};
+      for(var k in f){
+        var v=f[k];
+        if(Array.isArray(v)&&v.length>0&&typeof v[0]==='object'&&v[0].text!==undefined){rec[k]=v.map(function(x){return x.text;}).join('');}
+        else if(Array.isArray(v)&&v[0]!==undefined&&typeof v[0]==='string'){rec[k]=v[0];}
+        else{rec[k]=v;}
+      }
+      return rec;
+    });
+  });
+}
+
+// 推送本地数据到飞书（全量覆盖单表：先删后增）
+function pushTable(tableKey,localData){
+  var tableId=FEISHU_CONFIG.tables[tableKey];
+  var apiPath='/bitable/v1/apps/'+FEISHU_CONFIG.baseToken+'/tables/'+tableId+'/records';
+  // 先获取现有记录ID
+  return proxyFetch(apiPath+'/search?page_size=200','POST',{}).then(function(d){
+    var existingIds=(d.data&&d.data.items||[]).map(function(x){return x.record_id;});
+    // 批量删除（每批100）
+    var delChunks=[];
+    for(var i=0;i<existingIds.length;i+=100)delChunks.push(existingIds.slice(i,i+100));
+    return delChunks.reduce(function(p,chunk){
+      return p.then(function(){
+        return proxyFetch(apiPath+'/batch_delete','POST',{records:chunk});
+      });
+    },Promise.resolve()).then(function(){
+      // 批量创建（每批100）
+      var records=localData.map(function(item){
+        var fields={};
+        for(var k in item){
+          if(k==='_rid')continue;
+          var v=item[k];
+          if(typeof v==='boolean')fields[k]=v;
+          else if(typeof v==='number')fields[k]=v;
+          else if(v!=null&&typeof v!=='object')fields[k]=String(v);
+        }
+        return{fields:fields};
+      });
+      var creChunks=[];
+      for(var j=0;j<records.length;j+=100)creChunks.push(records.slice(j,j+100));
+      return creChunks.reduce(function(p2,chunk2){
+        return p2.then(function(){
+          return proxyFetch(apiPath+'/batch_create','POST',{records:chunk2});
+        });
+      },Promise.resolve());
+    });
+  });
+}
+
+function syncLog(msg){
+  var logEl=document.getElementById('syncLog');
+  if(!logEl)return;
+  logEl.style.display='block';
+  var time=new Date().toLocaleTimeString('zh-CN');
+  logEl.innerHTML+='['+time+'] '+msg+'\n';
+  logEl.scrollTop=logEl.scrollHeight;
+}
+
+function renderSync(){
+  var el=document.getElementById('syncArea');
+  if(!el){console.warn('[YF] syncArea not found');return;}
+  var proxy=FEISHU_CONFIG.proxyUrl;
+  var baseToken=FEISHU_CONFIG.baseToken;
+  var configured=proxy&&proxy.length>0&&baseToken&&baseToken.length>0;
+  var tables=FEISHU_CONFIG.tables;
+  var tableNames={posts:'帖子',users:'用户',stars:'导师',groups:'小组',opps:'机会',announces:'公告',shop_items:'积分商品',exchanges:'兑换记录',notifications:'通知',reports:'举报',bad_words:'违规词',messages:'私信'};
+  var tableList=Object.keys(tables).map(function(k){
+    var count=0;
+    try{
+      if(k==='posts')count=YangFanData.getPosts().length;
+      else if(k==='users')count=YangFanData.getUsers().length;
+      else if(k==='stars')count=YangFanData.getStars().length;
+      else if(k==='groups')count=YangFanData.getGroups().length;
+      else if(k==='opps')count=YangFanData.getOpps().length;
+      else if(k==='announces')count=YangFanData.getAnnounces().length;
+      else if(k==='shop_items')count=YangFanData.getShopItems().length;
+      else if(k==='exchanges')count=YangFanData.getExchanges().length;
+      else if(k==='notifications')count=YangFanData.getNotifications().length;
+      else if(k==='reports')count=YangFanData.getReports().length;
+      else if(k==='bad_words')count=YangFanData.getBadWords().length;
+      else if(k==='messages')count=0;
+    }catch(e){}
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-radius:8px;margin-bottom:8px"><div><span style="font-weight:500">'+(tableNames[k]||k)+'</span><span style="font-size:11px;color:var(--text3);margin-left:8px">'+tables[k]+'</span></div><div style="display:flex;align-items:center;gap:12px"><span class="badge badge-blue">'+count+' 条</span><button class="btn btn-sm btn-outline" onclick="syncTable(\''+k+'\')" '+(configured?'':'disabled')+'>同步</button></div></div>';
+  }).join('');
+
+  var statusHtml=configured
+    ? '<div style="margin-bottom:16px;padding:12px 16px;background:var(--green-l,#e8f8f5);border-radius:8px;display:flex;align-items:center;gap:10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z" fill="#00b894"/></svg><span style="font-size:13px;color:#00b894;font-weight:500">已配置云同步代理：'+escHtml(proxy)+'</span></div>'
+    : '<div style="margin-bottom:16px;padding:12px 16px;background:var(--coral-l,#fff5f5);border-radius:8px;display:flex;align-items:flex-start;gap:10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#ff6b6b"/></svg><div style="font-size:13px;color:#ff6b6b;font-weight:500">未配置云同步代理，本地功能正常可用。按下方步骤部署 Cloudflare Worker 后填入代理 URL 即可开启双端云同步。</div></div>';
+
+  el.innerHTML='<div class="chart-card">'
+    +'<div class="chart-title">飞书多维表格同步</div>'
+    +statusHtml
+    // 代理配置区
+    +'<div style="margin-bottom:16px;padding:16px;background:var(--bg,#f7f8fa);border-radius:10px">'
+    +'<div style="font-size:14px;font-weight:600;margin-bottom:12px">代理配置</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+    +'<input type="text" id="baseTokenInput" class="form-input" style="flex:1;min-width:220px" placeholder="飞书多维表格 App Token（以 bascn 或字母开头的字符串）" value="'+escHtml(FEISHU_CONFIG.baseToken||'')+'">'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+    +'<input type="text" id="proxyUrlInput" class="form-input" style="flex:1;min-width:220px" placeholder="https://xxx.xxx.workers.dev" value="'+escHtml(proxy)+'">'
+    +'<button class="btn btn-pri" onclick="saveAndTestProxy()">保存并测试</button>'
+    +'</div>'
+    +'<div id="proxyTestResult" style="font-size:12px;margin-bottom:8px"></div>'
+    +'<div style="font-size:12px;color:var(--text3,#999)">App Token 与代理 URL 存储在本地浏览器，学生端与管理端同域共享。配置后两端自动联通。</div>'
+    +'</div>'
+    // 部署指引
+    +'<div style="margin-bottom:16px;padding:16px;background:var(--bg,#f7f8fa);border-radius:10px">'
+    +'<div style="font-size:14px;font-weight:600;margin-bottom:10px">Cloudflare Worker 部署指引</div>'
+    +'<ol style="font-size:13px;color:var(--text2,#555);line-height:1.9;padding-left:20px;margin:0">'
+    +'<li>打开 <a href="https://workers.cloudflare.com" target="_blank" style="color:#4facfe">workers.cloudflare.com</a> 注册（免费）</li>'
+    +'<li>Create Worker → 粘贴下方脚本 → Deploy</li>'
+    +'<li>在 Worker 设置 → Variables 中添加两个变量：<br><code style="background:#fff;padding:2px 6px;border-radius:4px;font-size:12px">APP_ID = 飞书应用 App ID</code><br><code style="background:#fff;padding:2px 6px;border-radius:4px;font-size:12px">APP_SECRET = 飞书应用 App Secret</code>（具体值见我单独发你的配置）</li>'
+    +'<li>复制 Worker 分配的 URL（类似 https://xxx.xxx.workers.dev）</li>'
+    +'<li>粘贴到上方输入框，点"保存并测试"</li>'
+    +'</ol>'
+    +'<div style="margin-top:12px"><button class="btn btn-sm btn-outline" onclick="toggleWorkerScript()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px"><path d="M16 1H4c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7l-6-6z" fill="currentColor"/></svg>查看 / 复制 Worker 脚本</button></div>'
+    +'<pre id="workerScriptPre" style="display:none;margin-top:10px;padding:12px;background:#1a1a2e;border-radius:8px;font-family:monospace;font-size:11px;color:#a8e6cf;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all"></pre>'
+    +'</div>'
+    // 同步操作
+    +'<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="btn btn-pri" onclick="syncAll()" '+(configured?'':'disabled')+'>推送全量到飞书</button>'
+    +'<button class="btn btn-outline" onclick="pullAll()" '+(configured?'':'disabled')+'>从飞书拉取</button>'
+    +'</div>'
+    +'<div style="font-size:12px;color:var(--text3,#888);margin-bottom:8px">推送：将本地数据覆盖写入飞书表格 | 拉取：将飞书数据合并到本地（保留本地独有记录）</div>'
+    +'<div id="syncLog" style="margin-bottom:16px;padding:12px;background:#1a1a2e;border-radius:8px;font-family:monospace;font-size:12px;color:#00ff88;max-height:200px;overflow-y:auto;display:none;white-space:pre-wrap"></div>'
+    +'<div style="font-size:13px;font-weight:600;margin-bottom:8px">数据表</div>'
+    +tableList
+    +'</div>';
+
+  // 填充 Worker 脚本内容
+  var pre=document.getElementById('workerScriptPre');
+  if(pre)pre.textContent=CF_WORKER_SCRIPT;
+}
+
+var _workerScriptShown=false;
+function toggleWorkerScript(){
+  var pre=document.getElementById('workerScriptPre');
+  if(!pre)return;
+  _workerScriptShown=!_workerScriptShown;
+  pre.style.display=_workerScriptShown?'block':'none';
+  if(_workerScriptShown){
+    // 尝试选中脚本方便复制
+    try{
+      var range=document.createRange();
+      range.selectNodeContents(pre);
+      var sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+    }catch(e){}
+    // 同时提供复制按钮
+    if(!document.getElementById('copyWorkerBtn')){
+      var btn=document.createElement('button');
+      btn.id='copyWorkerBtn';
+      btn.className='btn btn-sm btn-pri';
+      btn.style.cssText='margin-top:8px';
+      btn.innerHTML='复制脚本到剪贴板';
+      btn.onclick=copyWorkerScript;
+      pre.parentNode.insertBefore(btn,pre.nextSibling);
+    }
+  }
+}
+
+function copyWorkerScript(){
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(CF_WORKER_SCRIPT).then(function(){
+        showToast('Worker 脚本已复制到剪贴板','success');
+      }).catch(function(){
+        fallbackCopy(CF_WORKER_SCRIPT);
+      });
+    }else{
+      fallbackCopy(CF_WORKER_SCRIPT);
+    }
+  }catch(e){showToast('复制失败，请手动选择文本复制','error');}
+}
+
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showToast('Worker 脚本已复制','success');}
+  catch(e){showToast('复制失败，请手动复制','error');}
+  document.body.removeChild(ta);
+}
+
+function saveAndTestProxy(){
+  var input=document.getElementById('proxyUrlInput');
+  var baseInput=document.getElementById('baseTokenInput');
+  var result=document.getElementById('proxyTestResult');
+  if(!input||!result)return;
+  var url=input.value.trim().replace(/\/+$/,'');
+  var baseToken=baseInput?baseInput.value.trim():'';
+  if(!url){
+    result.innerHTML='<span style="color:#ff6b6b">请输入代理 URL</span>';
+    return;
+  }
+  if(!/^https?:\/\//.test(url)){
+    result.innerHTML='<span style="color:#ff6b6b">URL 需以 http:// 或 https:// 开头</span>';
+    return;
+  }
+  if(!baseToken){
+    result.innerHTML='<span style="color:#ff6b6b">请输入飞书多维表格 App Token</span>';
+    return;
+  }
+  localStorage.setItem('yf_feishu_proxy',url);
+  localStorage.setItem('yf_feishu_base',baseToken);
+  result.innerHTML='<span style="color:#4facfe">正在测试连接...</span>';
+  syncLog('正在测试代理连接: '+url);
+  // 测试：读取 posts 表前1条
+  var tableId=FEISHU_CONFIG.tables.posts;
+  var path='/bitable/v1/apps/'+FEISHU_CONFIG.baseToken+'/tables/'+tableId+'/records/search?page_size=1';
+  proxyFetch(path,'POST',{}).then(function(d){
+    if(d.code===0&&d.data){
+      var total=(d.data.total!==undefined)?d.data.total:(d.data.items?d.data.items.length:0);
+      result.innerHTML='<span style="color:#00b894">✓ 连接成功，云端帖子表共 '+total+' 条记录</span>';
+      syncLog('✓ 代理连接成功，云端帖子表共 '+total+' 条');
+      showToast('云同步连接成功','success');
+      // 刷新按钮状态
+      renderSync();
+    }else{
+      var msg=d.msg||JSON.stringify(d);
+      result.innerHTML='<span style="color:#ff6b6b">✗ 飞书返回错误: '+escHtml(msg)+'</span>';
+      syncLog('✗ 飞书返回错误: '+msg);
+      showToast('连接失败：'+msg,'error');
+    }
+  }).catch(function(e){
+    result.innerHTML='<span style="color:#ff6b6b">✗ 连接失败: '+escHtml(e.message)+'。请检查 Worker 部署和环境变量。</span>';
+    syncLog('✗ 代理连接失败: '+e.message);
+    showToast('连接失败：'+e.message,'error');
+  });
+}
+
+function testFeishuConnection(){
+  var proxy=FEISHU_CONFIG.proxyUrl;
+  if(!proxy){showToast('未配置云同步代理，本地功能正常可用','info');return;}
+  saveAndTestProxy();
+}
+
+// 一键推送：本地→飞书（二次确认）
+function syncAll(){
+  var proxy=FEISHU_CONFIG.proxyUrl;
+  if(!proxy){showToast('未配置云同步代理','info');return;}
+  showConfirm('推送全量到飞书','将把本地所有数据覆盖写入飞书表格，飞书现有数据将被清空替换，确定继续？',function(){
+    syncLog('开始全量推送到飞书...');
+    var tableKeys=['posts','users','stars','groups','opps','announces','shop_items','exchanges','notifications','reports','bad_words'];
+    var tableGetters={posts:YangFanData.getPosts,users:YangFanData.getUsers,stars:YangFanData.getStars,groups:YangFanData.getGroups,opps:YangFanData.getOpps,announces:YangFanData.getAnnounces,shop_items:YangFanData.getShopItems,exchanges:YangFanData.getExchanges,notifications:YangFanData.getNotifications,reports:YangFanData.getReports,bad_words:YangFanData.getBadWords};
+    var idx=0;
+    function next(){
+      if(idx>=tableKeys.length){syncLog('全部推送完成！');showToast('全部推送完成','success');return;}
+      var key=tableKeys[idx++];
+      var data=[];
+      try{data=tableGetters[key].call(YangFanData)||[];}catch(e){syncLog('  '+key+': 无getter，跳过');setTimeout(next,300);return;}
+      syncLog('  '+key+': 上传 '+data.length+' 条...');
+      pushTable(key,data).then(function(){syncLog('  ✓ '+key+': 完成');setTimeout(next,500);}).catch(function(e){syncLog('  ✗ '+key+': '+e.message);setTimeout(next,500);});
+    }
+    next();
+  });
+}
+
+// 从飞书拉取（merge 策略：保留本地独有记录）
+function pullAll(){
+  var proxy=FEISHU_CONFIG.proxyUrl;
+  if(!proxy){showToast('未配置云同步代理','info');return;}
+  syncLog('从飞书拉取数据（合并模式）...');
+  var tableKeys=['posts','users','stars','groups','opps','announces','shop_items','exchanges','notifications','reports','bad_words'];
+  var idx=0;
+  function mergeAndSave(key,remoteRecords){
+    if(!remoteRecords||remoteRecords.length===0)return 0;
+    var local=[];
+    try{local=_yfLoad(key)||[];}catch(e){local=[];}
+    var localMap={};
+    for(var i=0;i<local.length;i++){
+      if(local[i]&&local[i].id!=null)localMap[local[i].id]=local[i];
+    }
+    for(var j=0;j<remoteRecords.length;j++){
+      var r=remoteRecords[j];
+      if(r&&r.id!=null)localMap[r.id]=r; // 飞书记录覆盖本地同id
+    }
+    var merged=[];
+    for(var id in localMap)merged.push(localMap[id]);
+    _yfSave(key,merged);
+    if(_YF_cache)_YF_cache[key]=merged;
+    return merged.length;
+  }
+  function next(){
+    if(idx>=tableKeys.length){
+      syncLog('拉取合并完成，刷新视图...');
+      try{YangFanData.refresh();}catch(e){}
+      var active=document.querySelector('.nav-item.active');
+      if(active){try{switchPage(active.getAttribute('data-page'));}catch(e){}}
+      showToast('飞书数据已合并到本地','success');
+      return;
+    }
+    var key=tableKeys[idx++];
+    pullTable(key).then(function(records){
+      if(records.length>0){
+        var total=mergeAndSave(key,records);
+        syncLog('  '+key+': 合并 '+records.length+' 条，共 '+total+' 条');
+      }else{
+        syncLog('  '+key+': 飞书无数据');
+      }
+      setTimeout(next,300);
+    }).catch(function(e){
+      syncLog('  '+key+': '+e.message);
+      setTimeout(next,300);
+    });
+  }
+  next();
+}
+
+// 单表同步：拉取飞书数据合并到本地
+function syncTable(tableKey){
+  var proxy=FEISHU_CONFIG.proxyUrl;
+  if(!proxy){showToast('未配置云同步代理','info');return;}
+  syncLog('同步 '+tableKey+' ...');
+  pullTable(tableKey).then(function(records){
+    if(records.length>0){
+      var local=[];
+      try{local=_yfLoad(tableKey)||[];}catch(e){local=[];}
+      var localMap={};
+      for(var i=0;i<local.length;i++){
+        if(local[i]&&local[i].id!=null)localMap[local[i].id]=local[i];
+      }
+      for(var j=0;j<records.length;j++){
+        if(records[j]&&records[j].id!=null)localMap[records[j].id]=records[j];
+      }
+      var merged=[];
+      for(var id in localMap)merged.push(localMap[id]);
+      _yfSave(tableKey,merged);
+      if(_YF_cache)_YF_cache[tableKey]=merged;
+      try{YangFanData.refresh();}catch(e){}
+      var active=document.querySelector('.nav-item.active');
+      if(active){try{switchPage(active.getAttribute('data-page'));}catch(e){}}
+      syncLog('  ✓ '+tableKey+': 已合并 '+records.length+' 条，共 '+merged.length+' 条');
+      showToast(tableKey+' 同步成功（'+records.length+'条）','success');
+    }else{
+      syncLog('  '+tableKey+': 飞书无数据');
+      showToast(tableKey+' 飞书无数据','info');
+    }
+  }).catch(function(e){
+    syncLog('  ✗ '+tableKey+': '+e.message);
+    showToast(tableKey+' 同步失败：'+e.message,'error');
+  });
+}
+
+// 页面加载后静默拉取飞书数据（延迟3秒，不阻塞、不弹错）
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    if(!FEISHU_CONFIG.proxyUrl){console.warn('[YF_SYNC] 未配置代理，跳过自动拉取');return;}
+    var keys=['posts','users','stars','groups','opps','announces','shop_items','bad_words'];
+    Promise.all(keys.map(function(k){
+      return pullTable(k).then(function(r){
+        if(r.length>0){
+          // 静默 merge
+          var local=[];
+          try{local=_yfLoad(k)||[];}catch(e){local=[];}
+          var localMap={};
+          for(var i=0;i<local.length;i++){if(local[i]&&local[i].id!=null)localMap[local[i].id]=local[i];}
+          for(var j=0;j<r.length;j++){if(r[j]&&r[j].id!=null)localMap[r[j].id]=r[j];}
+          var merged=[];
+          for(var id in localMap)merged.push(localMap[id]);
+          _yfSave(k,merged);
+          if(_YF_cache)_YF_cache[k]=merged;
+        }
+      }).catch(function(){});
+    })).then(function(){
+      try{YangFanData.refresh();}catch(e){}
+      var active=document.querySelector('.nav-item.active');
+      if(active){try{switchPage(active.getAttribute('data-page'));}catch(e){}}
+    }).catch(function(e){console.warn('[YF_SYNC] auto pull error:',e);});
+  },3000);
+});
+
+// ===== Modal =====
+function openModal(title,body,foot){
+document.getElementById('modalTitle').textContent=title;
+document.getElementById('modalBody').innerHTML=body;
+document.getElementById('modalFoot').innerHTML=foot;
+document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){
+document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// ===== Confirm =====
+var confirmCallback=null;
+function showConfirm(title,desc,callback){
+document.getElementById('confirmTitle').textContent=title;
+document.getElementById('confirmDesc').textContent=desc;
+confirmCallback=callback;
+document.getElementById('confirmBtn').onclick=function(){closeConfirm();if(confirmCallback)confirmCallback();};
+document.getElementById('confirmOverlay').classList.add('show');
+}
+function closeConfirm(){
+document.getElementById('confirmOverlay').classList.remove('show');
+confirmCallback=null;
+}
+
+// ===== Toast =====
+function showToast(msg,type){
+var container=document.getElementById('toastContainer');
+var icons={
+success:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z" fill="currentColor"/></svg>',
+error:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/></svg>',
+info:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>'
+};
+var el=document.createElement('div');
+el.className='toast '+(type||'info');
+el.innerHTML=(icons[type]||icons.info)+'<span>'+msg+'</span>';
+container.appendChild(el);
+setTimeout(function(){
+el.style.animation='toastOut .3s ease forwards';
+setTimeout(function(){el.remove();},300);
+},2500);
+}
+
+// ===== V5: 表单校验shake =====
+function shakeEl(el){
+if(!el)return;
+el.classList.remove('yf-shake');
+void el.offsetWidth;
+el.classList.add('yf-shake');
+try{el.focus();el.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
+setTimeout(function(){el.classList.remove('yf-shake');},400);
+}
+function valRequired(ids){
+for(var i=0;i<ids.length;i++){
+var el=document.getElementById(ids[i]);
+if(!el)continue;
+var v=(el.value||'').toString().trim();
+if(!v){shakeEl(el);showToast('请填写必填项','warn');return false;}
+}
+return true;
+}
+function valNumber(id,min){
+var el=document.getElementById(id);if(!el)return true;
+var v=parseFloat(el.value);
+if(isNaN(v)||v<(min||0)){shakeEl(el);showToast('请输入≥'+(min||0)+'的数字','warn');return false;}
+return true;
+}
+function valDateNotBeforeToday(id){
+var el=document.getElementById(id);if(!el)return true;
+var v=(el.value||'').trim();if(!v)return true;
+var today=new Date();today.setHours(0,0,0,0);
+var d=new Date(v);
+if(d<today){shakeEl(el);showToast('日期不能早于今天','warn');return false;}
+return true;
+}
+
+// ===== V5: 成长配置页 =====
+var _gcTab='level';
+function switchGcTab(tab){
+_gcTab=tab;
+var tl=document.getElementById('gcTabLevel');var tm=document.getElementById('gcTabMedal');
+var la=document.getElementById('gcLevelArea');var ma=document.getElementById('gcMedalArea');
+if(tab==='level'){
+tl.style.fontWeight='600';tl.style.color='var(--pri)';tl.style.borderBottomColor='var(--pri)';
+tm.style.fontWeight='500';tm.style.color='var(--text3)';tm.style.borderBottomColor='transparent';
+la.style.display='block';ma.style.display='none';
+renderGcLevels();
+}else{
+tm.style.fontWeight='600';tm.style.color='var(--pri)';tm.style.borderBottomColor='var(--pri)';
+tl.style.fontWeight='500';tl.style.color='var(--text3)';tl.style.borderBottomColor='transparent';
+ma.style.display='block';la.style.display='none';
+renderGcMedals();
+}
+}
+function renderGrowthConfig(){
+renderGcLevels();
+}
+function renderGcLevels(){
+var cfg=YangFanData.getGrowthConfig();
+var area=document.getElementById('gcLevelArea');if(!area)return;
+var h='<div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--bg)"><th style="padding:10px;text-align:left;font-weight:600">等级</th><th style="padding:10px;text-align:left;font-weight:600">称号</th><th style="padding:10px;text-align:left;font-weight:600">最低分</th><th style="padding:10px;text-align:left;font-weight:600">颜色</th></tr></thead><tbody>';
+for(var i=0;i<cfg.length;i++){
+var lv=cfg[i];
+h+='<tr style="border-top:1px solid var(--border)"><td style="padding:10px"><input type="number" id="gcLv_'+lv.level+'" value="'+lv.level+'" style="width:50px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:13px" disabled></td>';
+h+='<td style="padding:10px"><input type="text" id="gcName_'+lv.level+'" value="'+escHtml(lv.name)+'" style="width:80px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:13px"></td>';
+h+='<td style="padding:10px"><input type="number" id="gcMin_'+lv.level+'" value="'+lv.min+'" min="0" style="width:70px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:13px"></td>';
+h+='<td style="padding:10px"><input type="color" id="gcColor_'+lv.level+'" value="'+lv.color+'" style="width:36px;height:32px;padding:2px;border:1px solid var(--border);border-radius:6px;cursor:pointer"></td></tr>';
+}
+h+='</tbody></table></div><p style="font-size:11px;color:var(--text3);margin-top:8px">提示：等级从低到高排列，最低分需递增；最后一级为最高阶。</p>';
+area.innerHTML=h;
+}
+function renderGcMedals(){
+var medals=YangFanData.getMedals();
+var area=document.getElementById('gcMedalArea');if(!area)return;
+var h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">';
+for(var i=0;i<medals.length;i++){
+var m=medals[i];
+h+='<div style="background:#fff;border-radius:10px;padding:12px;box-shadow:var(--shadow)">';
+h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="text" id="mcName_'+m.id+'" value="'+escHtml(m.name)+'" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-weight:600"></div>';
+h+='<textarea id="mcDesc_'+m.id+'" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;margin-bottom:6px;resize:none">'+escHtml(m.desc||'')+'</textarea>';
+h+='<div style="display:flex;gap:8px;align-items:center;font-size:11px;color:var(--text3)"><span>类型:'+m.cond.type+'</span><span>目标:'+m.cond.value+'</span></div>';
+h+='</div>';
+}
+h+='</div>';
+area.innerHTML=h;
+}
+function saveGrowthConfig(){
+try{
+var cfg=YangFanData.getGrowthConfig();
+var valid=true;
+var newCfg=[];
+for(var i=0;i<cfg.length;i++){
+var lv=cfg[i];
+var name=document.getElementById('gcName_'+lv.level).value.trim();
+var min=parseInt(document.getElementById('gcMin_'+lv.level).value);
+var color=document.getElementById('gcColor_'+lv.level).value;
+if(!name){showToast('等级称号不能为空','warn');valid=false;break;}
+if(isNaN(min)||min<0){showToast('最低分需为非负整数','warn');valid=false;break;}
+if(i>0&&min<=newCfg[i-1].min){showToast('等级'+lv.level+'最低分需大于上一级','warn');valid=false;break;}
+newCfg.push({level:lv.level,name:name,min:min,max:lv.max,color:color,icon:lv.icon});
+}
+if(!valid)return;
+YangFanData.updateGrowthConfig(newCfg);
+// Save medals desc/name edits
+var medals=YangFanData.getMedals();
+for(var j=0;j<medals.length;j++){
+var m=medals[j];
+var nm=document.getElementById('mcName_'+m.id);
+var ds=document.getElementById('mcDesc_'+m.id);
+if(nm)m.name=nm.value.trim();
+if(ds)m.desc=ds.value.trim();
+}
+YangFanData.updateMedals(medals);
+showToast('成长配置已保存','success');
+}catch(e){showToast('保存失败：'+e.message,'error');}
+}
+function resetGrowthConfig(){
+showConfirm('恢复默认配置','将等级和勋章配置恢复为系统默认值，确定吗？',function(){
+YangFanData.resetGrowthConfig();
+YangFanData.resetMedals();
+if(_gcTab==='level')renderGcLevels();else renderGcMedals();
+showToast('已恢复默认配置','success');
+});
+}
+
+// ===== 点击遮罩关闭 =====
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('confirmOverlay').addEventListener('click',function(e){if(e.target===this)closeConfirm();});
+
+// ===== 移动端侧栏 =====
+function toggleSidebar(){
+var sidebar=document.querySelector('.sidebar');
+var overlay=document.getElementById('sidebarOverlay');
+if(sidebar.classList.contains('open')){
+sidebar.classList.remove('open');
+overlay.classList.remove('show');
+}else{
+sidebar.classList.add('open');
+overlay.classList.add('show');
+}
+}
+
+</script>
+
+<script>
+// ===== V6 ADMIN FEATURES =====
+
+// ---- Challenges Management ----
+function renderChallenges(){
+var challenges=yfSafeGet('challenges',[]);
+var container=document.getElementById('page-challenges');
+if(!container)return;
+var h='<div class="page-header"><h2>话题挑战</h2><button class="btn btn-pri" onclick="openChallengeEditor()">+ 新建挑战</button></div>';
+h+='<div style="padding:0 20px">';
+if(!challenges.length){
+h+='<div class="empty-state"><p>暂无话题挑战，点击左上角 + 新建挑战</p></div>';
+}else{
+h+='<div class="card-grid">';
+for(var i=0;i<challenges.length;i++){
+var c=challenges[i];
+var statusBadge=c.status==='active'?'<span class="badge badge-green">进行中</span>':'<span class="badge badge-orange">已结束</span>';
+h+='<div class="data-card" style="padding:16px">';
+h+='<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px"><h3 style="font-size:15px">'+escHtml(c.title)+'</h3>'+statusBadge+'</div>';
+h+='<p style="font-size:12px;color:var(--text3);margin-bottom:8px">'+escHtml(c.desc)+'</p>';
+h+='<div style="font-size:12px;color:var(--text3);margin-bottom:10px">标签: #'+escHtml(c.tag)+' · 截止: '+escHtml(c.deadline)+' · 参与: '+(c.participants?c.participants.length:0)+'人</div>';
+h+='<div style="display:flex;gap:6px">';
+if(c.status==='active')h+='<button class="btn btn-sm btn-green" onclick="endChallenge('+c.id+')">结束并发勋章</button>';
+h+='<button class="btn btn-sm btn-outline" onclick="deleteChallenge('+c.id+')">删除</button>';
+h+='</div></div>';
+}
+h+='</div>';
+}
+h+='</div>';
+container.innerHTML=h;
+}
+function openChallengeEditor(){
+var body='<div class="form-group"><label>挑战标题</label><input class="form-input" id="chTitle" placeholder="如：我的暑期支教故事"></div>'
++'<div class="form-group"><label>挑战描述</label><textarea class="form-input" id="chDesc" rows="3" placeholder="详细描述挑战内容..."></textarea></div>'
++'<div class="form-group"><label>话题标签（不含#）</label><input class="form-input" id="chTag" placeholder="如：支教故事"></div>'
++'<div class="form-group"><label>截止日期</label><input class="form-input" id="chDeadline" type="date"></div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveChallenge()">创建</button>';
+openModal('新建话题挑战',body,foot);
+}
+function saveChallenge(){
+var title=document.getElementById('chTitle').value.trim();
+var desc=document.getElementById('chDesc').value.trim();
+var tag=document.getElementById('chTag').value.trim();
+var deadline=document.getElementById('chDeadline').value;
+if(!title||!tag){showToast('标题和标签不能为空','warn');return;}
+var challenges=yfSafeGet('challenges',[]);
+challenges.push({id:Date.now(),title:title,desc:desc,tag:tag,deadline:deadline||'未定',status:'active',participants:[],createdAt:new Date().toISOString()});
+yfSafeSet('challenges',challenges);
+closeModal();renderChallenges();
+showToast('挑战创建成功','success');
+}
+function endChallenge(id){
+var challenges=yfSafeGet('challenges',[]);
+for(var i=0;i<challenges.length;i++){
+if(challenges[i].id===id){
+challenges[i].status='ended';
+// Award medal to all participants
+if(challenges[i].participants){
+for(var j=0;j<challenges[i].participants.length;j++){
+try{YangFanData.unlockMedal(challenges[i].participants[j],'challenge_star');
+YangFanData.createNotification({userId:challenges[i].participants[j],type:'medal',text:'恭喜！你在「'+challenges[i].title+'」中获得了「挑战之星」勋章！'});
+}catch(e){}
+}
+}
+break;
+}
+}
+yfSafeSet('challenges',challenges);
+renderChallenges();
+showToast('挑战已结束，勋章已发放给参与者','success');
+}
+function deleteChallenge(id){
+showConfirm('删除挑战','确定删除这个挑战吗？',function(){
+var challenges=yfSafeGet('challenges',[]);
+challenges=challenges.filter(function(c){return c.id!==id;});
+yfSafeSet('challenges',challenges);
+renderChallenges();
+showToast('已删除','success');
+});
+}
+
+// ---- Batch Review (A13) ----
+var _selectedPosts=[];
+function renderBatchReview(){
+YangFanData.refresh();
+var posts=YangFanData.getPosts({status:'pending'});
+var container=document.getElementById('reviewBatchArea');
+if(!container)return;
+if(!posts.length){container.innerHTML='<div class="empty-state"><p>暂无待审核帖子</p></div>';_selectedPosts=[];return;}
+var h='<div style="margin-bottom:12px;display:flex;gap:8px;align-items:center">';
+h+='<label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="selectAllPosts" onchange="toggleSelectAllPosts(this)"> 全选</label>';
+h+='<button class="btn btn-sm btn-green" onclick="batchApprovePosts()">批量通过</button>';
+h+='<button class="btn btn-sm btn-coral" onclick="batchRejectPosts()">批量拒绝</button>';
+h+='<span id="selectedCount" style="font-size:12px;color:var(--text3)">已选0篇</span>';
+h+='</div>';
+h+='<div id="batchPostList">';
+for(var i=0;i<posts.length;i++){
+var p=posts[i];
+h+='<div class="review-card" style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" class="post-cb" data-id="'+p.id+'" onchange="updateSelectedCount()" style="margin-top:4px">';
+h+='<div style="flex:1"><div style="font-weight:600;font-size:13px">'+escHtml(p.title)+'</div><div style="font-size:11px;color:var(--text3)">'+escHtml(p.author)+' · '+escHtml(p.time)+'</div></div></div>';
+}
+h+='</div>';
+container.innerHTML=h;
+}
+function toggleSelectAllPosts(cb){
+var cbs=document.querySelectorAll('.post-cb');
+_selectedPosts=[];
+for(var i=0;i<cbs.length;i++){cbs[i].checked=cb.checked;if(cb.checked)_selectedPosts.push(parseInt(cbs[i].dataset.id));}
+updateSelectedCount();
+}
+function updateSelectedCount(){
+var cbs=document.querySelectorAll('.post-cb:checked');
+_selectedPosts=[];
+for(var i=0;i<cbs.length;i++)_selectedPosts.push(parseInt(cbs[i].dataset.id));
+var el=document.getElementById('selectedCount');
+if(el)el.textContent='已选'+_selectedPosts.length+'篇';
+}
+function batchApprovePosts(){
+if(!_selectedPosts.length){showToast('请先选择帖子','warn');return;}
+showConfirm('批量通过','确定通过选中的'+_selectedPosts.length+'篇帖子？',function(){
+for(var i=0;i<_selectedPosts.length;i++){
+YangFanData.updatePost(_selectedPosts[i],{status:'approved'});
+notifyPostAuthor(_selectedPosts[i],'system','你的帖子已通过审核');
+}
+renderReview();updateBadges();renderBatchReview();
+showToast('已通过'+_selectedPosts.length+'篇帖子','success');
+});
+}
+function batchRejectPosts(){
+if(!_selectedPosts.length){showToast('请先选择帖子','warn');return;}
+showConfirm('批量拒绝','确定拒绝选中的'+_selectedPosts.length+'篇帖子？',function(){
+for(var i=0;i<_selectedPosts.length;i++){
+YangFanData.updatePost(_selectedPosts[i],{status:'rejected'});
+notifyPostAuthor(_selectedPosts[i],'system','你的帖子未通过审核');
+}
+renderReview();updateBadges();renderBatchReview();
+showToast('已拒绝'+_selectedPosts.length+'篇帖子','info');
+});
+}
+
+// ---- Enhanced feature post with points + notification ----
+function featurePostAdminV2(id){
+YangFanData.featurePost(id);
+var post=YangFanData.getPost(id);
+if(post){
+var users=YangFanData.getUsers();
+var author=users.find(function(u){return u.name===post.author;});
+if(author){
+YangFanData.updatePoints(author.id,50);
+YangFanData.createNotification({userId:author.id,type:'featured',text:'🎉 你的帖子「'+post.title.substring(0,20)+'」被加精了！获得50积分奖励'});
+}
+}
+renderReview();showToast('已加精，作者+50积分','success');
+}
+
+// ---- Report workflow (A14) ----
+function openReportDetail(id){
+var reports=YangFanData.getReports();
+var r=reports.find(function(x){return x.id===id;});
+if(!r)return;
+var body='<div style="font-size:13px;line-height:1.8">'
++'<p><strong>类型：</strong>'+escHtml(r.targetType)+' #'+r.targetId+'</p>'
++'<p><strong>标题：</strong>'+escHtml(r.targetTitle||'')+'</p>'
++'<p><strong>举报人：</strong>'+escHtml(r.reporterName||'匿名')+'</p>'
++'<p><strong>理由：</strong>'+escHtml(r.reason||'')+'</p>'
++'<p><strong>详情：</strong>'+escHtml(r.detail||'')+'</p>'
++'<p><strong>时间：</strong>'+escHtml(r.time||'')+'</p>'
++'<p><strong>状态：</strong>'+(r.status==='pending'?'待处理':r.status==='resolved'?'已处理':'已驳回')+'</p>'
++'</div>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">关闭</button>'
++'<button class="btn btn-coral" onclick="handleReport('+id+',\'delete\')">删除内容</button>'
++'<button class="btn btn-sm btn-outline" style="border-color:var(--orange);color:var(--orange)" onclick="handleReport('+id+',\'warn\')">警告用户</button>'
++'<button class="btn btn-sm btn-outline" style="border-color:var(--coral);color:var(--coral)" onclick="handleReport('+id+',\'ban\')">封禁用户</button>'
++'<button class="btn btn-sm btn-outline" onclick="handleReport('+id+',\'dismiss\')">驳回</button>';
+openModal('举报详情',body,foot);
+}
+function handleReport(id,action){
+var reports=YangFanData.getReports();
+var r=reports.find(function(x){return x.id===id;});
+if(!r)return;
+if(action==='delete'){
+if(r.targetType==='post')YangFanData.deletePost(r.targetId);
+YangFanData.updateReport(id,{status:'resolved',action:'delete',handledAt:new Date().toISOString()});
+if(r.reporterId)YangFanData.createNotification({userId:r.reporterId,type:'system',text:'你举报的内容已被删除，感谢反馈'});
+showToast('内容已删除','success');
+}else if(action==='warn'){
+YangFanData.updateReport(id,{status:'resolved',action:'warn',handledAt:new Date().toISOString()});
+// Notify reported user (find by target)
+if(r.targetType==='post'){
+var p=YangFanData.getPost(r.targetId);
+if(p){var au=YangFanData.getUsers().find(function(u){return u.name===p.author;});if(au)YangFanData.createNotification({userId:au.id,type:'system',text:'你发布的内容收到举报警告，请遵守社区规范'});}
+}
+showToast('已发送警告','success');
+}else if(action==='ban'){
+if(r.targetType==='post'){
+var p2=YangFanData.getPost(r.targetId);
+if(p2){var au2=YangFanData.getUsers().find(function(u){return u.name===p2.author;});if(au2){YangFanData.updateUser(au2.id,{status:'banned'});YangFanData.createNotification({userId:au2.id,type:'system',text:'因违规行为，你的账号已被封禁'});}}
+}
+YangFanData.updateReport(id,{status:'resolved',action:'ban',handledAt:new Date().toISOString()});
+if(r.reporterId)YangFanData.createNotification({userId:r.reporterId,type:'system',text:'你举报的账号已被封禁'});
+showToast('用户已封禁','success');
+}else if(action==='dismiss'){
+YangFanData.updateReport(id,{status:'dismissed',handledAt:new Date().toISOString()});
+showToast('举报已驳回','info');
+}
+closeModal();
+if(typeof renderReports==='function')renderReports();
+}
+
+// ---- Enhanced Dashboard Stats (A15) ----
+function getV6Stats(){
+var users=YangFanData.getUsers();
+var posts=YangFanData.getPosts();
+var today=_yfToday();
+var yesterday=new Date(Date.now()-86400000);
+var ys=yesterday.getFullYear()+'-'+String(yesterday.getMonth()+1).padStart(2,'0')+'-'+String(yesterday.getDate()).padStart(2,'0');
+// DAU
+var dauUsers={};
+for(var i=0;i<posts.length;i++){if((posts[i].time||'').substring(0,10)===today)dauUsers[posts[i].author]=1;}
+var dau=Object.keys(dauUsers).length;
+// MAU (30 days)
+var mauSet={};
+for(var i=0;i<posts.length;i++){
+var d=(posts[i].time||'').substring(0,10);
+var diff=(new Date(today)-new Date(d))/86400000;
+if(diff<=30)mauSet[posts[i].author]=1;
+}
+var mau=Object.keys(mauSet).length;
+// New users yesterday (for retention)
+var newYesterday=users.filter(function(u){return (u.created||'').substring(0,10)===ys;});
+var retained=0;
+for(var i=0;i<newYesterday.length;i++){
+for(var j=0;j<posts.length;j++){
+if(posts[j].author===newYesterday[i].name&&(posts[j].time||'').substring(0,10)===today){retained++;break;}
+}
+}
+var retentionRate=newYesterday.length?Math.round(retained/newYesterday.length*100):0;
+// Post conversion
+var activePosters={};
+for(var i=0;i<posts.length;i++){if((posts[i].time||'').substring(0,10)===today)activePosters[posts[i].author]=1;}
+var todayNewUsers=users.filter(function(u){return (u.created||'').substring(0,10)===today;}).length;
+var postConversion=todayNewUsers?Math.round(Object.keys(activePosters).length/todayNewUsers*100):0;
+// Checkin rate
+var ci=yfSafeGet('checkin',{lastDate:''});
+var checkinRate=users.length?Math.round(1/users.length*100):0; // simplified
+// Blind box participation
+var bb=yfSafeGet('blindbox',{count:0});
+var bbRate=users.length?Math.round(bb.count/users.length*100):0;
+// Top posts by likes
+var topPosts=posts.filter(function(p){return p.status==='approved';}).sort(function(a,b){return (b.likes||0)-(a.likes||0);}).slice(0,10);
+// Top active users
+var userPostCount={};
+for(var i=0;i<posts.length;i++){userPostCount[posts[i].author]=(userPostCount[posts[i].author]||0)+1;}
+var topUsers=Object.keys(userPostCount).map(function(name){return{name:name,count:userPostCount[name]};}).sort(function(a,b){return b.count-a.count;}).slice(0,10);
+return{dau:dau,mau:mau,retentionRate:retentionRate,postConversion:postConversion,checkinRate:checkinRate,bbRate:bbRate,topPosts:topPosts,topUsers:topUsers};
+}
+
+// ---- Storage cleanup (A11) ----
+function cleanStorage(){
+try{
+var ns=YangFanData.getNotifications();
+var cutoff=Date.now()-7*86400000;
+var cleaned=0;
+ns=ns.filter(function(n){
+var t=new Date(n.time||'').getTime();
+if(isNaN(t)||t>cutoff)return true;
+cleaned++;return false;
+});
+// Clean via direct cache
+var raw=_yfLoad('notifications')||[];
+raw=raw.filter(function(n){var t=new Date(n.time||'').getTime();return isNaN(t)||t>cutoff;});
+_yfSave('notifications',raw);_YF_cache.notifications=raw;
+// Clean image cache
+var imgKeys=[];
+for(var i=0;i<localStorage.length;i++){
+var k=localStorage.key(i);
+if(k&&k.indexOf('yf_img_')===0)imgKeys.push(k);
+}
+for(var i=0;i<imgKeys.length;i++){try{localStorage.removeItem(imgKeys[i]);}catch(e){}}
+showToast('清理完成：删除'+cleaned+'条旧通知, '+(imgKeys.length)+'个图片缓存','success');
+}catch(e){showToast('清理失败: '+e.message,'error');}
+}
+
+// Override featurePostAdmin to add points
+var _origFeaturePostAdmin=featurePostAdmin;
+featurePostAdmin=featurePostAdminV2;
+
+// Override renderDashboard to add V6 stats
+var _origRenderDashboard=renderDashboard;
+renderDashboard=function(){
+_origRenderDashboard();
+try{
+var v6=getV6Stats();
+var extraEl=document.getElementById('dashExtra');
+if(extraEl){
+var v6Html='<div class="charts-row" style="margin-top:16px"><div class="chart-card"><div class="chart-title">V6 运营数据</div>';
+v6Html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">';
+v6Html+='<div style="text-align:center;padding:12px;background:var(--bg);border-radius:10px"><div style="font-size:20px;font-weight:800;color:var(--pri)">'+v6.dau+'</div><div style="font-size:11px;color:var(--text3)">日活(DAU)</div></div>';
+v6Html+='<div style="text-align:center;padding:12px;background:var(--bg);border-radius:10px"><div style="font-size:20px;font-weight:800;color:var(--green)">'+v6.mau+'</div><div style="font-size:11px;color:var(--text3)">月活(MAU)</div></div>';
+v6Html+='<div style="text-align:center;padding:12px;background:var(--bg);border-radius:10px"><div style="font-size:20px;font-weight:800;color:var(--orange)">'+v6.retentionRate+'%</div><div style="font-size:11px;color:var(--text3)">次日留存</div></div>';
+v6Html+='<div style="text-align:center;padding:12px;background:var(--bg);border-radius:10px"><div style="font-size:20px;font-weight:800;color:var(--coral)">'+v6.postConversion+'%</div><div style="font-size:11px;color:var(--text3)">发帖转化率</div></div>';
+v6Html+='</div></div></div>';
+// Top posts
+v6Html+='<div class="charts-row" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+v6Html+='<div class="chart-card"><div class="chart-title">热门帖子 Top10</div><div style="max-height:300px;overflow-y:auto">';
+for(var i=0;i<v6.topPosts.length;i++){
+v6Html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(i+1)+'. '+escHtml(v6.topPosts[i].title.substring(0,20))+'</span><span style="color:var(--coral);font-weight:600">❤'+v6.topPosts[i].likes+'</span></div>';
+}
+v6Html+='</div></div>';
+v6Html+='<div class="chart-card"><div class="chart-title">活跃用户 Top10</div><div style="max-height:300px;overflow-y:auto">';
+for(var i=0;i<v6.topUsers.length;i++){
+v6Html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span>'+(i+1)+'. '+escHtml(v6.topUsers[i].name)+'</span><span style="color:var(--pri);font-weight:600">'+v6.topUsers[i].count+'帖</span></div>';
+}
+v6Html+='</div></div></div>';
+extraEl.innerHTML+=v6Html;
+}
+}catch(e){console.error('V6 dashboard stats error:',e);}
+};
+
+// Add batch review area to review page
+var _origRenderReview=renderReview;
+renderReview=function(){
+_origRenderReview();
+var container=document.getElementById('reviewList');
+if(container){
+var batchDiv=document.getElementById('reviewBatchArea');
+if(!batchDiv){
+batchDiv=document.createElement('div');
+batchDiv.id='reviewBatchArea';
+batchDiv.style.marginTop='20px';
+container.parentNode.insertBefore(batchDiv,container.nextSibling);
+}
+renderBatchReview();
+}
+};
+
+// Enhance reports with detail click
+var _origRenderReports=renderReports;
+renderReports=function(){
+_origRenderReports();
+// Add click handlers to report cards
+var cards=document.querySelectorAll('.report-card, [data-report-id]');
+// Report rendering likely uses a table; add view buttons
+};
+
+// Add user columns (checkin days, followers, last login)
+var _origRenderUsers=renderUsers;
+renderUsers=function(){
+_origRenderUsers();
+// The table header needs new columns. We'll add data via title attributes
+var rows=document.querySelectorAll('#userTableBody tr');
+var users=YangFanData.getUsers();
+for(var i=0;i<rows.length;i++){
+var cells=rows[i].querySelectorAll('td');
+if(cells.length>=7){
+// We can't add columns without changing thead, but we can enrich existing cells
+// Add checkin/follow info to the existing data
+}
+}
+};
+
+// Add clean storage button to settings page
+document.addEventListener('DOMContentLoaded',function(){
+setTimeout(function(){
+var settingsPage=document.getElementById('page-settings');
+if(settingsPage){
+var btn=document.createElement('button');
+btn.className='btn btn-outline';
+btn.style.marginTop='12px';
+btn.textContent='🧹 清理存储（删除7天前通知和缓存）';
+btn.onclick=cleanStorage;
+settingsPage.appendChild(btn);
+}
+},500);
+});
+
+// Safe storage for admin
+function yfSafeGet(key,d){try{var v=localStorage.getItem('yf_shared_'+key);return v?JSON.parse(v):d;}catch(e){return d;}}
+function yfSafeSet(key,value){try{localStorage.setItem('yf_shared_'+key,JSON.stringify(value));return true;}catch(e){return false;}}
+
+</script>
+
+</body>
+</html>

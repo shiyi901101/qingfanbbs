@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#00f2fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="40" fill="url(#bg)"/>
+  <!-- Sail -->
+  <path d="M96 38 L136 130 L96 120 Z" fill="#ffffff" opacity="0.95"/>
+  <path d="M96 58 L124 128 L96 118 Z" fill="#ffffff" opacity="0.5"/>
+  <!-- Hull -->
+  <path d="M56 138 L136 138 L126 156 L66 156 Z" fill="#ffffff" opacity="0.9"/>
+  <!-- Mast -->
+  <line x1="96" y1="38" x2="96" y2="140" stroke="#ffffff" stroke-width="3" opacity="0.7"/>
+</svg>
