@@ -1787,9 +1787,7 @@ var body='<div class="form-group"><label>任务标题</label><input class="form-
 +'<div class="form-group"><label>任务描述</label><textarea class="form-input" id="tDesc">'+escHtml(d.desc||'')+'</textarea></div>'
 +'<div class="form-group"><label>积分奖励</label><input class="form-input" id="tReward" type="number" value="'+(d.reward||'')+'"></div>'
 +'<div class="form-group"><label>截止时间</label><input class="form-input" id="tDeadline" type="date" value="'+escHtml(d.deadline||'')+'"></div>';
-var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveTask('+(isEdit?id:'null')+')">'+(isEdit?'保存':'发布')+'</button>';
-// fix: use d.id for edit
-foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveTask('+(isEdit?d.id:'null')+')">'+(isEdit?'保存':'发布')+'</button>';
+var foot='<button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="saveTask('+(isEdit?d.id:'null')+')">'+(isEdit?'保存':'发布')+'</button>';
 openModal(isEdit?'编辑任务':'发布新任务',body,foot);
 }
 function saveTask(id){
@@ -2124,7 +2122,7 @@ var _BG_GRADS=[
 function _safeEsc(s){try{return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';}catch(e){return'';}}
 function openBannerModal(editData){
 try{
-var grads=(_BG_GRADS&&_BG_GRADS.length)?_BG_GRADIENTS:_BG_GRADS;
+var grads=(_BG_GRADS&&_BG_GRADS.length)?_BG_GRADS:_BANNER_GRADIENTS;
 if(!grads||!grads.length){grads=['linear-gradient(135deg,#4facfe,#00f2fe)'];}
 var isEdit=!!(editData&&editData.id);
 var d=isEdit?editData:{};
@@ -2753,6 +2751,40 @@ function syncTable(tableKey){
 }
 
 // 页面加载后静默拉取飞书数据（延迟3秒，不阻塞、不弹错）
+// 跨标签页/跨端实时同步：监听 localStorage 变化，自动刷新当前页面数据
+window.addEventListener('storage',function(e){
+  if(e.key && e.key.indexOf('yf_shared_')===0){
+    try{YangFanData.refresh();}catch(err){}
+    // 如果当前在审核页，重新渲染
+    if(currentPage==='review' && typeof renderReview==='function'){
+      try{renderReview();updateBadges();}catch(err){}
+    } else if(currentPage==='dashboard' && typeof renderDashboard==='function'){
+      try{renderDashboard();updateBadges();}catch(err){}
+    } else if(typeof updateBadges==='function'){
+      try{updateBadges();}catch(err){}
+    }
+  }
+});
+
+// 页面切回前台时自动刷新数据（从学生端切回管理端标签页等场景）
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden){
+    try{YangFanData.refresh();}catch(e){}
+    var active=document.querySelector('.nav-item.active');
+    if(active && typeof switchPage==='function'){
+      try{switchPage(active.getAttribute('data-page'));}catch(e){}
+    }
+  }
+});
+
+window.addEventListener('focus',function(){
+  try{YangFanData.refresh();}catch(e){}
+  var active=document.querySelector('.nav-item.active');
+  if(active && typeof switchPage==='function'){
+    try{switchPage(active.getAttribute('data-page'));}catch(e){}
+  }
+});
+
 window.addEventListener('load',function(){
   setTimeout(function(){
     if(!FEISHU_CONFIG.proxyUrl){console.warn('[YF_SYNC] 未配置代理，跳过自动拉取');return;}
