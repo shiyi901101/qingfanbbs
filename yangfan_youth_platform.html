@@ -594,6 +594,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 .mw-progress{font-size:10px;color:var(--text3)}
 .mw-cell.got .md-circle{animation:pulseGlow 2s ease-in-out infinite}
 @keyframes pulseGlow{0%,100%{box-shadow:0 2px 8px rgba(255,165,2,.2)}50%{box-shadow:0 2px 18px rgba(255,165,2,.5)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 .md-detail{padding:20px;text-align:center}
 .md-detail .md-circle{width:80px;height:80px;margin:0 auto 14px}
@@ -717,7 +718,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 <button class="ln-btn" onclick="doRegister()">注册</button>
 </div>
 <div class="ln-switch" id="lnSwitch" onclick="toggleRegForm()">没有账号？去注册</div>
-<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.24</span></div>
+<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.25</span></div>
 <svg class="ln-wave" viewBox="0 0 860 60" preserveAspectRatio="none" style="height:50px"><path d="M0 30Q100 10 215 25Q330 40 430 20Q530 0 645 25Q760 50 860 30L860 60L0 60Z" fill="rgba(255,255,255,.15)"/><path d="M0 40Q80 25 200 35Q320 50 430 30Q540 10 645 35Q760 55 860 40L860 60L0 60Z" fill="rgba(255,255,255,.85)"/></svg>
 </div>
 
@@ -832,27 +833,7 @@ var _YF_CUR_VER=9;
 
 var _YF_TABLES=['posts','stars','groups','opps','banners','announces','tags','users','audit_logs','tasks','shop_items','exchanges','notifications','reports','bad_words','messages'];
 
-var _YF_SEED_posts=[
-{id:1,title:'第一次独立拍摄vlog，记录乡村小学的清晨',author:'林小溪',time:'2025-01-18 08:30',excerpt:'上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄...',content:'上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄。清晨五点半，天还没亮，我就扛着三脚架站在教室门口等待第一缕阳光。当孩子们跑进教室，看到镜头时那种好奇又害羞的眼神，让我觉得一切辛苦都值得了。这次经历让我明白，记录不只是按下快门，更是用心去感受每一个瞬间。',status:'approved',tag:'拍摄日记',images:[],likes:128,comments:[],cbg:'linear-gradient(135deg,#74b9ff,#0984e3)',abg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',icon:'camera',featured:false,pinned:false},
-{id:2,title:'演讲训练营Day3：从害怕开口到享受舞台',author:'张明远',time:'2025-01-19 14:00',excerpt:'三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！',content:'三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！教练教的三步法真的有用：先讲故事，再给观点，最后抛问题。最紧张的是开头，但只要说出第一句话，后面就顺了。感谢扬帆的演讲训练营，让我发现了自己从未想过的一面。',status:'approved',tag:'技能打卡',images:[],likes:95,comments:[],cbg:'linear-gradient(135deg,#fd79a8,#e84393)',abg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',icon:'mic',featured:false,pinned:false},
-{id:3,title:'医学专业分享：如何高效记忆解剖学知识',author:'王思琪',time:'2025-01-19 16:20',excerpt:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法...',content:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法：1.画图记忆法，边看图谱边手绘；2.编故事法，把枯燥的名词编成有趣的小故事；3.睡前复习法，利用睡眠巩固记忆。希望对医学科的同学们有帮助！',status:'approved',tag:'学习分享',images:[],likes:210,comments:[],cbg:'linear-gradient(135deg,#55efc4,#00b894)',abg:'linear-gradient(135deg,#55efc4,#00b894)',icon:'book',featured:true,pinned:true},
-{id:4,title:'我的第一份实习：在新媒体公司学到的三件事',author:'陈雨桐',time:'2025-01-20 09:00',excerpt:'暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西...',content:'暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西。第一，沟通比执行更重要；第二，数据和创意要结合；第三，主动学习是职场的核心竞争力。扬帆计划帮我迈出了职场第一步。',status:'approved',tag:'实习经历',images:[],likes:87,comments:[],cbg:'linear-gradient(135deg,#fdcb6e,#e17055)',abg:'linear-gradient(135deg,#fdcb6e,#f39c12)',icon:'briefcase',featured:false,pinned:false},
-{id:5,title:'用Python帮村里做了个农产品销售小程序',author:'李浩然',time:'2025-01-20 11:30',excerpt:'学了三个月Python，终于做出了一个能用的东西！',content:'学了三个月Python，终于做出了一个能用的东西！我们村的苹果一直销路不好，我做了一个简单的销售小程序，可以在线下单查看物流。虽然界面还很粗糙，但村里的叔叔阿姨们用得很开心。',status:'approved',tag:'技能打卡',images:[],likes:302,comments:[],cbg:'linear-gradient(135deg,#00cec9,#0984e3)',abg:'linear-gradient(135deg,#00cec9,#0984e3)',icon:'code',featured:true,pinned:true},
-{id:6,title:'支教日记：孩子们教给我的比我还教的多',author:'赵一诺',time:'2025-01-20 15:00',excerpt:'支教的第15天，一个叫小杰的男孩递给我一张纸条...',content:'支教的第15天，一个叫小杰的男孩递给我一张纸条，上面写着：老师你以后还会来吗？那一刻眼泪差点掉下来。这些孩子让我明白，教育的本质不是灌输知识，而是点燃希望。',status:'approved',tag:'实践感悟',images:[],likes:176,comments:[],cbg:'linear-gradient(135deg,#fab1a0,#e17055)',abg:'linear-gradient(135deg,#fab1a0,#e17055)',icon:'heart',featured:false,pinned:false},
-{id:7,title:'科普写作入门：把复杂的事说简单',author:'刘子轩',time:'2025-01-21 10:00',excerpt:'加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款...',content:'加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款。秘诀就是先想清楚读者是谁，再用他们听得懂的话讲。比如不要说光合作用是植物利用光能将CO2转化为有机物的过程，而要说植物晒太阳就能吃饱！',status:'approved',tag:'学习分享',images:[],likes:64,comments:[],cbg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',abg:'linear-gradient(135deg,#dfe6e9,#b2bec3)',icon:'edit',featured:false,pinned:false},
-{id:8,title:'社区公益活动：为老人教智能手机',author:'孙雅琪',time:'2025-01-21 14:30',excerpt:'上周末在社区教老人们使用智能手机...',content:'上周末在社区教老人们使用智能手机。最让我感动的是70岁的王奶奶，学会视频通话后第一件事就是给在外地的孙子打电话。科技不应该成为代沟，而应该成为连接的桥梁。',status:'approved',tag:'志愿服务',images:[],likes:143,comments:[],cbg:'linear-gradient(135deg,#55efc4,#00b894)',abg:'linear-gradient(135deg,#ffeaa7,#fdcb6e)',icon:'users',featured:false,pinned:false},
-{id:9,title:'从零基础到独立完成纪录片的影像之路',author:'周文博',time:'2025-01-22 08:00',excerpt:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片...',content:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片。最难忘的是在海拔3000米的山上拍日出，冻得手都僵了，但看到成片的那一刻，值了！',status:'approved',tag:'拍摄日记',images:[],likes:231,comments:[],cbg:'linear-gradient(135deg,#74b9ff,#0984e3)',abg:'linear-gradient(135deg,#81ecec,#00cec9)',icon:'film',featured:true,pinned:true},
-{id:10,title:'考研经验分享：如何制定科学的复习计划',author:'吴佳怡',time:'2025-01-22 13:00',excerpt:'成功上岸985！分享复习时间线...',content:'成功上岸985！分享复习时间线：3-6月打基础每天6小时；7-9月强化每天8小时；10-12月冲刺每天10小时。关键是每周留出半天休息，保证效率比堆时间重要。',status:'approved',tag:'学习分享',images:[],likes:189,comments:[],cbg:'linear-gradient(135deg,#fd79a8,#e84393)',abg:'linear-gradient(135deg,#fd79a8,#e84393)',icon:'target',featured:true,pinned:true},
-{id:11,title:'策划校园环保活动，参与人数超预期3倍',author:'黄子豪',time:'2025-01-23 09:30',excerpt:'在扬帆学到了项目策划方法论，决定在学校试一次...',content:'在扬帆学到了项目策划方法论，决定在学校试一次。从立项到执行用了两周，原本预计100人参加，结果来了300多人！成功的秘诀是找到同学们真正关心的切入点。',status:'approved',tag:'实践感悟',images:[],likes:98,comments:[],cbg:'linear-gradient(135deg,#00b894,#00cec9)',abg:'linear-gradient(135deg,#00b894,#55efc4)',icon:'layers',featured:false,pinned:false},
-{id:12,title:'乡村教育的未来：一个支教老师的深度思考',author:'郑晓峰',time:'2025-01-23 16:00',excerpt:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师...',content:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师。扬帆计划正在做的就是培养这样的火种。我希望更多年轻人能加入进来，哪怕只是短暂的陪伴，也能照亮孩子们的路。',status:'approved',tag:'成长思考',images:[],likes:267,comments:[],cbg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',abg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',icon:'globe',featured:true,pinned:true},
-{id:13,title:'我的第一次社会实践经历',author:'李明',time:'2025-01-24 14:30',excerpt:'这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区...',content:'这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区，和居民面对面交流。感触很深，也更加坚定了自己投身公益的决心。',status:'approved',tag:'实践感悟',images:[],likes:45,comments:[],cbg:'linear-gradient(135deg,#4facfe,#7ec8ff)',abg:'linear-gradient(135deg,#4facfe,#00f2fe)',icon:'star',featured:false,pinned:false},
-{id:14,title:'分享几个高效的学习方法',author:'王芳',time:'2025-01-25 09:15',excerpt:'大学学习需要方法，这里分享几个我亲测有效的学习技巧...',content:'大学学习需要方法，这里分享几个我亲测有效的学习技巧：番茄工作法、费曼学习法、间隔重复法。坚持一个月，效率提升明显。',status:'approved',tag:'学习分享',images:[],likes:67,comments:[],cbg:'linear-gradient(135deg,#ff6b6b,#ffa502)',abg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',icon:'star',featured:false,pinned:false},
-{id:15,title:'对未来的迷茫与思考',author:'张伟',time:'2025-01-26 20:00',excerpt:'作为一名大一学生，面对未来的方向选择感到十分迷茫...',content:'作为一名大一学生，面对未来的方向选择感到十分迷茫。考研还是就业？留在城市还是回乡？希望能听到前辈们的建议。',status:'pending',tag:'成长思考',images:[],likes:23,comments:[],cbg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',abg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',icon:'star',featured:false,pinned:false},
-{id:16,title:'暑期实习面试经验分享',author:'赵强',time:'2025-01-27 11:20',excerpt:'上周刚结束了几场实习面试，来和大家分享一下经验...',content:'上周刚结束了几场实习面试，来和大家分享一下经验。准备很重要：自我介绍要精炼，项目经历要有数据支撑，提问环节要展现思考深度。',status:'pending',tag:'求职经验',images:[],likes:15,comments:[],cbg:'linear-gradient(135deg,#00b894,#55efc4)',abg:'linear-gradient(135deg,#00b894,#55efc4)',icon:'star',featured:false,pinned:false},
-{id:17,title:'推荐一本改变我的书',author:'孙悦',time:'2025-01-27 16:45',excerpt:'《认知觉醒》这本书真的让我重新认识了自己...',content:'《认知觉醒》这本书真的让我重新认识了自己。核心观点：人的大脑有三重结构，理智脑虽然强大但很"懒"，要让改变持久，必须让理智脑和本能脑达成合作。',status:'pending',tag:'读书推荐',images:[],likes:8,comments:[],cbg:'linear-gradient(135deg,#fdcb6e,#f39c12)',abg:'linear-gradient(135deg,#fdcb6e,#e17055)',icon:'star',featured:false,pinned:false},
-{id:18,title:'参加志愿者活动的感受',author:'刘洋',time:'2025-01-23 08:00',excerpt:'上周参加了社区的志愿者活动，感触颇深...',content:'上周参加了社区的志愿者活动，感触颇深。帮助别人的同时，自己也收获了快乐和成长。推荐大家都去试试。',status:'approved',tag:'志愿服务',images:[],likes:55,comments:[],cbg:'linear-gradient(135deg,#00cec9,#0984e3)',abg:'linear-gradient(135deg,#00cec9,#0984e3)',icon:'star',featured:false,pinned:false},
-{id:19,title:'如何平衡学业与社团',author:'吴婷',time:'2025-01-28 13:10',excerpt:'大一加入了很多社团，但发现时间根本不够用...',content:'大一加入了很多社团，但发现时间根本不够用。后来学会了做减法，只保留两个真正热爱的社团，成绩反而提升了。',status:'rejected',tag:'学习分享',images:[],likes:12,comments:[],cbg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',abg:'linear-gradient(135deg,#ff6b6b,#ff8e8e)',icon:'star',featured:false,pinned:false}
-];
+var _YF_SEED_posts=[{"id":1,"title":"第一次独立拍摄vlog，记录乡村小学的清晨","author":"林小溪","time":"2025-01-18 08:30","excerpt":"上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄...","content":"上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄。清晨五点半，天还没亮，我就扛着三脚架站在教室门口等待第一缕阳光。当孩子们跑进教室，看到镜头时那种好奇又害羞的眼神，让我觉得一切辛苦都值得了。这次经历让我明白，记录不只是按下快门，更是用心去感受每一个瞬间。","status":"approved","tag":"拍摄日记","images":[],"likes":128,"comments":[],"cbg":"linear-gradient(135deg,#74b9ff,#0984e3)","abg":"linear-gradient(135deg,#ff6b6b,#ee5a24)","icon":"camera","featured":false,"pinned":false},{"id":2,"title":"演讲训练营Day3：从害怕开口到享受舞台","author":"张明远","time":"2025-01-19 14:00","excerpt":"三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！","content":"三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！教练教的三步法真的有用：先讲故事，再给观点，最后抛问题。最紧张的是开头，但只要说出第一句话，后面就顺了。感谢扬帆的演讲训练营，让我发现了自己从未想过的一面。","status":"approved","tag":"技能打卡","images":[],"likes":95,"comments":[],"cbg":"linear-gradient(135deg,#fd79a8,#e84393)","abg":"linear-gradient(135deg,#a29bfe,#6c5ce7)","icon":"mic","featured":false,"pinned":false},{"id":3,"title":"医学专业分享：如何高效记忆解剖学知识","author":"王思琪","time":"2025-01-19 16:20","excerpt":"作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法...","content":"作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法：1.画图记忆法，边看图谱边手绘；2.编故事法，把枯燥的名词编成有趣的小故事；3.睡前复习法，利用睡眠巩固记忆。希望对医学科的同学们有帮助！","status":"approved","tag":"学习分享","images":["https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=900&q=80"],"likes":210,"comments":[],"cbg":"linear-gradient(135deg,#55efc4,#00b894)","abg":"linear-gradient(135deg,#55efc4,#00b894)","icon":"book","featured":true,"pinned":true},{"id":4,"title":"我的第一份实习：在新媒体公司学到的三件事","author":"陈雨桐","time":"2025-01-20 09:00","excerpt":"暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西...","content":"暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西。第一，沟通比执行更重要；第二，数据和创意要结合；第三，主动学习是职场的核心竞争力。扬帆计划帮我迈出了职场第一步。","status":"approved","tag":"实习经历","images":[],"likes":87,"comments":[],"cbg":"linear-gradient(135deg,#fdcb6e,#e17055)","abg":"linear-gradient(135deg,#fdcb6e,#f39c12)","icon":"briefcase","featured":false,"pinned":false},{"id":5,"title":"用Python帮村里做了个农产品销售小程序","author":"李浩然","time":"2025-01-20 11:30","excerpt":"学了三个月Python，终于做出了一个能用的东西！","content":"学了三个月Python，终于做出了一个能用的东西！我们村的苹果一直销路不好，我做了一个简单的销售小程序，可以在线下单查看物流。虽然界面还很粗糙，但村里的叔叔阿姨们用得很开心。","status":"approved","tag":"技能打卡","images":["https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=900&q=80"],"likes":302,"comments":[],"cbg":"linear-gradient(135deg,#00cec9,#0984e3)","abg":"linear-gradient(135deg,#00cec9,#0984e3)","icon":"code","featured":true,"pinned":true},{"id":6,"title":"支教日记：孩子们教给我的比我还教的多","author":"赵一诺","time":"2025-01-20 15:00","excerpt":"支教的第15天，一个叫小杰的男孩递给我一张纸条...","content":"支教的第15天，一个叫小杰的男孩递给我一张纸条，上面写着：老师你以后还会来吗？那一刻眼泪差点掉下来。这些孩子让我明白，教育的本质不是灌输知识，而是点燃希望。","status":"approved","tag":"实践感悟","images":[],"likes":176,"comments":[],"cbg":"linear-gradient(135deg,#fab1a0,#e17055)","abg":"linear-gradient(135deg,#fab1a0,#e17055)","icon":"heart","featured":false,"pinned":false},{"id":7,"title":"科普写作入门：把复杂的事说简单","author":"刘子轩","time":"2025-01-21 10:00","excerpt":"加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款...","content":"加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款。秘诀就是先想清楚读者是谁，再用他们听得懂的话讲。比如不要说光合作用是植物利用光能将CO2转化为有机物的过程，而要说植物晒太阳就能吃饱！","status":"approved","tag":"学习分享","images":[],"likes":64,"comments":[],"cbg":"linear-gradient(135deg,#a29bfe,#6c5ce7)","abg":"linear-gradient(135deg,#dfe6e9,#b2bec3)","icon":"edit","featured":false,"pinned":false},{"id":8,"title":"社区公益活动：为老人教智能手机","author":"孙雅琪","time":"2025-01-21 14:30","excerpt":"上周末在社区教老人们使用智能手机...","content":"上周末在社区教老人们使用智能手机。最让我感动的是70岁的王奶奶，学会视频通话后第一件事就是给在外地的孙子打电话。科技不应该成为代沟，而应该成为连接的桥梁。","status":"approved","tag":"志愿服务","images":[],"likes":143,"comments":[],"cbg":"linear-gradient(135deg,#55efc4,#00b894)","abg":"linear-gradient(135deg,#ffeaa7,#fdcb6e)","icon":"users","featured":false,"pinned":false},{"id":9,"title":"从零基础到独立完成纪录片的影像之路","author":"周文博","time":"2025-01-22 08:00","excerpt":"一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片...","content":"一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片。最难忘的是在海拔3000米的山上拍日出，冻得手都僵了，但看到成片的那一刻，值了！","status":"approved","tag":"拍摄日记","images":["https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=900&q=80"],"likes":231,"comments":[],"cbg":"linear-gradient(135deg,#74b9ff,#0984e3)","abg":"linear-gradient(135deg,#81ecec,#00cec9)","icon":"film","featured":true,"pinned":true},{"id":10,"title":"考研经验分享：如何制定科学的复习计划","author":"吴佳怡","time":"2025-01-22 13:00","excerpt":"成功上岸985！分享复习时间线...","content":"成功上岸985！分享复习时间线：3-6月打基础每天6小时；7-9月强化每天8小时；10-12月冲刺每天10小时。关键是每周留出半天休息，保证效率比堆时间重要。","status":"approved","tag":"学习分享","images":["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=900&q=80"],"likes":189,"comments":[],"cbg":"linear-gradient(135deg,#fd79a8,#e84393)","abg":"linear-gradient(135deg,#fd79a8,#e84393)","icon":"target","featured":true,"pinned":true},{"id":11,"title":"策划校园环保活动，参与人数超预期3倍","author":"黄子豪","time":"2025-01-23 09:30","excerpt":"在扬帆学到了项目策划方法论，决定在学校试一次...","content":"在扬帆学到了项目策划方法论，决定在学校试一次。从立项到执行用了两周，原本预计100人参加，结果来了300多人！成功的秘诀是找到同学们真正关心的切入点。","status":"approved","tag":"实践感悟","images":[],"likes":98,"comments":[],"cbg":"linear-gradient(135deg,#00b894,#00cec9)","abg":"linear-gradient(135deg,#00b894,#55efc4)","icon":"layers","featured":false,"pinned":false},{"id":12,"title":"乡村教育的未来：一个支教老师的深度思考","author":"郑晓峰","time":"2025-01-23 16:00","excerpt":"支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师...","content":"支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师。扬帆计划正在做的就是培养这样的火种。我希望更多年轻人能加入进来，哪怕只是短暂的陪伴，也能照亮孩子们的路。","status":"approved","tag":"成长思考","images":["https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=900&q=80"],"likes":267,"comments":[],"cbg":"linear-gradient(135deg,#6c5ce7,#a29bfe)","abg":"linear-gradient(135deg,#6c5ce7,#a29bfe)","icon":"globe","featured":true,"pinned":true},{"id":13,"title":"我的第一次社会实践经历","author":"李明","time":"2025-01-24 14:30","excerpt":"这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区...","content":"这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区，和居民面对面交流。感触很深，也更加坚定了自己投身公益的决心。","status":"approved","tag":"实践感悟","images":[],"likes":45,"comments":[],"cbg":"linear-gradient(135deg,#4facfe,#7ec8ff)","abg":"linear-gradient(135deg,#4facfe,#00f2fe)","icon":"star","featured":false,"pinned":false},{"id":14,"title":"分享几个高效的学习方法","author":"王芳","time":"2025-01-25 09:15","excerpt":"大学学习需要方法，这里分享几个我亲测有效的学习技巧...","content":"大学学习需要方法，这里分享几个我亲测有效的学习技巧：番茄工作法、费曼学习法、间隔重复法。坚持一个月，效率提升明显。","status":"approved","tag":"学习分享","images":[],"likes":67,"comments":[],"cbg":"linear-gradient(135deg,#ff6b6b,#ffa502)","abg":"linear-gradient(135deg,#ff6b6b,#ee5a24)","icon":"star","featured":false,"pinned":false},{"id":15,"title":"对未来的迷茫与思考","author":"张伟","time":"2025-01-26 20:00","excerpt":"作为一名大一学生，面对未来的方向选择感到十分迷茫...","content":"作为一名大一学生，面对未来的方向选择感到十分迷茫。考研还是就业？留在城市还是回乡？希望能听到前辈们的建议。","status":"pending","tag":"成长思考","images":[],"likes":23,"comments":[],"cbg":"linear-gradient(135deg,#6c5ce7,#a29bfe)","abg":"linear-gradient(135deg,#a29bfe,#6c5ce7)","icon":"star","featured":false,"pinned":false},{"id":16,"title":"暑期实习面试经验分享","author":"赵强","time":"2025-01-27 11:20","excerpt":"上周刚结束了几场实习面试，来和大家分享一下经验...","content":"上周刚结束了几场实习面试，来和大家分享一下经验。准备很重要：自我介绍要精炼，项目经历要有数据支撑，提问环节要展现思考深度。","status":"pending","tag":"求职经验","images":[],"likes":15,"comments":[],"cbg":"linear-gradient(135deg,#00b894,#55efc4)","abg":"linear-gradient(135deg,#00b894,#55efc4)","icon":"star","featured":false,"pinned":false},{"id":17,"title":"推荐一本改变我的书","author":"孙悦","time":"2025-01-27 16:45","excerpt":"《认知觉醒》这本书真的让我重新认识了自己...","content":"《认知觉醒》这本书真的让我重新认识了自己。核心观点：人的大脑有三重结构，理智脑虽然强大但很\"懒\"，要让改变持久，必须让理智脑和本能脑达成合作。","status":"pending","tag":"读书推荐","images":[],"likes":8,"comments":[],"cbg":"linear-gradient(135deg,#fdcb6e,#f39c12)","abg":"linear-gradient(135deg,#fdcb6e,#e17055)","icon":"star","featured":false,"pinned":false},{"id":18,"title":"参加志愿者活动的感受","author":"刘洋","time":"2025-01-23 08:00","excerpt":"上周参加了社区的志愿者活动，感触颇深...","content":"上周参加了社区的志愿者活动，感触颇深。帮助别人的同时，自己也收获了快乐和成长。推荐大家都去试试。","status":"approved","tag":"志愿服务","images":[],"likes":55,"comments":[],"cbg":"linear-gradient(135deg,#00cec9,#0984e3)","abg":"linear-gradient(135deg,#00cec9,#0984e3)","icon":"star","featured":false,"pinned":false},{"id":19,"title":"如何平衡学业与社团","author":"吴婷","time":"2025-01-28 13:10","excerpt":"大一加入了很多社团，但发现时间根本不够用...","content":"大一加入了很多社团，但发现时间根本不够用。后来学会了做减法，只保留两个真正热爱的社团，成绩反而提升了。","status":"rejected","tag":"学习分享","images":[],"likes":12,"comments":[],"cbg":"linear-gradient(135deg,#ff6b6b,#ee5a24)","abg":"linear-gradient(135deg,#ff6b6b,#ff8e8e)","icon":"star","featured":false,"pinned":false}];
 
 var _YF_SEED_stars=[
 {id:1,name:'刘思远',field:'医学',type:'mentor',abg:'linear-gradient(135deg,#00b894,#55efc4)',role:'协和医学院导师',quote:'从乡村少年到协和住院医师',status:'北京协和医院住院医师',story:'刘思远来自云南偏远山村，高中时参加扬帆计划，在扬帆前辈鼓励下立志学医。经过多年努力，考入昆明医科大学，最终进入北京协和医院。',yangfan:'在扬帆的三年是我人生最重要的转折点。',current:'现在在协和医院从事内科临床工作，致力于将优质医疗资源带到偏远地区。',qa:[{q:'医学专业最值得报吗？',a:'如果你有耐心、有责任心、愿意终身学习，医学是最有意义的职业之一。但要做好辛苦的准备。'},{q:'如何平衡学习和生活？',a:'效率比时间更重要。我每天坚持运动30分钟，这反而让学习效率提高了。'}],tasks:[{t:'阅读《医学导论》前三章并提交笔记',p:'+50积分'},{t:'完成人体解剖学基础测试',p:'+80积分'}]},
@@ -1855,7 +1836,7 @@ var textVal=this._extractText(val);
 if(typeof textVal==='string'){
 var trimmed=textVal.trim();
 if(trimmed.startsWith('[')||trimmed.startsWith('{')){
-try{rec[appKey]=JSON.parse(trimmed);continue;}catch(e){}
+try{var _pv=JSON.parse(trimmed);if(appKey==='images'&&typeof _pv==='string'){try{_pv=JSON.parse(_pv);}catch(e){}}rec[appKey]=_pv;continue;}catch(e){}
 }
 if(appKey==='status'&&reverseStatusMap[textVal]){
 rec[appKey]=reverseStatusMap[textVal];
@@ -2033,9 +2014,28 @@ delete ridMap[postId];this._setRidMap('posts',ridMap);
 };
 
 window.addEventListener('load',function(){
-setTimeout(function(){YF_CLOUD.pullAll();},3000);
-setInterval(function(){if(!document.hidden)YF_CLOUD.pullAll();},30000);
+setTimeout(function(){YF_CLOUD.pullAll().then(function(){try{showSyncDot('ok');}catch(e){}});},1500);
+setInterval(function(){if(!document.hidden)YF_CLOUD.pullAll();},20000);
 });
+window._yfSyncing=false;
+function showSyncDot(state){
+try{
+var el=document.getElementById('yfSyncDot');
+if(!el){
+  var foot=document.querySelector('.ln-foot');
+  if(!foot)return;
+  el=document.createElement('span');
+  el.id='yfSyncDot';
+  el.style.cssText='display:inline-flex;align-items:center;gap:4px;margin-left:8px;cursor:pointer';
+  el.onclick=function(){YF_CLOUD.pullAll();showSyncDot('loading');};
+  foot.appendChild(el);
+}
+if(state==='loading'){el.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#ffa502;display:inline-block;animation:pulse 1s infinite"></span>同步中';}
+else if(state==='ok'){el.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#00b894;display:inline-block"></span>已同步';}
+else if(state==='error'){el.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#ff6b6b;display:inline-block"></span>同步异常，点击重试';}
+else if(state==='off'){el.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#b2bec3;display:inline-block"></span>未联网';}
+}catch(e){}
+}
 
 // 跨标签页/跨端实时同步：管理端审核通过后，学生端自动刷新
 window.addEventListener('storage',function(e){
@@ -2050,13 +2050,15 @@ window.addEventListener('storage',function(e){
   }
 });
 
-// 页面切回前台时自动刷新
+// 页面切回前台时自动刷新 + 立即拉取云端
 document.addEventListener('visibilitychange',function(){
   if(!document.hidden){
     try{YangFanData.refresh();}catch(e){}
     try{
       if(typeof renderDiscover==='function' && (!currentPage || currentPage==='home')){renderDiscover();}
     }catch(e){}
+    // 关键：切回前台立即从云端拉取一次，确保跨设备删除/加精实时生效
+    try{showSyncDot('loading');YF_CLOUD.pullAll().then(function(){showSyncDot('ok');}).catch(function(){showSyncDot('error');});}catch(e){}
   }
 });
 
@@ -2314,7 +2316,7 @@ h+='<div class="ban-viewport" id="banTrack">';
 for(var i=0;i<carouselPosts.length;i++){
 var cp=carouselPosts[i];
 var slideBg;
-var _firstImg=(cp.images&&cp.images.length&&typeof cp.images[0]==='string'&&cp.images[0].indexOf('data:image')===0)?cp.images[0]:'';
+var _firstImg=(cp.images&&cp.images.length&&typeof cp.images[0]==='string'&&(cp.images[0].indexOf('data:image')===0||cp.images[0].indexOf('http')===0))?cp.images[0]:'';
 if(_firstImg){slideBg='url("'+_firstImg+'") center/cover no-repeat,'+(cp.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)');}
 else if(banImg&&i===0){slideBg='url("'+banImg+'") center/cover no-repeat';}
 else{slideBg=cp.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)';}
@@ -4486,7 +4488,7 @@ window.shakeEl=typeof shakeEl!=='undefined'?shakeEl:null;
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',function(){
-navigator.serviceWorker.register('sw.js?v=105').catch(function(e){console.log('SW reg failed:',e);});
+navigator.serviceWorker.register('sw.js?v=106').catch(function(e){console.log('SW reg failed:',e);});
 });
 }
 </script>
