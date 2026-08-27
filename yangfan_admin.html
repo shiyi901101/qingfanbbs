@@ -2996,7 +2996,11 @@ function showConfirm(title,desc,callback){
 document.getElementById('confirmTitle').textContent=title;
 document.getElementById('confirmDesc').textContent=desc;
 confirmCallback=callback;
-document.getElementById('confirmBtn').onclick=function(){closeConfirm();if(confirmCallback)confirmCallback();};
+document.getElementById('confirmBtn').onclick=function(){
+  var cb=confirmCallback;
+  closeConfirm();
+  if(cb)cb();
+};
 document.getElementById('confirmOverlay').classList.add('show');
 }
 function closeConfirm(){
