@@ -717,7 +717,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 <button class="ln-btn" onclick="doRegister()">注册</button>
 </div>
 <div class="ln-switch" id="lnSwitch" onclick="toggleRegForm()">没有账号？去注册</div>
-<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.22</span></div>
+<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.23</span></div>
 <svg class="ln-wave" viewBox="0 0 860 60" preserveAspectRatio="none" style="height:50px"><path d="M0 30Q100 10 215 25Q330 40 430 20Q530 0 645 25Q760 50 860 30L860 60L0 60Z" fill="rgba(255,255,255,.15)"/><path d="M0 40Q80 25 200 35Q320 50 430 30Q540 10 645 35Q760 55 860 40L860 60L0 60Z" fill="rgba(255,255,255,.85)"/></svg>
 </div>
 
@@ -1925,37 +1925,26 @@ for(var i=0;i<keys.length;i++){
 var k=keys[i];
 var recs=await this.fetchTable(k);
 if(recs&&recs.length>0){
-var local=[];
-try{local=_yfLoad(k)||[];}catch(e){local=[];}
-var localMap={};
-for(var li=0;li<local.length;li++){
-if(local[li]&&local[li].id!=null)localMap[local[li].id]=local[li];
-}
+// 云端有数据：云端作为唯一真相，直接替换本地
 var ridMap={};
 for(var ri=0;ri<recs.length;ri++){
-if(recs[ri]&&recs[ri].id!=null){
-var _localP=localMap[recs[ri].id];
-var _cloudP=recs[ri];
-if(_localP){
-// 本地置顶/精华状态优先，不被云端覆盖
-if(_localP.pinned&&!_cloudP.pinned)_cloudP.pinned=true;
-if(_localP.featured&&!_cloudP.featured)_cloudP.featured=true;
-// 本地点赞数取较大值
-var _ll=parseInt(_localP.likes)||0,_cl=parseInt(_cloudP.likes)||0;
-if(_ll>_cl)_cloudP.likes=_ll;
+if(recs[ri]&&recs[ri].id!=null&&recs[ri]._rid)ridMap[recs[ri].id]=recs[ri]._rid;
 }
-localMap[recs[ri].id]=_cloudP;
-if(recs[ri]._rid)ridMap[recs[ri].id]=recs[ri]._rid;
-}
-}
-var merged=[];
-for(var id in localMap)merged.push(localMap[id]);
-_yfSave(k,merged);
-_YF_cache[k]=merged;
+_yfSave(k,recs);
+_YF_cache[k]=recs;
 if(Object.keys(ridMap).length>0){
 try{var existingMap=this._getRidMap(k);for(var ridKey in ridMap)existingMap[ridKey]=ridMap[ridKey];this._setRidMap(k,existingMap);}catch(e){}
 }
-updated[k]=merged.length;
+updated[k]=recs.length;
+}else if(recs&&recs.length===0){
+// 云端明确返回空：保留本地数据，避免网络/权限异常导致本地数据被清空
+// 仅在本地也为空时才写入空数组
+var localCheck=[];
+try{localCheck=_yfLoad(k)||[];}catch(e){localCheck=[];}
+if(localCheck.length===0){
+_yfSave(k,[]);_YF_cache[k]=[];
+}
+updated[k]='(cloud empty, local kept)';
 }
 }
 console.log('[YF_CLOUD] sync done:',updated);
@@ -4497,7 +4486,7 @@ window.shakeEl=typeof shakeEl!=='undefined'?shakeEl:null;
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',function(){
-navigator.serviceWorker.register('sw.js?v=103').catch(function(e){console.log('SW reg failed:',e);});
+navigator.serviceWorker.register('sw.js?v=104').catch(function(e){console.log('SW reg failed:',e);});
 });
 }
 </script>

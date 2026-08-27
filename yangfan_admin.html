@@ -2597,29 +2597,39 @@ function pullTable(tableKey){
 function pushTable(tableKey,localData){
   var tableId=FEISHU_CONFIG.tables[tableKey];
   var apiPath='/bitable/v1/apps/'+FEISHU_CONFIG.baseToken+'/tables/'+tableId+'/records';
-  // 先获取现有记录ID
-  return proxyFetch(apiPath+'/search?page_size=200','POST',{}).then(function(d){
-    var existingIds=(d.data&&d.data.items||[]).map(function(x){return x.record_id;});
-    // 批量删除（每批100）
-    var delChunks=[];
-    for(var i=0;i<existingIds.length;i+=100)delChunks.push(existingIds.slice(i,i+100));
-    return delChunks.reduce(function(p,chunk){
-      return p.then(function(){
-        return proxyFetch(apiPath+'/batch_delete','POST',{records:chunk});
+  // 逐条 upsert：按 ID 搜索云端记录，存在则更新，不存在则新建
+  // 避免「先删后建」导致的云端数据清空风险
+  var success=0,fail=0;
+  return localData.reduce(function(p,item){
+    return p.then(function(){
+      var fields=FEISHU_CONFIG.mapToFeishuFields(tableKey,item);
+      var idField=null;
+      var idVal=null;
+      if(tableKey==='posts'){idField='post_id';idVal=String(item.id);}
+      else if(tableKey==='users'){idField='user_id';idVal=String(item.id);}
+      else if(tableKey==='stars'){idField='star_id';idVal=String(item.id);}
+      else if(tableKey==='groups'){idField='group_id';idVal=String(item.id);}
+      else if(tableKey==='opps'){idField='opp_id';idVal=String(item.id);}
+      else if(tableKey==='announces'){idField='ann_id';idVal=String(item.id);}
+      else if(tableKey==='shop_items'){idField='item_id';idVal=String(item.id);}
+      else if(tableKey==='bad_words'){idField='word_id';idVal=String(item.id);}
+      else if(tableKey==='notifications'){idField='notif_id';idVal=String(item.id);}
+      else if(tableKey==='exchanges'){idField='exchange_id';idVal=String(item.id);}
+      else if(tableKey==='reports'){idField='report_id';idVal=String(item.id);}
+      else if(tableKey==='messages'){idField='msg_id';idVal=String(item.id);}
+      if(!idField||idVal==null)return Promise.resolve();
+      return proxyFetch(apiPath+'/search?page_size=10','POST',{filter:{conjunction:'and',conditions:[{field_name:idField,operator:'is',value:[idVal]}]}}).then(function(d){
+        var items=(d&&d.data&&d.data.items)||[];
+        if(items.length>0){
+          return proxyFetch(apiPath+'/'+items[0].record_id,'PUT',{fields:fields}).then(function(){success++;}).catch(function(){fail++;});
+        }else{
+          return proxyFetch(apiPath,'POST',{fields:fields}).then(function(){success++;}).catch(function(){fail++;});
+        }
       });
-    },Promise.resolve()).then(function(){
-      // 批量创建（每批100），使用字段映射
-      var records=localData.map(function(item){
-        return{fields:FEISHU_CONFIG.mapToFeishuFields(tableKey,item)};
-      });
-      var creChunks=[];
-      for(var j=0;j<records.length;j+=100)creChunks.push(records.slice(j,j+100));
-      return creChunks.reduce(function(p2,chunk2){
-        return p2.then(function(){
-          return proxyFetch(apiPath+'/batch_create','POST',{records:chunk2});
-        });
-      },Promise.resolve());
     });
+  },Promise.resolve()).then(function(){
+    syncLog(tableKey+' 推送完成：成功'+success+'条'+(fail>0?'，失败'+fail+'条':''));
+    return {success:success,fail:fail};
   });
 }
 
@@ -2831,47 +2841,31 @@ function syncAll(){
   });
 }
 
-// 从飞书拉取（merge 策略：保留本地独有记录）
+// 从飞书拉取（云端作为唯一真相，直接替换本地）
 function pullAll(){
   var proxy=FEISHU_CONFIG.proxyUrl;
   if(!proxy){showToast('未配置云同步代理','info');return;}
-  syncLog('从飞书拉取数据（合并模式）...');
+  syncLog('从飞书拉取数据...');
   var tableKeys=['posts','users','stars','groups','opps','announces','shop_items','exchanges','notifications','reports','bad_words'];
   var idx=0;
-  function mergeAndSave(key,remoteRecords){
-    if(!remoteRecords||remoteRecords.length===0)return 0;
-    var local=[];
-    try{local=_yfLoad(key)||[];}catch(e){local=[];}
-    var localMap={};
-    for(var i=0;i<local.length;i++){
-      if(local[i]&&local[i].id!=null)localMap[local[i].id]=local[i];
-    }
-    for(var j=0;j<remoteRecords.length;j++){
-      var r=remoteRecords[j];
-      if(r&&r.id!=null)localMap[r.id]=r; // 飞书记录覆盖本地同id
-    }
-    var merged=[];
-    for(var id in localMap)merged.push(localMap[id]);
-    _yfSave(key,merged);
-    if(_YF_cache)_YF_cache[key]=merged;
-    return merged.length;
-  }
   function next(){
     if(idx>=tableKeys.length){
-      syncLog('拉取合并完成，刷新视图...');
+      syncLog('拉取完成，刷新视图...');
       try{YangFanData.refresh();}catch(e){}
       var active=document.querySelector('.nav-item.active');
       if(active){try{switchPage(active.getAttribute('data-page'));}catch(e){}}
-      showToast('飞书数据已合并到本地','success');
+      showToast('飞书数据已同步到本地','success');
       return;
     }
     var key=tableKeys[idx++];
     pullTable(key).then(function(records){
-      if(records.length>0){
-        var total=mergeAndSave(key,records);
-        syncLog('  '+key+': 合并 '+records.length+' 条，共 '+total+' 条');
+      if(records&&records.length>0){
+        // 云端有数据：直接替换本地
+        _yfSave(key,records);
+        if(_YF_cache)_YF_cache[key]=records;
+        syncLog('  '+key+': 同步 '+records.length+' 条');
       }else{
-        syncLog('  '+key+': 飞书无数据');
+        syncLog('  '+key+': 飞书无数据（保留本地）');
       }
       setTimeout(next,300);
     }).catch(function(e){
@@ -2888,27 +2882,17 @@ function syncTable(tableKey){
   if(!proxy){showToast('未配置云同步代理','info');return;}
   syncLog('同步 '+tableKey+' ...');
   pullTable(tableKey).then(function(records){
-    if(records.length>0){
-      var local=[];
-      try{local=_yfLoad(tableKey)||[];}catch(e){local=[];}
-      var localMap={};
-      for(var i=0;i<local.length;i++){
-        if(local[i]&&local[i].id!=null)localMap[local[i].id]=local[i];
-      }
-      for(var j=0;j<records.length;j++){
-        if(records[j]&&records[j].id!=null)localMap[records[j].id]=records[j];
-      }
-      var merged=[];
-      for(var id in localMap)merged.push(localMap[id]);
-      _yfSave(tableKey,merged);
-      if(_YF_cache)_YF_cache[tableKey]=merged;
+    if(records&&records.length>0){
+      // 云端有数据：直接替换本地
+      _yfSave(tableKey,records);
+      if(_YF_cache)_YF_cache[tableKey]=records;
       try{YangFanData.refresh();}catch(e){}
       var active=document.querySelector('.nav-item.active');
       if(active){try{switchPage(active.getAttribute('data-page'));}catch(e){}}
-      syncLog('  ✓ '+tableKey+': 已合并 '+records.length+' 条，共 '+merged.length+' 条');
+      syncLog('  ✓ '+tableKey+': 已同步 '+records.length+' 条');
       showToast(tableKey+' 同步成功（'+records.length+'条）','success');
     }else{
-      syncLog('  '+tableKey+': 飞书无数据');
+      syncLog('  '+tableKey+': 飞书无数据（保留本地）');
       showToast(tableKey+' 飞书无数据','info');
     }
   }).catch(function(e){
@@ -2958,18 +2942,12 @@ window.addEventListener('load',function(){
     var keys=['posts','users','stars','groups','opps','announces','shop_items','bad_words'];
     Promise.all(keys.map(function(k){
       return pullTable(k).then(function(r){
-        if(r.length>0){
-          // 静默 merge
-          var local=[];
-          try{local=_yfLoad(k)||[];}catch(e){local=[];}
-          var localMap={};
-          for(var i=0;i<local.length;i++){if(local[i]&&local[i].id!=null)localMap[local[i].id]=local[i];}
-          for(var j=0;j<r.length;j++){if(r[j]&&r[j].id!=null)localMap[r[j].id]=r[j];}
-          var merged=[];
-          for(var id in localMap)merged.push(localMap[id]);
-          _yfSave(k,merged);
-          if(_YF_cache)_YF_cache[k]=merged;
+        if(r&&r.length>0){
+          // 云端有数据：直接作为真相替换本地
+          _yfSave(k,r);
+          if(_YF_cache)_YF_cache[k]=r;
         }
+        // 云端空：保留本地，不覆盖
       }).catch(function(){});
     })).then(function(){
       try{YangFanData.refresh();}catch(e){}
