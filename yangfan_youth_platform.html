@@ -717,7 +717,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 <button class="ln-btn" onclick="doRegister()">注册</button>
 </div>
 <div class="ln-switch" id="lnSwitch" onclick="toggleRegForm()">没有账号？去注册</div>
-<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.17</span></div>
+<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.20</span></div>
 <svg class="ln-wave" viewBox="0 0 860 60" preserveAspectRatio="none" style="height:50px"><path d="M0 30Q100 10 215 25Q330 40 430 20Q530 0 645 25Q760 50 860 30L860 60L0 60Z" fill="rgba(255,255,255,.15)"/><path d="M0 40Q80 25 200 35Q320 50 430 30Q540 10 645 35Q760 55 860 40L860 60L0 60Z" fill="rgba(255,255,255,.85)"/></svg>
 </div>
 
@@ -828,23 +828,23 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 var SUPABASE_CONFIG={url:'https://your-project.supabase.co',anonKey:'your-anon-key',useSupabase:false};
 var _YF_P='yf_shared_';
 var _YF_VER='yf_shared_db_version';
-var _YF_CUR_VER=8;
+var _YF_CUR_VER=9;
 
 var _YF_TABLES=['posts','stars','groups','opps','banners','announces','tags','users','audit_logs','tasks','shop_items','exchanges','notifications','reports','bad_words','messages'];
 
 var _YF_SEED_posts=[
 {id:1,title:'第一次独立拍摄vlog，记录乡村小学的清晨',author:'林小溪',time:'2025-01-18 08:30',excerpt:'上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄...',content:'上周跟随扬帆计划来到了贵州山区小学，这是我第一次拿起相机独立拍摄。清晨五点半，天还没亮，我就扛着三脚架站在教室门口等待第一缕阳光。当孩子们跑进教室，看到镜头时那种好奇又害羞的眼神，让我觉得一切辛苦都值得了。这次经历让我明白，记录不只是按下快门，更是用心去感受每一个瞬间。',status:'approved',tag:'拍摄日记',images:[],likes:128,comments:[],cbg:'linear-gradient(135deg,#74b9ff,#0984e3)',abg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',icon:'camera',featured:false,pinned:false},
 {id:2,title:'演讲训练营Day3：从害怕开口到享受舞台',author:'张明远',time:'2025-01-19 14:00',excerpt:'三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！',content:'三天前我还不敢在陌生人面前说话，今天居然在全班50人面前完成了5分钟演讲！教练教的三步法真的有用：先讲故事，再给观点，最后抛问题。最紧张的是开头，但只要说出第一句话，后面就顺了。感谢扬帆的演讲训练营，让我发现了自己从未想过的一面。',status:'approved',tag:'技能打卡',images:[],likes:95,comments:[],cbg:'linear-gradient(135deg,#fd79a8,#e84393)',abg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',icon:'mic',featured:false,pinned:false},
-{id:3,title:'医学专业分享：如何高效记忆解剖学知识',author:'王思琪',time:'2025-01-19 16:20',excerpt:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法...',content:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法：1.画图记忆法，边看图谱边手绘；2.编故事法，把枯燥的名词编成有趣的小故事；3.睡前复习法，利用睡眠巩固记忆。希望对医学科的同学们有帮助！',status:'approved',tag:'学习分享',images:[],likes:210,comments:[],cbg:'linear-gradient(135deg,#55efc4,#00b894)',abg:'linear-gradient(135deg,#55efc4,#00b894)',icon:'book',featured:false,pinned:true},
+{id:3,title:'医学专业分享：如何高效记忆解剖学知识',author:'王思琪',time:'2025-01-19 16:20',excerpt:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法...',content:'作为大二的医学生，解剖学是最考验记忆力的课程。分享几个方法：1.画图记忆法，边看图谱边手绘；2.编故事法，把枯燥的名词编成有趣的小故事；3.睡前复习法，利用睡眠巩固记忆。希望对医学科的同学们有帮助！',status:'approved',tag:'学习分享',images:[],likes:210,comments:[],cbg:'linear-gradient(135deg,#55efc4,#00b894)',abg:'linear-gradient(135deg,#55efc4,#00b894)',icon:'book',featured:true,pinned:true},
 {id:4,title:'我的第一份实习：在新媒体公司学到的三件事',author:'陈雨桐',time:'2025-01-20 09:00',excerpt:'暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西...',content:'暑假在一家新媒体公司实习了两个月，学到了课本上没有的东西。第一，沟通比执行更重要；第二，数据和创意要结合；第三，主动学习是职场的核心竞争力。扬帆计划帮我迈出了职场第一步。',status:'approved',tag:'实习经历',images:[],likes:87,comments:[],cbg:'linear-gradient(135deg,#fdcb6e,#e17055)',abg:'linear-gradient(135deg,#fdcb6e,#f39c12)',icon:'briefcase',featured:false,pinned:false},
-{id:5,title:'用Python帮村里做了个农产品销售小程序',author:'李浩然',time:'2025-01-20 11:30',excerpt:'学了三个月Python，终于做出了一个能用的东西！',content:'学了三个月Python，终于做出了一个能用的东西！我们村的苹果一直销路不好，我做了一个简单的销售小程序，可以在线下单查看物流。虽然界面还很粗糙，但村里的叔叔阿姨们用得很开心。',status:'approved',tag:'技能打卡',images:[],likes:302,comments:[],cbg:'linear-gradient(135deg,#00cec9,#0984e3)',abg:'linear-gradient(135deg,#00cec9,#0984e3)',icon:'code',featured:false,pinned:true},
+{id:5,title:'用Python帮村里做了个农产品销售小程序',author:'李浩然',time:'2025-01-20 11:30',excerpt:'学了三个月Python，终于做出了一个能用的东西！',content:'学了三个月Python，终于做出了一个能用的东西！我们村的苹果一直销路不好，我做了一个简单的销售小程序，可以在线下单查看物流。虽然界面还很粗糙，但村里的叔叔阿姨们用得很开心。',status:'approved',tag:'技能打卡',images:[],likes:302,comments:[],cbg:'linear-gradient(135deg,#00cec9,#0984e3)',abg:'linear-gradient(135deg,#00cec9,#0984e3)',icon:'code',featured:true,pinned:true},
 {id:6,title:'支教日记：孩子们教给我的比我还教的多',author:'赵一诺',time:'2025-01-20 15:00',excerpt:'支教的第15天，一个叫小杰的男孩递给我一张纸条...',content:'支教的第15天，一个叫小杰的男孩递给我一张纸条，上面写着：老师你以后还会来吗？那一刻眼泪差点掉下来。这些孩子让我明白，教育的本质不是灌输知识，而是点燃希望。',status:'approved',tag:'实践感悟',images:[],likes:176,comments:[],cbg:'linear-gradient(135deg,#fab1a0,#e17055)',abg:'linear-gradient(135deg,#fab1a0,#e17055)',icon:'heart',featured:false,pinned:false},
 {id:7,title:'科普写作入门：把复杂的事说简单',author:'刘子轩',time:'2025-01-21 10:00',excerpt:'加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款...',content:'加入扬帆科普写作小组一个月了，从最初写得像论文到现在能写出朋友圈爆款。秘诀就是先想清楚读者是谁，再用他们听得懂的话讲。比如不要说光合作用是植物利用光能将CO2转化为有机物的过程，而要说植物晒太阳就能吃饱！',status:'approved',tag:'学习分享',images:[],likes:64,comments:[],cbg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',abg:'linear-gradient(135deg,#dfe6e9,#b2bec3)',icon:'edit',featured:false,pinned:false},
 {id:8,title:'社区公益活动：为老人教智能手机',author:'孙雅琪',time:'2025-01-21 14:30',excerpt:'上周末在社区教老人们使用智能手机...',content:'上周末在社区教老人们使用智能手机。最让我感动的是70岁的王奶奶，学会视频通话后第一件事就是给在外地的孙子打电话。科技不应该成为代沟，而应该成为连接的桥梁。',status:'approved',tag:'志愿服务',images:[],likes:143,comments:[],cbg:'linear-gradient(135deg,#55efc4,#00b894)',abg:'linear-gradient(135deg,#ffeaa7,#fdcb6e)',icon:'users',featured:false,pinned:false},
-{id:9,title:'从零基础到独立完成纪录片的影像之路',author:'周文博',time:'2025-01-22 08:00',excerpt:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片...',content:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片。最难忘的是在海拔3000米的山上拍日出，冻得手都僵了，但看到成片的那一刻，值了！',status:'approved',tag:'拍摄日记',images:[],likes:231,comments:[],cbg:'linear-gradient(135deg,#74b9ff,#0984e3)',abg:'linear-gradient(135deg,#81ecec,#00cec9)',icon:'film',featured:false,pinned:true},
-{id:10,title:'考研经验分享：如何制定科学的复习计划',author:'吴佳怡',time:'2025-01-22 13:00',excerpt:'成功上岸985！分享复习时间线...',content:'成功上岸985！分享复习时间线：3-6月打基础每天6小时；7-9月强化每天8小时；10-12月冲刺每天10小时。关键是每周留出半天休息，保证效率比堆时间重要。',status:'approved',tag:'学习分享',images:[],likes:189,comments:[],cbg:'linear-gradient(135deg,#fd79a8,#e84393)',abg:'linear-gradient(135deg,#fd79a8,#e84393)',icon:'target',featured:false,pinned:true},
+{id:9,title:'从零基础到独立完成纪录片的影像之路',author:'周文博',time:'2025-01-22 08:00',excerpt:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片...',content:'一年前我连手机录像都不会，现在居然独立完成了一部15分钟的乡村纪录片。最难忘的是在海拔3000米的山上拍日出，冻得手都僵了，但看到成片的那一刻，值了！',status:'approved',tag:'拍摄日记',images:[],likes:231,comments:[],cbg:'linear-gradient(135deg,#74b9ff,#0984e3)',abg:'linear-gradient(135deg,#81ecec,#00cec9)',icon:'film',featured:true,pinned:true},
+{id:10,title:'考研经验分享：如何制定科学的复习计划',author:'吴佳怡',time:'2025-01-22 13:00',excerpt:'成功上岸985！分享复习时间线...',content:'成功上岸985！分享复习时间线：3-6月打基础每天6小时；7-9月强化每天8小时；10-12月冲刺每天10小时。关键是每周留出半天休息，保证效率比堆时间重要。',status:'approved',tag:'学习分享',images:[],likes:189,comments:[],cbg:'linear-gradient(135deg,#fd79a8,#e84393)',abg:'linear-gradient(135deg,#fd79a8,#e84393)',icon:'target',featured:true,pinned:true},
 {id:11,title:'策划校园环保活动，参与人数超预期3倍',author:'黄子豪',time:'2025-01-23 09:30',excerpt:'在扬帆学到了项目策划方法论，决定在学校试一次...',content:'在扬帆学到了项目策划方法论，决定在学校试一次。从立项到执行用了两周，原本预计100人参加，结果来了300多人！成功的秘诀是找到同学们真正关心的切入点。',status:'approved',tag:'实践感悟',images:[],likes:98,comments:[],cbg:'linear-gradient(135deg,#00b894,#00cec9)',abg:'linear-gradient(135deg,#00b894,#55efc4)',icon:'layers',featured:false,pinned:false},
-{id:12,title:'乡村教育的未来：一个支教老师的深度思考',author:'郑晓峰',time:'2025-01-23 16:00',excerpt:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师...',content:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师。扬帆计划正在做的就是培养这样的火种。我希望更多年轻人能加入进来，哪怕只是短暂的陪伴，也能照亮孩子们的路。',status:'approved',tag:'成长思考',images:[],likes:267,comments:[],cbg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',abg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',icon:'globe',featured:false,pinned:true},
+{id:12,title:'乡村教育的未来：一个支教老师的深度思考',author:'郑晓峰',time:'2025-01-23 16:00',excerpt:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师...',content:'支教两年，我越来越觉得乡村教育缺的不是硬件而是有热情懂方法的老师。扬帆计划正在做的就是培养这样的火种。我希望更多年轻人能加入进来，哪怕只是短暂的陪伴，也能照亮孩子们的路。',status:'approved',tag:'成长思考',images:[],likes:267,comments:[],cbg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',abg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',icon:'globe',featured:true,pinned:true},
 {id:13,title:'我的第一次社会实践经历',author:'李明',time:'2025-01-24 14:30',excerpt:'这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区...',content:'这个暑假我参加了扬帆计划的社会实践活动，第一次走进社区，和居民面对面交流。感触很深，也更加坚定了自己投身公益的决心。',status:'approved',tag:'实践感悟',images:[],likes:45,comments:[],cbg:'linear-gradient(135deg,#4facfe,#7ec8ff)',abg:'linear-gradient(135deg,#4facfe,#00f2fe)',icon:'star',featured:false,pinned:false},
 {id:14,title:'分享几个高效的学习方法',author:'王芳',time:'2025-01-25 09:15',excerpt:'大学学习需要方法，这里分享几个我亲测有效的学习技巧...',content:'大学学习需要方法，这里分享几个我亲测有效的学习技巧：番茄工作法、费曼学习法、间隔重复法。坚持一个月，效率提升明显。',status:'approved',tag:'学习分享',images:[],likes:67,comments:[],cbg:'linear-gradient(135deg,#ff6b6b,#ffa502)',abg:'linear-gradient(135deg,#ff6b6b,#ee5a24)',icon:'star',featured:false,pinned:false},
 {id:15,title:'对未来的迷茫与思考',author:'张伟',time:'2025-01-26 20:00',excerpt:'作为一名大一学生，面对未来的方向选择感到十分迷茫...',content:'作为一名大一学生，面对未来的方向选择感到十分迷茫。考研还是就业？留在城市还是回乡？希望能听到前辈们的建议。',status:'pending',tag:'成长思考',images:[],likes:23,comments:[],cbg:'linear-gradient(135deg,#6c5ce7,#a29bfe)',abg:'linear-gradient(135deg,#a29bfe,#6c5ce7)',icon:'star',featured:false,pinned:false},
@@ -1109,6 +1109,36 @@ if(!_g8[_gi8].posts){_g8[_gi8].posts=[];_gChanged8=true;}
 }
 if(_gChanged8)_yfSave('groups',_g8);
 }catch(e){console.warn('V8 migration error:',e);}
+}
+if(curVer<9){
+try{
+// V9：之前的5条置顶种子帖同步标记为精华，确保轮播有内容
+var _p9=_yfLoad('posts')||[];
+var _seedIds=[3,5,9,10,12];
+var _changed9=false;
+for(var _pi9=0;_pi9<_p9.length;_pi9++){
+if(_seedIds.indexOf(_p9[_pi9].id)>=0&&!_p9[_pi9].featured){
+_p9[_pi9].featured=true;
+_p9[_pi9].pinned=true;
+_changed9=true;
+}
+}
+if(_changed9)_yfSave('posts',_p9);
+}catch(e){console.warn('V9 migration error:',e);}
+}
+if(curVer<10){
+try{
+// V10：清除旧的rid_map缓存（字段名映射修正后，旧record_id映射可能指向错误记录）
+localStorage.removeItem('yf_rid_map_posts');
+localStorage.removeItem('yf_rid_map_users');
+// 确保种子帖精华标记
+var _p10=_yfLoad('posts')||[];
+var _seedIds10=[3,5,9,10,12];
+for(var _pi10=0;_pi10<_p10.length;_pi10++){
+if(_seedIds10.indexOf(_p10[_pi10].id)>=0){_p10[_pi10].featured=true;_p10[_pi10].pinned=true;}
+}
+_yfSave('posts',_p10);
+}catch(e){console.warn('V10 migration error:',e);}
 }
 }
 localStorage.setItem('yf_growth_config',JSON.stringify(_YF_SEED_growth_config));
@@ -1702,6 +1732,140 @@ DEFAULT_PROXY:'https://api.qingfan-am.site',
 DEFAULT_BASE:'KWwHbXszCaeYWPsKjmnc3ta5nGt',
 get baseToken(){try{return localStorage.getItem('yf_feishu_base')||this.DEFAULT_BASE;}catch(e){return this.DEFAULT_BASE;}},
 tables:{posts:'tblkXDKxeGhUQigI',users:'tbl0H0jolFbMe8LU',stars:'tblfsDCcoeyhB5N7',groups:'tbl1q6SywEFVBbtW',opps:'tblBus9iOg18PTD3',announces:'tblygE3VvlENsFNu',shop_items:'tblljjY1FVgZfzKd',exchanges:'tblOmQ9Job8dEPHm',notifications:'tbl7JCUvTGYm38Zz',reports:'tbl0r7ZTwndN6uIf',bad_words:'tbl7vSaMjr6bg5ut',messages:'tblOG6WeQgYFZ0iZ'},
+// 飞书字段映射：app英文字段名 → 飞书中文字段名；blob字段存完整JSON
+fieldMap:{
+posts:{id:'post_id',authorId:'作者ID',author:'作者名',avatar:'作者头像',tag:'板块',images:'图片',likes:'点赞数',comments_count:'评论数',likedBy:'点赞列表',comments:'评论列表',featured:'加精',pinned:'置顶',status:'状态',time:'创建时间',_blob:'内容',_statusMap:{approved:'已通过',pending:'待审核',rejected:'已拒绝'}},
+users:{id:'user_id',name:'用户名',phone:'手机号',password:'密码',avatar:'头像',school:'学校',major:'专业',grade:'年级',bio:'简介',points:'积分',postsCount:'发帖数',followersCount:'粉丝数',followingCount:'关注数',following:'关注列表',followers_list:'粉丝列表',role:'角色',status:'状态',created:'注册时间',_blob:'简介',_statusMap:{active:'正常',banned:'封禁'}},
+groups:{id:'group_id',name:'名称',icon:'图标',desc:'简介',members:'成员数',posts_count:'帖子数',members_list:'成员列表',cat:'分类',created:'创建时间',cover:'封面图',_blob:'封面图'},
+opps:{id:'opp_id',title:'标题',org:'组织方',type:'类型',region:'地点',deadline:'截止日期',desc:'描述',tags:'标签',images:'图片',link:'链接',status:'状态',created:'创建时间',_blob:'图片'},
+announces:{id:'ann_id',title:'标题',content:'内容',type:'类型',createdBy:'发布人',created:'创建时间',_blob:'内容'},
+shop_items:{id:'item_id',name:'名称',desc:'描述',icon:'图标',points:'所需积分',stock:'库存',cat:'分类',status:'状态',created:'创建时间',_blob:'图标'},
+bad_words:{id:'word_id',word:'词语',cat:'分类',status:'状态',created:'创建时间',_blob:'词语'},
+stars:{id:'star_id',name:'姓名',avatar:'头像',role:'头衔',field:'领域',bio:'简介',story:'故事',yangfan:'扬帆经历',current:'当前状态',qa:'问答',tasks:'任务',status:'状态',order:'排序',_blob:'问答'},
+notifications:{id:'notif_id',userId:'接收人ID',type:'类型',title:'标题',content:'内容',relatedId:'相关ID',read:'已读',created:'创建时间',_blob:'内容'}
+},
+_blobParse:function(rawVal){
+if(!rawVal)return null;
+if(typeof rawVal==='string'){
+var t=rawVal.trim();
+if(t.startsWith('{')&&t.endsWith('}')){try{return JSON.parse(t);}catch(e){return null;}}
+}
+return null;
+},
+_extractText:function(v){
+if(Array.isArray(v)&&v.length>0&&typeof v[0]==='object'&&v[0].text!==undefined)return v.map(function(x){return x.text;}).join('');
+if(Array.isArray(v)&&v[0]!==undefined&&typeof v[0]==='string')return v[0];
+if(typeof v==='string')return v;
+return v;
+},
+_mapToFeishuFields:function(tableKey,item){
+var map=this.fieldMap[tableKey];
+if(!map){var f2={};for(var k2 in item){if(k2==='_rid')continue;var v2=item[k2];if(v2==null)continue;if(typeof v2==='boolean'||typeof v2==='number')f2[k2]=v2;else if(typeof v2==='object'){var s2=JSON.stringify(v2);f2[k2]=s2.length>90000?(k2==='images'?'[]':s2.substring(0,90000)):s2;}else f2[k2]=String(v2);}return f2;}
+var fields={};
+var blobObj={};
+var hasBlob=false;
+var statusMap=map._statusMap||{};
+var blobField=map._blob;
+for(var key in item){
+if(key==='_rid')continue;
+var val=item[key];
+if(val==null||val===undefined)continue;
+var feishuName=map[key];
+// If this app key maps directly to the blob field, send it to blob instead
+if(feishuName===blobField){
+blobObj[key]=val;
+hasBlob=true;
+continue;
+}
+if(feishuName&&feishuName.charAt(0)!=='_'){
+var _isIdField=(feishuName==='post_id'||feishuName==='user_id'||feishuName==='group_id'||feishuName==='opp_id'||feishuName==='ann_id'||feishuName==='item_id'||feishuName==='word_id'||feishuName==='star_id'||feishuName==='notif_id'||feishuName==='exchange_id'||feishuName==='report_id'||feishuName==='msg_id'||key==='id'||(typeof key==='string'&&key.toLowerCase().indexOf('id')===key.length-2));
+if(key==='status'&&statusMap[val]){
+fields[feishuName]=statusMap[val];
+}else if(typeof val==='boolean'){
+fields[feishuName]=val;
+}else if(_isIdField&&typeof val==='number'){
+fields[feishuName]=String(val);
+}else if(typeof val==='number'&&(feishuName.indexOf('数')>=0||feishuName==='排序')){
+fields[feishuName]=val;
+}else if(typeof val==='number'){
+fields[feishuName]=String(val);
+}else if(typeof val==='object'){
+var s3=JSON.stringify(val);
+if(s3.length>90000){
+if(key==='images')fields[feishuName]='[]';
+else fields[feishuName]=s3.substring(0,90000);
+}else fields[feishuName]=s3;
+}else{
+fields[feishuName]=String(val);
+}
+}else{
+blobObj[key]=val;
+hasBlob=true;
+}
+}
+if(hasBlob&&blobField){
+var bs=JSON.stringify(blobObj);
+fields[blobField]=bs.length>90000?bs.substring(0,90000):bs;
+}
+return fields;
+},
+_mapFromFeishuRecord:function(tableKey,item){
+var map=this.fieldMap[tableKey];
+var f=item.fields;
+var rec={_rid:item.record_id};
+if(!map){
+for(var k in f){rec[k]=this._extractText(f[k]);}
+return rec;
+}
+var blobRaw=null;
+var reverseStatusMap={};
+var statusMap=map._statusMap||{};
+for(var sv in statusMap)reverseStatusMap[statusMap[sv]]=sv;
+for(var feishuKey in f){
+var val=f[feishuKey];
+var appKey=null;
+for(var mk in map){if(mk.charAt(0)==='_')continue;if(map[mk]===feishuKey){appKey=mk;break;}}
+if(!appKey){
+if(feishuKey===map._blob){blobRaw=this._extractText(val);continue;}
+continue;
+}
+if(feishuKey==='加精'||feishuKey==='置顶'||feishuKey==='已读'){
+rec[appKey]=!!val;
+}else if(typeof val==='boolean'){
+rec[appKey]=val;
+}else if(typeof val==='number'){
+rec[appKey]=val;
+}else{
+var textVal=this._extractText(val);
+if(typeof textVal==='string'){
+var trimmed=textVal.trim();
+if(trimmed.startsWith('[')||trimmed.startsWith('{')){
+try{rec[appKey]=JSON.parse(trimmed);continue;}catch(e){}
+}
+if(appKey==='status'&&reverseStatusMap[textVal]){
+rec[appKey]=reverseStatusMap[textVal];
+continue;
+}
+var num=Number(textVal);
+if(!isNaN(num)&&textVal.trim()!==''&&/^-?\d+(\.\d+)?$/.test(textVal.trim()))rec[appKey]=num;
+else rec[appKey]=textVal;
+}else{
+rec[appKey]=textVal;
+}
+}
+}
+if(blobRaw){
+var blobData=this._blobParse(blobRaw);
+if(blobData){
+for(var bk in blobData){
+if(rec[bk]===undefined||rec[bk]===''||rec[bk]===null||(Array.isArray(rec[bk])&&rec[bk].length===0)){
+rec[bk]=blobData[bk];
+}
+}
+}
+}
+return rec;
+},
 get proxyUrl(){try{return localStorage.getItem('yf_feishu_proxy')||this.DEFAULT_PROXY;}catch(e){return this.DEFAULT_PROXY;}},
 proxyFetch:function(apiPath,method,body){
 var proxy=this.proxyUrl;
@@ -1732,7 +1896,7 @@ var path='/bitable/v1/apps/'+this.baseToken+'/tables/'+tableId+'/records/search?
 var d=await this.proxyFetch(path,'POST',{});
 if(d.code===0&&d.data&&d.data.items){
 var self=this;
-return d.data.items.map(function(item){return self._parseFeishuRecord(item);});
+return d.data.items.map(function(item){return self._mapFromFeishuRecord(tableKey,item);});
 }
 }catch(e){console.warn('[YF_CLOUD] fetch '+tableKey+' error:',e);}
 return null;
@@ -1790,26 +1954,8 @@ try{if(typeof renderRankList==='function')renderRankList();}catch(e){}
 }
 }catch(e){console.warn('[YF_CLOUD] pullAll error:',e);}
 },
-_toFeishuFields:function(item){
-var fields={};
-for(var k in item){
-if(k==='_rid')continue;
-var v=item[k];
-if(v==null||v===undefined)continue;
-if(typeof v==='boolean'||typeof v==='number')fields[k]=v;
-else if(typeof v==='object'){
-var s=JSON.stringify(v);
-if(s.length>90000){
-if(k==='images'){fields[k]='[]';fields._img_trunc='1';}
-else fields[k]=s.substring(0,90000);
-}else fields[k]=s;
-}else{
-var sv=String(v);
-if(sv.length>90000)sv=sv.substring(0,90000);
-fields[k]=sv;
-}
-}
-return fields;
+_toFeishuFields:function(tableKey,item){
+return this._mapToFeishuFields(tableKey||'posts',item);
 },
 _parseFeishuRecord:function(item){
 var f=item.fields;var rec={_rid:item.record_id};
@@ -1838,7 +1984,7 @@ if(!this.proxyUrl)return;
 try{
 var tableId=this.tables.posts;
 var path='/bitable/v1/apps/'+this.baseToken+'/tables/'+tableId+'/records';
-var fields=this._toFeishuFields(post);
+var fields=this._toFeishuFields('posts',post);
 var ridMap=this._getRidMap('posts');
 var rid=ridMap[post.id];
 if(rid){
@@ -1854,7 +2000,7 @@ if(!this.proxyUrl)return;
 try{
 var tableId=this.tables.users;
 var path='/bitable/v1/apps/'+this.baseToken+'/tables/'+tableId+'/records';
-var fields=this._toFeishuFields(user);
+var fields=this._toFeishuFields('users',user);
 var ridMap=this._getRidMap('users');
 var rid=ridMap[user.id];
 if(rid){
@@ -2148,9 +2294,13 @@ h+='</div>';
 // 轮播图：置顶优先，不足5张按点赞补热门，固定5个
 var banMax=5;
 var allPosts=YangFanData.getPosts({status:'approved'});
-var _pinned=allPosts.filter(function(p){return p.pinned;});
-var _hot=allPosts.filter(function(p){return !p.pinned;}).sort(function(a,b){return (b.likes||0)-(a.likes||0);});
-var carouselPosts=_pinned.concat(_hot).slice(0,Math.min(banMax,allPosts.length));
+// 轮播优先级：精华帖 > 置顶帖 > 热门帖（点赞排序），凑满5张
+var _usedIds={};
+var _featured=allPosts.filter(function(p){if(p.featured){_usedIds[p.id]=1;return true;}return false;});
+var _pinned=allPosts.filter(function(p){return p.pinned&&!_usedIds[p.id];});
+for(var _pi=0;_pi<_pinned.length;_pi++)_usedIds[_pinned[_pi].id]=1;
+var _hot=allPosts.filter(function(p){return !_usedIds[p.id];}).sort(function(a,b){return (b.likes||0)-(a.likes||0);});
+var carouselPosts=_featured.concat(_pinned).concat(_hot).slice(0,Math.min(banMax,allPosts.length));
 var banImg=localStorage.getItem('yf_banner_image')||'';
 h+='<div class="ban">';
 if(banImg&&carouselPosts.length===0){h+='<div class="ban-cam" onclick="removeBannerImg()" title="恢复Banner" style="background:rgba(255,107,107,.9)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>';}
@@ -4330,7 +4480,7 @@ window.shakeEl=typeof shakeEl!=='undefined'?shakeEl:null;
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',function(){
-navigator.serviceWorker.register('sw.js?v=98').catch(function(e){console.log('SW reg failed:',e);});
+navigator.serviceWorker.register('sw.js?v=101').catch(function(e){console.log('SW reg failed:',e);});
 });
 }
 </script>
