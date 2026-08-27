@@ -2824,7 +2824,7 @@ function testFeishuConnection(){
 function syncAll(){
   var proxy=FEISHU_CONFIG.proxyUrl;
   if(!proxy){showToast('未配置云同步代理','info');return;}
-  showConfirm('推送全量到飞书','将把本地所有数据覆盖写入飞书表格，飞书现有数据将被清空替换，确定继续？',function(){
+  showConfirm('推送全量到飞书','将把本地所有数据逐条同步到飞书（存在则更新、不存在则新建），不会清空云端数据，确定继续？',function(){
     syncLog('开始全量推送到飞书...');
     var tableKeys=['posts','users','stars','groups','opps','announces','shop_items','exchanges','notifications','reports','bad_words'];
     var tableGetters={posts:YangFanData.getPosts,users:YangFanData.getUsers,stars:YangFanData.getStars,groups:YangFanData.getGroups,opps:YangFanData.getOpps,announces:YangFanData.getAnnounces,shop_items:YangFanData.getShopItems,exchanges:YangFanData.getExchanges,notifications:YangFanData.getNotifications,reports:YangFanData.getReports,bad_words:YangFanData.getBadWords};

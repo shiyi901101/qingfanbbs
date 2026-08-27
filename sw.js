@@ -1,5 +1,5 @@
 // 青帆社区 Service Worker
-var CACHE_NAME = 'qingfan-v8.23';
+var CACHE_NAME = 'qingfan-v8.24';
 var ASSETS = [
   './',
   './index.html',
