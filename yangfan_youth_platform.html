@@ -717,7 +717,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 <button class="ln-btn" onclick="doRegister()">注册</button>
 </div>
 <div class="ln-switch" id="lnSwitch" onclick="toggleRegForm()">没有账号？去注册</div>
-<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.20</span></div>
+<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.21</span></div>
 <svg class="ln-wave" viewBox="0 0 860 60" preserveAspectRatio="none" style="height:50px"><path d="M0 30Q100 10 215 25Q330 40 430 20Q530 0 645 25Q760 50 860 30L860 60L0 60Z" fill="rgba(255,255,255,.15)"/><path d="M0 40Q80 25 200 35Q320 50 430 30Q540 10 645 35Q760 55 860 40L860 60L0 60Z" fill="rgba(255,255,255,.85)"/></svg>
 </div>
 
@@ -1209,8 +1209,8 @@ if(updated)try{YF_CLOUD.pushPost(updated);}catch(e){}
 return updated;
 },
 deletePost:function(id){
-var posts=_YF_cache.posts||[];var p=posts.find(function(x){return x.id===id;});
-posts=posts.filter(function(x){return x.id!==id;});
+var posts=_YF_cache.posts||[];var p=posts.find(function(x){return x.id==id;});
+posts=posts.filter(function(x){return x.id!=id;});
 _YF_cache.posts=posts;_yfSave('posts',posts);
 if(p){_yfLog('删除帖子',p.title);try{YF_CLOUD.deletePostCloud(id);}catch(e){}}
 },
@@ -1753,9 +1753,24 @@ if(t.startsWith('{')&&t.endsWith('}')){try{return JSON.parse(t);}catch(e){return
 return null;
 },
 _extractText:function(v){
-if(Array.isArray(v)&&v.length>0&&typeof v[0]==='object'&&v[0].text!==undefined)return v.map(function(x){return x.text;}).join('');
-if(Array.isArray(v)&&v[0]!==undefined&&typeof v[0]==='string')return v[0];
-if(typeof v==='string')return v;
+if(v==null||v===undefined)return '';
+if(Array.isArray(v)){
+if(v.length===0)return '';
+if(typeof v[0]==='object'&&v[0]!==null){
+return v.map(function(x){
+if(x==null)return '';
+if(typeof x==='string')return x;
+return x.text||x.name||x.value||'';
+}).join('');
+}
+return v[0];
+}
+if(typeof v==='object'){
+if(v.text!==undefined)return v.text;
+if(v.name!==undefined)return v.name;
+if(v.value!==undefined)return v.value;
+return '';
+}
 return v;
 },
 _mapToFeishuFields:function(tableKey,item){
@@ -2014,12 +2029,14 @@ if(d&&d.data&&d.data.record&&d.data.record.record_id){ridMap[user.id]=d.data.rec
 deletePostCloud:async function(postId){
 if(!this.proxyUrl)return;
 try{
-var ridMap=this._getRidMap('posts');
-var rid=ridMap[postId];
-if(rid){
 var tableId=this.tables.posts;
-var path='/bitable/v1/apps/'+this.baseToken+'/tables/'+tableId+'/records/'+rid;
-await this.proxyFetch(path,'DELETE',null);
+var path='/bitable/v1/apps/'+this.baseToken+'/tables/'+tableId+'/records';
+var searchBody={filter:{conjunction:'and',conditions:[{field_name:'post_id',operator:'is',value:[String(postId)]}]}};
+var searchResp=await this.proxyFetch(path+'/search?page_size=50','POST',searchBody);
+var items=(searchResp&&searchResp.data&&searchResp.data.items)||[];
+if(items.length>0){
+await this.proxyFetch(path+'/batch_delete','POST',{records:[items[0].record_id]});
+var ridMap=this._getRidMap('posts');
 delete ridMap[postId];this._setRidMap('posts',ridMap);
 }
 }catch(e){console.warn('[YF_CLOUD] deletePostCloud error:',e);}
@@ -4480,7 +4497,7 @@ window.shakeEl=typeof shakeEl!=='undefined'?shakeEl:null;
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',function(){
-navigator.serviceWorker.register('sw.js?v=101').catch(function(e){console.log('SW reg failed:',e);});
+navigator.serviceWorker.register('sw.js?v=102').catch(function(e){console.log('SW reg failed:',e);});
 });
 }
 </script>

@@ -1030,8 +1030,8 @@ _yfLog('更新帖子','ID:'+id+' '+JSON.stringify(data).substring(0,80));
 return posts.find(function(p){return p.id===id;});
 },
 deletePost:function(id){
-var posts=_YF_cache.posts||[];var p=posts.find(function(x){return x.id===id;});
-posts=posts.filter(function(x){return x.id!==id;});
+var posts=_YF_cache.posts||[];var p=posts.find(function(x){return x.id==id;});
+posts=posts.filter(function(x){return x.id!=id;});
 _YF_cache.posts=posts;_yfSave('posts',posts);
 if(p)_yfLog('删除帖子',p.title);
 },
@@ -1342,9 +1342,24 @@ exchanges:{id:'exchange_id',userId:'用户ID',userName:'用户名',itemId:'商�
 messages:{id:'msg_id',senderId:'发送者ID',senderName:'发送者名',receiverId:'接收者ID',receiverName:'接收者名',content:'内容',read:'已读',created:'创建时间',_blob:'内容'}
 },
 _extractText:function(v){
-if(Array.isArray(v)&&v.length>0&&typeof v[0]==='object'&&v[0].text!==undefined)return v.map(function(x){return x.text;}).join('');
-if(Array.isArray(v)&&v[0]!==undefined&&typeof v[0]==='string')return v[0];
-if(typeof v==='string')return v;
+if(v==null||v===undefined)return '';
+if(Array.isArray(v)){
+if(v.length===0)return '';
+if(typeof v[0]==='object'&&v[0]!==null){
+return v.map(function(x){
+if(x==null)return '';
+if(typeof x==='string')return x;
+return x.text||x.name||x.value||'';
+}).join('');
+}
+return v[0];
+}
+if(typeof v==='object'){
+if(v.text!==undefined)return v.text;
+if(v.name!==undefined)return v.name;
+if(v.value!==undefined)return v.value;
+return '';
+}
 return v;
 },
 _blobParse:function(rawVal){
@@ -1764,23 +1779,26 @@ showToast('帖子已更新，已同步','success');
 }
 function _adminDeletePostCloud(id){
   try{
-    if(!FEISHU_CONFIG.proxyUrl||!FEISHU_CONFIG.baseToken)return;
+    if(!FEISHU_CONFIG.proxyUrl||!FEISHU_CONFIG.baseToken)return Promise.resolve();
     var tableId=FEISHU_CONFIG.tables.posts;
     var apiPath='/bitable/v1/apps/'+FEISHU_CONFIG.baseToken+'/tables/'+tableId+'/records';
-    proxyFetch(apiPath+'/search?page_size=200','POST',{filter:{conjunction:'and',conditions:[{field_name:'post_id',operator:'is',value:[String(id)]}]}}).then(function(d){
+    return proxyFetch(apiPath+'/search?page_size=200','POST',{filter:{conjunction:'and',conditions:[{field_name:'post_id',operator:'is',value:[String(id)]}]}}).then(function(d){
       var items=(d&&d.data&&d.data.items)||[];
       if(items.length>0){
         return proxyFetch(apiPath+'/batch_delete','POST',{records:[items[0].record_id]});
       }
-    }).catch(function(e){console.warn('[ADMIN] 云端删除失败:',e.message);});
-  }catch(e){}
+    }).catch(function(e){console.warn('[ADMIN] 云端删除失败:',e.message);throw e;});
+  }catch(e){return Promise.reject(e);}
 }
 function confirmDeletePost(id){
 showConfirm('删除帖子','确定要删除这篇帖子吗？删除后不可恢复。',function(){
 YangFanData.deletePost(id);
-_adminDeletePostCloud(id);
-renderReview();updateBadges();
+_adminDeletePostCloud(id).then(function(){
 showToast('帖子已删除，已同步学生端','success');
+}).catch(function(e){
+showToast('本地已删除，但云端同步失败：'+(e&&e.message||'未知错误'),'warn');
+});
+renderReview();updateBadges();
 });
 }
 
