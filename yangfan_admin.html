@@ -373,7 +373,7 @@ textarea.form-input{min-height:80px;resize:vertical}
         <path d="M18 8L24 22H12L18 8Z" fill="#4facfe" opacity=".9"/>
         <path d="M18 12L22 22H14L18 12Z" fill="#fff" opacity=".5"/>
       </svg>
-      <div class="sidebar-brand">青帆社区<span>管理后台 v8.26</span></div>
+      <div class="sidebar-brand">青帆社区<span>管理后台 v8.27</span></div>
     </div>
     <div class="sidebar-nav" id="sideNav">
       <!-- Nav items injected by JS -->
@@ -992,7 +992,7 @@ if(filter.pinned!==undefined)posts=posts.filter(function(p){return !!p.pinned===
 }
 return JSON.parse(JSON.stringify(posts));
 },
-getPost:function(id){var posts=_YF_cache.posts||[];for(var i=0;i<posts.length;i++){if(posts[i].id===id)return JSON.parse(JSON.stringify(posts[i]));}return null;},
+getPost:function(id){var posts=_YF_cache.posts||[];for(var i=0;i<posts.length;i++){if(posts[i].id==id)return JSON.parse(JSON.stringify(posts[i]));}return null;},
 createPost:function(data){
 var posts=_YF_cache.posts||[];
 var np={id:_yfNextId('posts'),title:data.title||'',author:data.author||'匿名用户',time:data.time||_yfNow(),excerpt:data.excerpt||'',content:data.content||'',status:data.status||'approved',tag:data.tag||'成长思考',images:data.images||[],likes:0,comments:data.comments||[],cbg:data.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)',abg:data.abg||'linear-gradient(135deg,#4facfe,#00f2fe)',icon:data.icon||'star',featured:false,pinned:false};
@@ -1004,10 +1004,10 @@ return np;
 },
 updatePost:function(id,data){
 var posts=_YF_cache.posts||[];
-for(var i=0;i<posts.length;i++){if(posts[i].id===id){for(var k in data){posts[i][k]=data[k];}break;}}
+for(var i=0;i<posts.length;i++){if(posts[i].id==id){for(var k in data){posts[i][k]=data[k];}break;}}
 _YF_cache.posts=posts;_yfSave('posts',posts);
 _yfLog('更新帖子','ID:'+id+' '+JSON.stringify(data).substring(0,80));
-return posts.find(function(p){return p.id===id;});
+return posts.find(function(p){return p.id==id;});
 },
 deletePost:function(id){
 var posts=_YF_cache.posts||[];var p=posts.find(function(x){return x.id==id;});
@@ -1030,29 +1030,29 @@ if(filter.search){var q=filter.search.toLowerCase();stars=stars.filter(function(
 }
 return JSON.parse(JSON.stringify(stars));
 },
-getStar:function(id){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id===id)return JSON.parse(JSON.stringify(stars[i]));}return null;},
+getStar:function(id){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id==id)return JSON.parse(JSON.stringify(stars[i]));}return null;},
 createStar:function(data){
 var stars=_YF_cache.stars||[];
 var ns={id:_yfNextId('stars'),name:data.name||'',field:data.field||'',type:data.type||'mentor',abg:data.abg||'linear-gradient(135deg,#4facfe,#7ec8ff)',role:data.role||'',quote:data.quote||'',status:data.status||'',story:data.story||'',yangfan:data.yangfan||'',current:data.current||'',qa:data.qa||[],tasks:data.tasks||[]};
 stars.push(ns);_YF_cache.stars=stars;_yfSave('stars',stars);
 _yfLog('添加导师/学长',ns.name+' ('+ns.type+')');return ns;
 },
-updateStar:function(id,data){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id===id){for(var k in data){stars[i][k]=data[k];}break;}}_YF_cache.stars=stars;_yfSave('stars',stars);},
-deleteStar:function(id){var stars=_YF_cache.stars||[];var s=stars.find(function(x){return x.id===id;});stars=stars.filter(function(x){return x.id!==id;});_YF_cache.stars=stars;_yfSave('stars',stars);if(s)_yfLog('删除导师/学长',s.name);},
+updateStar:function(id,data){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id==id){for(var k in data){stars[i][k]=data[k];}break;}}_YF_cache.stars=stars;_yfSave('stars',stars);},
+deleteStar:function(id){var stars=_YF_cache.stars||[];var s=stars.find(function(x){return x.id==id;});stars=stars.filter(function(x){return x.id!=id;});_YF_cache.stars=stars;_yfSave('stars',stars);if(s)_yfLog('删除导师/学长',s.name);},
 
 // ---- Groups ----
 getGroups:function(){return JSON.parse(JSON.stringify(_YF_cache.groups||[]));},
-getGroup:function(id){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id===id)return JSON.parse(JSON.stringify(groups[i]));}return null;},
+getGroup:function(id){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id==id)return JSON.parse(JSON.stringify(groups[i]));}return null;},
 createGroup:function(data){
 var groups=_YF_cache.groups||[];
 var ng={id:_yfNextId('groups'),name:data.name||'',members:data.members||1,desc:data.desc||'',color:data.color||'linear-gradient(135deg,#4facfe,#7ec8ff)',cat:data.cat||'其他',posts:data.posts||[],members_list:data.members_list||[]};
 groups.push(ng);_YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('创建小组',ng.name);return ng;
 },
-updateGroup:function(id,data){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id===id){for(var k in data){groups[i][k]=data[k];}break;}}_YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('更新小组','ID:'+id);},
-deleteGroup:function(id){var groups=_YF_cache.groups||[];var g=groups.find(function(x){return x.id===id;});groups=groups.filter(function(x){return x.id!==id;});_YF_cache.groups=groups;_yfSave('groups',groups);if(g)_yfLog('删除小组',g.name);},
+updateGroup:function(id,data){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id==id){for(var k in data){groups[i][k]=data[k];}break;}}_YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('更新小组','ID:'+id);},
+deleteGroup:function(id){var groups=_YF_cache.groups||[];var g=groups.find(function(x){return x.id==id;});groups=groups.filter(function(x){return x.id!=id;});_YF_cache.groups=groups;_yfSave('groups',groups);if(g)_yfLog('删除小组',g.name);},
 joinGroup:function(groupId,userId){
 var groups=_YF_cache.groups||[];
-for(var i=0;i<groups.length;i++){if(groups[i].id===groupId){
+for(var i=0;i<groups.length;i++){if(groups[i].id==groupId){
 if(!groups[i].members_list)groups[i].members_list=[];
 if(groups[i].members_list.indexOf(userId)===-1){groups[i].members_list.push(userId);groups[i].members=(groups[i].members||0)+1;}
 break;
@@ -1061,7 +1061,7 @@ _YF_cache.groups=groups;_yfSave('groups',groups);_yfLog('加入小组','group:'+
 },
 leaveGroup:function(groupId,userId){
 var groups=_YF_cache.groups||[];
-for(var i=0;i<groups.length;i++){if(groups[i].id===groupId){
+for(var i=0;i<groups.length;i++){if(groups[i].id==groupId){
 if(!groups[i].members_list)groups[i].members_list=[];
 var idx=groups[i].members_list.indexOf(userId);
 if(idx>-1){groups[i].members_list.splice(idx,1);groups[i].members=Math.max(0,(groups[i].members||1)-1);}
@@ -1080,21 +1080,21 @@ if(filter.search){var q=filter.search.toLowerCase();opps=opps.filter(function(o)
 }
 return JSON.parse(JSON.stringify(opps));
 },
-getOpp:function(id){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id===id)return JSON.parse(JSON.stringify(opps[i]));}return null;},
+getOpp:function(id){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id==id)return JSON.parse(JSON.stringify(opps[i]));}return null;},
 createOpp:function(data){var opps=_YF_cache.opps||[];var no={id:_yfNextId('opps'),title:data.title||'',type:data.type||'volunteer',region:data.region||'',deadline:data.deadline||'',desc:data.desc||''};opps.push(no);_YF_cache.opps=opps;_yfSave('opps',opps);_yfLog('发布机会',no.title);return no;},
-updateOpp:function(id,data){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id===id){for(var k in data){opps[i][k]=data[k];}break;}}_YF_cache.opps=opps;_yfSave('opps',opps);},
-deleteOpp:function(id){var opps=_YF_cache.opps||[];var o=opps.find(function(x){return x.id===id;});opps=opps.filter(function(x){return x.id!==id;});_YF_cache.opps=opps;_yfSave('opps',opps);if(o)_yfLog('删除机会',o.title);},
+updateOpp:function(id,data){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id==id){for(var k in data){opps[i][k]=data[k];}break;}}_YF_cache.opps=opps;_yfSave('opps',opps);},
+deleteOpp:function(id){var opps=_YF_cache.opps||[];var o=opps.find(function(x){return x.id==id;});opps=opps.filter(function(x){return x.id!=id;});_YF_cache.opps=opps;_yfSave('opps',opps);if(o)_yfLog('删除机会',o.title);},
 
 // ---- Banners ----
 getBanners:function(){var arr=JSON.parse(JSON.stringify(_YF_cache.banners||[]));for(var i=0;i<arr.length;i++){if(!arr[i].gradient&&!arr[i].image&&arr[i].color){arr[i].gradient='linear-gradient(135deg,'+arr[i].color+','+arr[i].color+'cc)';}}return arr;},
 createBanner:function(data){var banners=_YF_cache.banners||[];var nb={id:_yfNextId('banners'),title:data.title||'',desc:data.desc||'',color:data.color||'#4facfe',gradient:data.gradient||'',image:data.image||'',icon:data.icon||'star'};banners.push(nb);_YF_cache.banners=banners;_yfSave('banners',banners);return nb;},
-updateBanner:function(id,data){var banners=_YF_cache.banners||[];for(var i=0;i<banners.length;i++){if(banners[i].id===id){for(var k in data){banners[i][k]=data[k];}break;}}_YF_cache.banners=banners;_yfSave('banners',banners);},
-deleteBanner:function(id){var banners=(_YF_cache.banners||[]).filter(function(x){return x.id!==id;});_YF_cache.banners=banners;_yfSave('banners',banners);},
+updateBanner:function(id,data){var banners=_YF_cache.banners||[];for(var i=0;i<banners.length;i++){if(banners[i].id==id){for(var k in data){banners[i][k]=data[k];}break;}}_YF_cache.banners=banners;_yfSave('banners',banners);},
+deleteBanner:function(id){var banners=(_YF_cache.banners||[]).filter(function(x){return x.id!=id;});_YF_cache.banners=banners;_yfSave('banners',banners);},
 
 // ---- Announces ----
 getAnnounces:function(){return JSON.parse(JSON.stringify(_YF_cache.announces||[]));},
 createAnnounce:function(data){var announces=_YF_cache.announces||[];var na={id:_yfNextId('announces'),content:data.content||'',time:data.time||_yfToday()};announces.unshift(na);_YF_cache.announces=announces;_yfSave('announces',announces);_yfLog('发布公告',na.content.substring(0,30));return na;},
-deleteAnnounce:function(id){var announces=(_YF_cache.announces||[]).filter(function(x){return x.id!==id;});_YF_cache.announces=announces;_yfSave('announces',announces);},
+deleteAnnounce:function(id){var announces=(_YF_cache.announces||[]).filter(function(x){return x.id!=id;});_YF_cache.announces=announces;_yfSave('announces',announces);},
 
 // ---- Tags ----
 getTags:function(){return (_YF_cache.tags||[]).slice();},
@@ -1111,7 +1111,7 @@ if(filter.search){var q=filter.search.toLowerCase();users=users.filter(function(
 }
 return JSON.parse(JSON.stringify(users));
 },
-getUser:function(id){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id===id)return JSON.parse(JSON.stringify(users[i]));}return null;},
+getUser:function(id){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id==id)return JSON.parse(JSON.stringify(users[i]));}return null;},
 getUserByPhone:function(phone){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].phone===phone)return JSON.parse(JSON.stringify(users[i]));}return null;},
 getUserByAccount:function(account){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].account===account)return JSON.parse(JSON.stringify(users[i]));}return null;},
 createUser:function(data){
@@ -1119,44 +1119,44 @@ var users=_YF_cache.users||[];
 var nu={id:_yfNextId('users'),name:data.name||'扬帆少年',role:data.role||'student',created:data.created||_yfToday(),posts:data.posts||0,status:'active',points:data.points!==undefined?data.points:200,phone:data.phone||'',account:data.account||data.phone||'',following:data.following||[],followers:data.followers||0};
 users.push(nu);_YF_cache.users=users;_yfSave('users',users);_yfLog('注册用户',nu.name+' ('+nu.phone+')');return nu;
 },
-updateUser:function(id,data){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id===id){for(var k in data){users[i][k]=data[k];}break;}}_YF_cache.users=users;_yfSave('users',users);},
-deleteUser:function(id){var users=_YF_cache.users||[];users=users.filter(function(x){return x.id!==id;});_YF_cache.users=users;_yfSave('users',users);},
+updateUser:function(id,data){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id==id){for(var k in data){users[i][k]=data[k];}break;}}_YF_cache.users=users;_yfSave('users',users);},
+deleteUser:function(id){var users=_YF_cache.users||[];users=users.filter(function(x){return x.id!=id;});_YF_cache.users=users;_yfSave('users',users);},
 // P0-2: 积分系统
 getPoints:function(userId){var u=this.getUser(userId);return u?(u.points||0):0;},
-updatePoints:function(userId,delta){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id===userId){users[i].points=(users[i].points||0)+delta;if(users[i].points<0)users[i].points=0;break;}}_YF_cache.users=users;_yfSave('users',users);_yfLog('积分变动','user:'+userId+', delta:'+delta);},
+updatePoints:function(userId,delta){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id==userId){users[i].points=(users[i].points||0)+delta;if(users[i].points<0)users[i].points=0;break;}}_YF_cache.users=users;_yfSave('users',users);_yfLog('积分变动','user:'+userId+', delta:'+delta);},
 
 // ---- Tasks (纳入统一缓存) ----
 getTasks:function(){return JSON.parse(JSON.stringify(_YF_cache.tasks||[]));},
 createTask:function(data){var tasks=_YF_cache.tasks||[];var nt={id:_yfNextId('tasks'),title:data.title||'',desc:data.desc||'',publisher:data.publisher||'管理员',reward:data.reward||0,deadline:data.deadline||'',participants:data.participants||0};tasks.push(nt);_YF_cache.tasks=tasks;_yfSave('tasks',tasks);_yfLog('发布任务',nt.title);return nt;},
-updateTask:function(id,data){var tasks=_YF_cache.tasks||[];for(var i=0;i<tasks.length;i++){if(tasks[i].id===id){for(var k in data){tasks[i][k]=data[k];}break;}}_YF_cache.tasks=tasks;_yfSave('tasks',tasks);},
-deleteTask:function(id){var tasks=(_YF_cache.tasks||[]).filter(function(x){return x.id!==id;});_YF_cache.tasks=tasks;_yfSave('tasks',tasks);},
+updateTask:function(id,data){var tasks=_YF_cache.tasks||[];for(var i=0;i<tasks.length;i++){if(tasks[i].id==id){for(var k in data){tasks[i][k]=data[k];}break;}}_YF_cache.tasks=tasks;_yfSave('tasks',tasks);},
+deleteTask:function(id){var tasks=(_YF_cache.tasks||[]).filter(function(x){return x.id!=id;});_YF_cache.tasks=tasks;_yfSave('tasks',tasks);},
 
 // ---- Shop Items (P0-3) ----
 getShopItems:function(){return JSON.parse(JSON.stringify(_YF_cache.shop_items||[]));},
 createShopItem:function(data){var items=_YF_cache.shop_items||[];var ni={id:_yfNextId('shop_items'),name:data.name||'',desc:data.desc||'',price:data.price||0,cat:data.cat||'勋章',bg:data.bg||'linear-gradient(135deg,#4facfe,#7ec8ff)',stock:data.stock!==undefined?data.stock:999};items.push(ni);_YF_cache.shop_items=items;_yfSave('shop_items',items);_yfLog('添加商品',ni.name);return ni;},
-updateShopItem:function(id,data){var items=_YF_cache.shop_items||[];for(var i=0;i<items.length;i++){if(items[i].id===id){for(var k in data){items[i][k]=data[k];}break;}}_YF_cache.shop_items=items;_yfSave('shop_items',items);},
-deleteShopItem:function(id){var items=(_YF_cache.shop_items||[]).filter(function(x){return x.id!==id;});_YF_cache.shop_items=items;_yfSave('shop_items',items);_yfLog('删除商品','ID:'+id);},
+updateShopItem:function(id,data){var items=_YF_cache.shop_items||[];for(var i=0;i<items.length;i++){if(items[i].id==id){for(var k in data){items[i][k]=data[k];}break;}}_YF_cache.shop_items=items;_yfSave('shop_items',items);},
+deleteShopItem:function(id){var items=(_YF_cache.shop_items||[]).filter(function(x){return x.id!=id;});_YF_cache.shop_items=items;_yfSave('shop_items',items);_yfLog('删除商品','ID:'+id);},
 
 // ---- Exchanges (P0-4) ----
-getExchanges:function(filter){var ex=_YF_cache.exchanges||[];if(filter&&filter.userId)ex=ex.filter(function(e){return e.userId===filter.userId;});if(filter&&filter.status)ex=ex.filter(function(e){return e.status===filter.status;});return JSON.parse(JSON.stringify(ex));},
+getExchanges:function(filter){var ex=_YF_cache.exchanges||[];if(filter&&filter.userId)ex=ex.filter(function(e){return e.userId==filter.userId;});if(filter&&filter.status)ex=ex.filter(function(e){return e.status===filter.status;});return JSON.parse(JSON.stringify(ex));},
 createExchange:function(data){var ex=_YF_cache.exchanges||[];var ne={id:_yfNextId('exchanges'),userId:data.userId||0,userName:data.userName||'',itemId:data.itemId||0,itemName:data.itemName||'',points:data.points||0,time:data.time||_yfNow(),status:data.status||'pending'};ex.unshift(ne);_YF_cache.exchanges=ex;_yfSave('exchanges',ex);_yfLog('兑换商品',ne.userName+' 兑换 '+ne.itemName);return ne;},
-updateExchange:function(id,data){var ex=_YF_cache.exchanges||[];for(var i=0;i<ex.length;i++){if(ex[i].id===id){for(var k in data){ex[i][k]=data[k];}break;}}_YF_cache.exchanges=ex;_yfSave('exchanges',ex);},
+updateExchange:function(id,data){var ex=_YF_cache.exchanges||[];for(var i=0;i<ex.length;i++){if(ex[i].id==id){for(var k in data){ex[i][k]=data[k];}break;}}_YF_cache.exchanges=ex;_yfSave('exchanges',ex);},
 
 // ---- Notifications (P1-2) ----
-getNotifications:function(userId){var ns=_YF_cache.notifications||[];if(userId)ns=ns.filter(function(n){return n.userId===userId;});return JSON.parse(JSON.stringify(ns));},
+getNotifications:function(userId){var ns=_YF_cache.notifications||[];if(userId)ns=ns.filter(function(n){return n.userId==userId;});return JSON.parse(JSON.stringify(ns));},
 createNotification:function(data){var ns=_YF_cache.notifications||[];var nn={id:_yfNextId('notifications'),userId:data.userId||0,type:data.type||'system',text:data.text||'',time:data.time||_yfNow(),read:false};ns.unshift(nn);_YF_cache.notifications=ns;_yfSave('notifications',ns);return nn;},
-markNotificationRead:function(id){var ns=_YF_cache.notifications||[];for(var i=0;i<ns.length;i++){if(ns[i].id===id){ns[i].read=true;break;}}_YF_cache.notifications=ns;_yfSave('notifications',ns);},
-markAllNotificationsRead:function(userId){var ns=_YF_cache.notifications||[];for(var i=0;i<ns.length;i++){if(!userId||ns[i].userId===userId)ns[i].read=true;}_YF_cache.notifications=ns;_yfSave('notifications',ns);},
+markNotificationRead:function(id){var ns=_YF_cache.notifications||[];for(var i=0;i<ns.length;i++){if(ns[i].id==id){ns[i].read=true;break;}}_YF_cache.notifications=ns;_yfSave('notifications',ns);},
+markAllNotificationsRead:function(userId){var ns=_YF_cache.notifications||[];for(var i=0;i<ns.length;i++){if(!userId||ns[i].userId==userId)ns[i].read=true;}_YF_cache.notifications=ns;_yfSave('notifications',ns);},
 
 // ---- Reports (P1-3) ----
 getReports:function(filter){var rs=_YF_cache.reports||[];if(filter&&filter.status)rs=rs.filter(function(r){return r.status===filter.status;});if(filter&&filter.targetType)rs=rs.filter(function(r){return r.targetType===filter.targetType;});return JSON.parse(JSON.stringify(rs));},
 createReport:function(data){var rs=_YF_cache.reports||[];var nr={id:_yfNextId('reports'),targetType:data.targetType||'post',targetId:data.targetId||0,targetTitle:data.targetTitle||'',reason:data.reason||'',detail:data.detail||'',reporterId:data.reporterId||0,reporterName:data.reporterName||'',time:data.time||_yfNow(),status:'pending'};rs.unshift(nr);_YF_cache.reports=rs;_yfSave('reports',rs);_yfLog('举报',nr.targetType+':'+nr.targetId+' 原因:'+nr.reason);return nr;},
-updateReport:function(id,data){var rs=_YF_cache.reports||[];for(var i=0;i<rs.length;i++){if(rs[i].id===id){for(var k in data){rs[i][k]=data[k];}break;}}_YF_cache.reports=rs;_yfSave('reports',rs);},
+updateReport:function(id,data){var rs=_YF_cache.reports||[];for(var i=0;i<rs.length;i++){if(rs[i].id==id){for(var k in data){rs[i][k]=data[k];}break;}}_YF_cache.reports=rs;_yfSave('reports',rs);},
 
 // ---- Bad Words (P1-7) ----
 getBadWords:function(){return JSON.parse(JSON.stringify(_YF_cache.bad_words||[]));},
 addBadWord:function(word,category){var ws=_YF_cache.bad_words||[];var nw={id:_yfNextId('bad_words'),word:word,category:category||'其他'};ws.push(nw);_YF_cache.bad_words=ws;_yfSave('bad_words',ws);_yfLog('添加违规词',word);return nw;},
-deleteBadWord:function(id){var ws=(_YF_cache.bad_words||[]).filter(function(x){return x.id!==id;});_YF_cache.bad_words=ws;_yfSave('bad_words',ws);},
+deleteBadWord:function(id){var ws=(_YF_cache.bad_words||[]).filter(function(x){return x.id!=id;});_YF_cache.bad_words=ws;_yfSave('bad_words',ws);},
 
 // ---- Messages (P1-9) ----
 getMessages:function(userId1,userId2){
@@ -1309,17 +1309,17 @@ messages:'tblOG6WeQgYFZ0iZ'
 // 飞书字段映射：app英文字段名 → 飞书中文字段名；blob字段存完整JSON
 fieldMap:{
 posts:{id:'post_id',authorId:'作者ID',author:'作者名',avatar:'作者头像',tag:'板块',images:'图片',likes:'点赞数',comments_count:'评论数',likedBy:'点赞列表',comments:'评论列表',featured:'加精',pinned:'置顶',status:'状态',time:'创建时间',_blob:'内容',_statusMap:{approved:'已通过',pending:'待审核',rejected:'已拒绝'}},
-users:{id:'user_id',name:'用户名',phone:'手机号',password:'密码',avatar:'头像',school:'学校',major:'专业',grade:'年级',bio:'简介',points:'积分',postsCount:'发帖数',followersCount:'粉丝数',followingCount:'关注数',following:'关注列表',followers_list:'粉丝列表',role:'角色',status:'状态',created:'注册时间',_blob:'简介',_statusMap:{active:'正常',banned:'封禁'}},
-groups:{id:'group_id',name:'名称',icon:'图标',desc:'简介',members:'成员数',posts_count:'帖子数',members_list:'成员列表',cat:'分类',created:'创建时间',cover:'封面图',_blob:'封面图'},
-opps:{id:'opp_id',title:'标题',org:'组织方',type:'类型',region:'地点',deadline:'截止日期',desc:'描述',tags:'标签',images:'图片',link:'链接',status:'状态',created:'创建时间',_blob:'图片'},
+users:{id:'user_id',name:'用户名',phone:'手机号',password:'密码',avatar:'头像',school:'学校',major:'专业',grade:'年级',bio:'简介',points:'积分',postsCount:'发帖数',followersCount:'粉丝数',followingCount:'关注数',following:'关注列表',followers_list:'粉丝列表',role:'角色',status:'状态',created:'注册时间',_statusMap:{active:'正常',banned:'封禁'}},
+groups:{id:'group_id',name:'名称',icon:'图标',desc:'简介',members:'成员数',posts_count:'帖子数',members_list:'成员列表',cat:'分类',created:'创建时间',cover:'封面图'},
+opps:{id:'opp_id',title:'标题',org:'组织方',type:'类型',region:'地点',deadline:'截止日期',desc:'描述',tags:'标签',images:'图片',link:'链接',status:'状态',created:'创建时间'},
 announces:{id:'ann_id',title:'标题',content:'内容',type:'类型',createdBy:'发布人',created:'创建时间'},
 shop_items:{id:'item_id',name:'名称',desc:'描述',icon:'图标',points:'所需积分',stock:'库存',cat:'分类',status:'状态',created:'创建时间'},
 bad_words:{id:'word_id',word:'词语',cat:'分类',status:'状态',created:'创建时间'},
-stars:{id:'star_id',name:'姓名',avatar:'头像',role:'头衔',field:'领域',bio:'简介',story:'故事',yangfan:'扬帆经历',current:'当前状态',qa:'问答',tasks:'任务',status:'状态',order:'排序',_blob:'问答'},
-notifications:{id:'notif_id',userId:'接收人ID',type:'类型',title:'标题',content:'内容',relatedId:'相关ID',read:'已读',created:'创建时间',_blob:'内容'},
-reports:{id:'report_id',reporterId:'举报人ID',reporter:'举报人',targetType:'目标类型',targetId:'目标ID',reason:'原因',desc:'描述',status:'状态',result:'处理结果',created:'创建时间',_blob:'描述'},
-exchanges:{id:'exchange_id',userId:'用户ID',userName:'用户名',itemId:'商品ID',itemName:'商品名',points:'消耗积分',status:'状态',created:'创建时间',_blob:'商品名'},
-messages:{id:'msg_id',senderId:'发送者ID',senderName:'发送者名',receiverId:'接收者ID',receiverName:'接收者名',content:'内容',read:'已读',created:'创建时间',_blob:'内容'}
+stars:{id:'star_id',name:'姓名',avatar:'头像',role:'头衔',field:'领域',bio:'简介',story:'故事',yangfan:'扬帆经历',current:'当前状态',qa:'问答',tasks:'任务',status:'状态',order:'排序'},
+notifications:{id:'notif_id',userId:'接收人ID',type:'类型',title:'标题',content:'内容',relatedId:'相关ID',read:'已读',created:'创建时间'},
+reports:{id:'report_id',reporterId:'举报人ID',reporter:'举报人',targetType:'目标类型',targetId:'目标ID',reason:'原因',desc:'描述',status:'状态',result:'处理结果',created:'创建时间'},
+exchanges:{id:'exchange_id',userId:'用户ID',userName:'用户名',itemId:'商品ID',itemName:'商品名',points:'消耗积分',status:'状态',created:'创建时间'},
+messages:{id:'msg_id',senderId:'发送者ID',senderName:'发送者名',receiverId:'接收者ID',receiverName:'接收者名',content:'内容',read:'已读',created:'创建时间'}
 },
 _extractText:function(v){
 if(v==null||v===undefined)return '';
@@ -1348,7 +1348,7 @@ if(!rawVal)return null;
 if(typeof rawVal==='string'){var t=rawVal.trim();if(t.startsWith('{')&&t.endsWith('}')){try{return JSON.parse(t);}catch(e){return null;}}}
 return null;
 },
-// V8.26: 修复旧版blob脏数据——如果解析出的对象包含与字段同名的key，提取其值
+// V8.27: 修复旧版blob脏数据——如果解析出的对象包含与字段同名的key，提取其值
 _fixDirtyBlob:function(appKey,parsedVal){
 if(parsedVal&&typeof parsedVal==='object'&&!Array.isArray(parsedVal)){
 if(parsedVal[appKey]!==undefined)return parsedVal[appKey];
@@ -1376,7 +1376,7 @@ else if(typeof val==='boolean')fields[feishuName]=val;
 else if(_isIdField&&typeof val==='number')fields[feishuName]=String(val);
 else if(typeof val==='number'&&(feishuName.indexOf('数')>=0||feishuName==='排序'))fields[feishuName]=val;
 else if(typeof val==='number')fields[feishuName]=String(val);
-else if(typeof val==='object'){var s3=JSON.stringify(val);fields[feishuName]=s3.length>90000?s3.substring(0,90000):s3;}
+else if(typeof val==='object'){var s3=JSON.stringify(val);if(s3.length>90000){if(key==='images'&&Array.isArray(val)){var kept=[];var total=2;for(var ii=0;ii<val.length;ii++){var istr=JSON.stringify(val[ii]);if(total+istr.length+1<90000){kept.push(val[ii]);total+=istr.length+1;}}fields[feishuName]=JSON.stringify(kept);}else fields[feishuName]=s3.substring(0,90000);}else fields[feishuName]=s3;}
 else fields[feishuName]=String(val);
 }else{blobObj[key]=val;hasBlob=true;}
 }
@@ -1507,10 +1507,10 @@ var nav=document.getElementById('sideNav');
 if(!nav)return;
 nav.innerHTML=navItems.map(function(item){
 var badge='';
-if(item.id==='review'||item.id==='reports'){
+if(item.id=='review'||item.id=='reports'){
 badge='<span class="nav-badge" id="badge-'+item.id+'" style="display:none">0</span>';
 }
-return '<div class="nav-item'+(item.id===currentPage?' active':'')+'" data-page="'+item.id+'" onclick="switchPage(\''+item.id+'\')">'+item.icon+'<span>'+item.label+'</span>'+badge+'</div>';
+return '<div class="nav-item'+(item.id==currentPage?' active':'')+'" data-page="'+item.id+'" onclick="switchPage(\''+item.id+'\')">'+item.icon+'<span>'+item.label+'</span>'+badge+'</div>';
 }).join('');
 }
 
@@ -1541,7 +1541,7 @@ var target=document.getElementById('page-'+id);
 if(target)target.classList.add('active');
 var navs=document.querySelectorAll('.nav-item');
 for(var i=0;i<navs.length;i++)navs[i].classList.toggle('active',navs[i].dataset.page===id);
-var item=navItems.find(function(n){return n.id===id;});
+var item=navItems.find(function(n){return n.id==id;});
 var tt=document.getElementById('topTitle');
 if(tt&&item)tt.textContent=item.label;
 YangFanData.refresh();
@@ -2009,9 +2009,9 @@ var data={title:title,desc:desc,reward:reward,deadline:deadline,publisher:'管�
 if(id){YangFanData.updateTask(id,data);}else{YangFanData.createTask(data);}
 renderTasks();closeModal();showToast(id?'已保存修改':'任务已发布','success');
 }
-function openEditTask(id){var t=YangFanData.getTasks().find(function(x){return x.id===id;});if(t)openTaskModal(t);}
+function openEditTask(id){var t=YangFanData.getTasks().find(function(x){return x.id==id;});if(t)openTaskModal(t);}
 function confirmDeleteTask(id){
-var t=YangFanData.getTasks().find(function(x){return x.id===id;});
+var t=YangFanData.getTasks().find(function(x){return x.id==id;});
 showConfirm('删除任务','确定要删除「'+t.title+'」吗？',function(){
 YangFanData.deleteTask(id);renderTasks();showToast('已删除','success');
 });
@@ -2063,9 +2063,9 @@ var data={title:title,type:type,region:region,desc:desc,deadline:deadline};
 if(id){YangFanData.updateOpp(id,data);}else{YangFanData.createOpp(data);}
 renderOpps();closeModal();showToast(id?'已保存修改':'机会已发布','success');
 }
-function openEditOpp(id){var o=YangFanData.getOpps().find(function(x){return x.id===id;});if(o)openOppModal(o);}
+function openEditOpp(id){var o=YangFanData.getOpps().find(function(x){return x.id==id;});if(o)openOppModal(o);}
 function confirmDeleteOpp(id){
-var o=YangFanData.getOpps().find(function(x){return x.id===id;});
+var o=YangFanData.getOpps().find(function(x){return x.id==id;});
 showConfirm('删除机会','确定要删除「'+o.title+'」吗？',function(){
 YangFanData.deleteOpp(id);renderOpps();showToast('已删除','success');
 });
@@ -2161,7 +2161,7 @@ var data={name:name,desc:desc,cat:cat,price:price,stock:stock};
 if(id){YangFanData.updateShopItem(id,data);}else{data.bg='linear-gradient(135deg,'+COLORS[Math.floor(Math.random()*COLORS.length)]+','+COLORS[Math.floor(Math.random()*COLORS.length)]+')';YangFanData.createShopItem(data);}
 renderShop();closeModal();showToast(id?'已保存':'商品已添加','success');
 }
-function openEditShopItem(id){var it=YangFanData.getShopItems().find(function(x){return x.id===id;});if(it)openShopModal(it);}
+function openEditShopItem(id){var it=YangFanData.getShopItems().find(function(x){return x.id==id;});if(it)openShopModal(it);}
 function confirmDeleteShopItem(id){
 showConfirm('删除商品','确定要删除此商品吗？',function(){
 YangFanData.deleteShopItem(id);renderShop();showToast('已删除','success');
@@ -2193,13 +2193,13 @@ return '<tr><td>'+escHtml(e.userName)+'</td><td>'+escHtml(e.itemName)+'</td><td>
 function filterExchanges(s){exchangeFilter=s;renderExchanges();}
 function completeExchange(id){
 YangFanData.updateExchange(id,{status:'completed'});
-var ex=YangFanData.getExchanges().find(function(x){return x.id===id;});
+var ex=YangFanData.getExchanges().find(function(x){return x.id==id;});
 if(ex&&ex.userId){YangFanData.createNotification({userId:ex.userId,type:'system',text:'你的兑换「'+ex.itemName+'」已完成'});}
 renderExchanges();showToast('兑换已完成','success');
 }
 function rejectExchange(id){
 YangFanData.updateExchange(id,{status:'rejected'});
-var ex=YangFanData.getExchanges().find(function(x){return x.id===id;});
+var ex=YangFanData.getExchanges().find(function(x){return x.id==id;});
 if(ex&&ex.userId){
 // 退还积分
 YangFanData.updatePoints(ex.userId,ex.points);
@@ -2231,7 +2231,7 @@ return '<tr><td><span class="badge badge-blue">'+escHtml(r.targetType)+'</span><
 }
 function filterReports(s){reportFilter=s;renderReports();updateBadges();}
 function resolveReport(id){
-var report=YangFanData.getReports().find(function(x){return x.id===id;});
+var report=YangFanData.getReports().find(function(x){return x.id==id;});
 if(report&&report.targetType==='post'){
 YangFanData.deletePost(report.targetId);
 }
@@ -2442,7 +2442,7 @@ renderBanners();closeModal();showToast(id?'已保存':'已添加','success');
 }catch(e){console.error('saveBanner error:',e);showToast('保存失败：'+e.message,'error');}
 }
 
-function openEditBanner(id){var b=YangFanData.getBanners().find(function(x){return x.id===id;});if(b)openBannerModal(b);}
+function openEditBanner(id){var b=YangFanData.getBanners().find(function(x){return x.id==id;});if(b)openBannerModal(b);}
 function confirmDeleteBanner(id){
 showConfirm('删除Banner','确定要删除此Banner吗？删除后不可恢复。',function(){YangFanData.deleteBanner(id);renderBanners();showToast('已删除','success');});
 }
@@ -3220,7 +3220,7 @@ showToast('挑战创建成功','success');
 function endChallenge(id){
 var challenges=yfSafeGet('challenges',[]);
 for(var i=0;i<challenges.length;i++){
-if(challenges[i].id===id){
+if(challenges[i].id==id){
 challenges[i].status='ended';
 // Award medal to all participants
 if(challenges[i].participants){
@@ -3240,7 +3240,7 @@ showToast('挑战已结束，勋章已发放给参与者','success');
 function deleteChallenge(id){
 showConfirm('删除挑战','确定删除这个挑战吗？',function(){
 var challenges=yfSafeGet('challenges',[]);
-challenges=challenges.filter(function(c){return c.id!==id;});
+challenges=challenges.filter(function(c){return c.id!=id;});
 yfSafeSet('challenges',challenges);
 renderChallenges();
 showToast('已删除','success');
@@ -3325,7 +3325,7 @@ renderReview();showToast('已加精，已同步到学生端，作者+50积分','
 // ---- Report workflow (A14) ----
 function openReportDetail(id){
 var reports=YangFanData.getReports();
-var r=reports.find(function(x){return x.id===id;});
+var r=reports.find(function(x){return x.id==id;});
 if(!r)return;
 var body='<div style="font-size:13px;line-height:1.8">'
 +'<p><strong>类型：</strong>'+escHtml(r.targetType)+' #'+r.targetId+'</p>'
@@ -3345,7 +3345,7 @@ openModal('举报详情',body,foot);
 }
 function handleReport(id,action){
 var reports=YangFanData.getReports();
-var r=reports.find(function(x){return x.id===id;});
+var r=reports.find(function(x){return x.id==id;});
 if(!r)return;
 if(action==='delete'){
 if(r.targetType==='post')YangFanData.deletePost(r.targetId);
