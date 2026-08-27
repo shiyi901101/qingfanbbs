@@ -718,7 +718,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 <button class="ln-btn" onclick="doRegister()">注册</button>
 </div>
 <div class="ln-switch" id="lnSwitch" onclick="toggleRegForm()">没有账号？去注册</div>
-<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.25</span></div>
+<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.26</span></div>
 <svg class="ln-wave" viewBox="0 0 860 60" preserveAspectRatio="none" style="height:50px"><path d="M0 30Q100 10 215 25Q330 40 430 20Q530 0 645 25Q760 50 860 30L860 60L0 60Z" fill="rgba(255,255,255,.15)"/><path d="M0 40Q80 25 200 35Q320 50 430 30Q540 10 645 35Q760 55 860 40L860 60L0 60Z" fill="rgba(255,255,255,.85)"/></svg>
 </div>
 
@@ -1719,9 +1719,9 @@ posts:{id:'post_id',authorId:'作者ID',author:'作者名',avatar:'作者头像'
 users:{id:'user_id',name:'用户名',phone:'手机号',password:'密码',avatar:'头像',school:'学校',major:'专业',grade:'年级',bio:'简介',points:'积分',postsCount:'发帖数',followersCount:'粉丝数',followingCount:'关注数',following:'关注列表',followers_list:'粉丝列表',role:'角色',status:'状态',created:'注册时间',_blob:'简介',_statusMap:{active:'正常',banned:'封禁'}},
 groups:{id:'group_id',name:'名称',icon:'图标',desc:'简介',members:'成员数',posts_count:'帖子数',members_list:'成员列表',cat:'分类',created:'创建时间',cover:'封面图',_blob:'封面图'},
 opps:{id:'opp_id',title:'标题',org:'组织方',type:'类型',region:'地点',deadline:'截止日期',desc:'描述',tags:'标签',images:'图片',link:'链接',status:'状态',created:'创建时间',_blob:'图片'},
-announces:{id:'ann_id',title:'标题',content:'内容',type:'类型',createdBy:'发布人',created:'创建时间',_blob:'内容'},
-shop_items:{id:'item_id',name:'名称',desc:'描述',icon:'图标',points:'所需积分',stock:'库存',cat:'分类',status:'状态',created:'创建时间',_blob:'图标'},
-bad_words:{id:'word_id',word:'词语',cat:'分类',status:'状态',created:'创建时间',_blob:'词语'},
+announces:{id:'ann_id',title:'标题',content:'内容',type:'类型',createdBy:'发布人',created:'创建时间'},
+shop_items:{id:'item_id',name:'名称',desc:'描述',icon:'图标',points:'所需积分',stock:'库存',cat:'分类',status:'状态',created:'创建时间'},
+bad_words:{id:'word_id',word:'词语',cat:'分类',status:'状态',created:'创建时间'},
 stars:{id:'star_id',name:'姓名',avatar:'头像',role:'头衔',field:'领域',bio:'简介',story:'故事',yangfan:'扬帆经历',current:'当前状态',qa:'问答',tasks:'任务',status:'状态',order:'排序',_blob:'问答'},
 notifications:{id:'notif_id',userId:'接收人ID',type:'类型',title:'标题',content:'内容',relatedId:'相关ID',read:'已读',created:'创建时间',_blob:'内容'}
 },
@@ -1741,7 +1741,8 @@ if(typeof v[0]==='object'&&v[0]!==null){
 return v.map(function(x){
 if(x==null)return '';
 if(typeof x==='string')return x;
-return x.text||x.name||x.value||'';
+if(typeof x==='object')return x.text||x.name||x.value||'';
+return String(x);
 }).join('');
 }
 return v[0];
@@ -1750,9 +1751,16 @@ if(typeof v==='object'){
 if(v.text!==undefined)return v.text;
 if(v.name!==undefined)return v.name;
 if(v.value!==undefined)return v.value;
-return '';
+try{return JSON.stringify(v);}catch(e){return '';}
 }
 return v;
+},
+// V8.26: 修复旧版blob脏数据
+_fixDirtyBlob:function(appKey,parsedVal){
+if(parsedVal&&typeof parsedVal==='object'&&!Array.isArray(parsedVal)){
+if(parsedVal[appKey]!==undefined)return parsedVal[appKey];
+}
+return parsedVal;
 },
 _mapToFeishuFields:function(tableKey,item){
 var map=this.fieldMap[tableKey];
@@ -1836,7 +1844,7 @@ var textVal=this._extractText(val);
 if(typeof textVal==='string'){
 var trimmed=textVal.trim();
 if(trimmed.startsWith('[')||trimmed.startsWith('{')){
-try{var _pv=JSON.parse(trimmed);if(appKey==='images'&&typeof _pv==='string'){try{_pv=JSON.parse(_pv);}catch(e){}}rec[appKey]=_pv;continue;}catch(e){}
+try{var _pv=JSON.parse(trimmed);if(appKey==='images'&&typeof _pv==='string'){try{_pv=JSON.parse(_pv);}catch(e){}}_pv=this._fixDirtyBlob(appKey,_pv);rec[appKey]=_pv;continue;}catch(e){}
 }
 if(appKey==='status'&&reverseStatusMap[textVal]){
 rec[appKey]=reverseStatusMap[textVal];
@@ -4488,7 +4496,7 @@ window.shakeEl=typeof shakeEl!=='undefined'?shakeEl:null;
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',function(){
-navigator.serviceWorker.register('sw.js?v=106').catch(function(e){console.log('SW reg failed:',e);});
+navigator.serviceWorker.register('sw.js?v=107').catch(function(e){console.log('SW reg failed:',e);});
 });
 }
 </script>
