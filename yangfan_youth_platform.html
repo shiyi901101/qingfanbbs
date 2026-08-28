@@ -718,7 +718,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 <button class="ln-btn" onclick="doRegister()">注册</button>
 </div>
 <div class="ln-switch" id="lnSwitch" onclick="toggleRegForm()">没有账号？去注册</div>
-<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.28</span></div>
+<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.29</span></div>
 <svg class="ln-wave" viewBox="0 0 860 60" preserveAspectRatio="none" style="height:50px"><path d="M0 30Q100 10 215 25Q330 40 430 20Q530 0 645 25Q760 50 860 30L860 60L0 60Z" fill="rgba(255,255,255,.15)"/><path d="M0 40Q80 25 200 35Q320 50 430 30Q540 10 645 35Q760 55 860 40L860 60L0 60Z" fill="rgba(255,255,255,.85)"/></svg>
 </div>
 
@@ -1985,12 +1985,17 @@ currentUser.id=parseInt(currentUser.id)||currentUser.id;
 lsSet('currentUser',currentUser);
 }
 }catch(e){}
-try{if(typeof renderDiscover==='function')renderDiscover();}catch(e){}
-try{if(typeof renderStars==='function')renderStars();}catch(e){}
-try{if(typeof renderGroups==='function')renderGroups();}catch(e){}
-try{if(typeof renderProfile==='function')renderProfile();}catch(e){}
-try{if(typeof renderShop==='function')renderShop();}catch(e){}
-try{if(typeof renderRankList==='function')renderRankList();}catch(e){}
+// V8.29: 只刷新当前可见页面，避免后台页面不必要的重渲染和banner定时器
+try{
+var _activePg=document.querySelector('.page.active');
+var _pgId=_activePg?_activePg.id:'';
+if(typeof renderDiscover==='function'&&(_pgId==='pageDiscover'||_pgId==='')){renderDiscover();}
+if(_pgId==='pageStars'&&typeof renderStars==='function'){renderStars();}
+if(_pgId==='pageGroups'&&typeof renderGroups==='function'){renderGroups();}
+if(_pgId==='pageProfile'&&typeof renderProfile==='function'){renderProfile();}
+if(_pgId==='pageShop'&&typeof renderShop==='function'){renderShop();}
+if(_pgId==='pageRank'&&typeof renderRankList==='function'){renderRankList();}
+}catch(e){}
 }
 }catch(e){console.warn('[YF_CLOUD] pullAll error:',e);}
 },
@@ -2070,7 +2075,7 @@ delete ridMap[postId];this._setRidMap('posts',ridMap);
 
 window.addEventListener('load',function(){
 setTimeout(function(){YF_CLOUD.pullAll().then(function(){try{showSyncDot('ok');}catch(e){}});},1500);
-setInterval(function(){if(!document.hidden)YF_CLOUD.pullAll();},20000);
+setInterval(function(){if(!document.hidden)YF_CLOUD.pullAll();},10000);
 });
 window._yfSyncing=false;
 function showSyncDot(state){
@@ -2096,11 +2101,12 @@ else if(state==='off'){el.innerHTML='<span style="width:6px;height:6px;border-ra
 window.addEventListener('storage',function(e){
   if(e.key && e.key.indexOf('yf_shared_')===0){
     try{YangFanData.refresh();}catch(err){}
-    // 刷新当前可见页面
     try{
-      if(typeof renderDiscover==='function' && (!currentPage || currentPage==='home')){renderDiscover();}
-      if(currentPage==='profile' && typeof renderProfile==='function'){renderProfile();}
-      if(currentPage==='shop' && typeof renderShop==='function'){renderShop();}
+      var _ap=document.querySelector('.page.active');
+      var _apid=_ap?_ap.id:'';
+      if(typeof renderDiscover==='function'&&_apid==='pageDiscover'){renderDiscover();}
+      if(_apid==='pageProfile'&&typeof renderProfile==='function'){renderProfile();}
+      if(_apid==='pageShop'&&typeof renderShop==='function'){renderShop();}
     }catch(err){}
   }
 });
@@ -2110,9 +2116,9 @@ document.addEventListener('visibilitychange',function(){
   if(!document.hidden){
     try{YangFanData.refresh();}catch(e){}
     try{
-      if(typeof renderDiscover==='function' && (!currentPage || currentPage==='home')){renderDiscover();}
+      var _ap2=document.querySelector('.page.active');
+      if(typeof renderDiscover==='function'&&(!_ap2||_ap2.id==='pageDiscover')){renderDiscover();}
     }catch(e){}
-    // 关键：切回前台立即从云端拉取一次，确保跨设备删除/加精实时生效
     try{showSyncDot('loading');YF_CLOUD.pullAll().then(function(){showSyncDot('ok');}).catch(function(){showSyncDot('error');});}catch(e){}
   }
 });
@@ -2285,13 +2291,13 @@ if(el)el.classList.add("on");
 var mc=document.getElementById("mainContent");
 if(mc)mc.scrollTop=0;
 }catch(e){}
-try{if(id==="pageDiscover"){startBanner();}else{stopBanner();}}catch(e){}
 try{YangFanData.refresh();}catch(e){}
 try{
-if(id==="pageDiscover"){renderDiscover();}
-else if(id==="pageStars"){renderStars();}
-else if(id==="pageGroups"){renderGroups();}
-else if(id==="pageProfile"){renderProfile();}
+if(id==="pageDiscover"){renderDiscover();startBanner();}
+else if(id==="pageStars"){renderStars();stopBanner();}
+else if(id==="pageGroups"){renderGroups();stopBanner();}
+else if(id==="pageProfile"){renderProfile();stopBanner();}
+else{stopBanner();}
 }catch(e){console.error('goPage render error:',e);}
 }
 
@@ -2372,8 +2378,8 @@ for(var i=0;i<carouselPosts.length;i++){
 var cp=carouselPosts[i];
 var slideBg;
 var _firstImg=(cp.images&&cp.images.length&&typeof cp.images[0]==='string'&&(cp.images[0].indexOf('data:image')===0||cp.images[0].indexOf('http')===0))?cp.images[0]:'';
-if(_firstImg){slideBg='url("'+_firstImg+'") center/cover no-repeat,'+(cp.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)');}
-else if(banImg&&i===0){slideBg='url("'+banImg+'") center/cover no-repeat';}
+if(_firstImg){slideBg="url('"+_firstImg+"') center/cover no-repeat,"+(cp.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)');}
+else if(banImg&&i===0){slideBg="url('"+banImg+"') center/cover no-repeat";}
 else{slideBg=cp.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)';}
 h+='<div class="ban-slide'+(i===0?' on':'')+'" data-idx="'+i+'" style="background:'+slideBg+';cursor:pointer" onclick="showPost('+cp.id+')"><div class="ban-text"><h3>'+(cp.title||'')+'</h3></div></div>';
 }
@@ -3157,7 +3163,7 @@ else{currentUser._level=levelInfo.level;}
 }
 
 var savedBg=localStorage.getItem('yf_profile_bg')||'linear-gradient(135deg,#4facfe,#00f2fe)';
-var savedBgStyle=(savedBg.indexOf('url(')===0||savedBg.indexOf('data:image')===0)?'background:url("'+savedBg+'") center/cover no-repeat':'background:'+savedBg;
+var savedBgStyle=(savedBg.indexOf('url(')===0||savedBg.indexOf('data:image')===0)?"background:url('"+savedBg+"') center/cover no-repeat":'background:'+savedBg;
 var h='<div class="pr-bg" style="'+savedBgStyle+'"><div class="pr-bg-edit" onclick="changeProfileBg()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑背景</div></div>';
 h+='<div class="pr-head" style="display:flex;align-items:center;gap:14px;padding:8px 16px 14px">';
 h+=buildAvatarHtml(userName,64,true);
@@ -4543,7 +4549,7 @@ window.shakeEl=typeof shakeEl!=='undefined'?shakeEl:null;
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',function(){
-navigator.serviceWorker.register('sw.js?v=109').catch(function(e){console.log('SW reg failed:',e);});
+navigator.serviceWorker.register('sw.js?v=110').catch(function(e){console.log('SW reg failed:',e);});
 });
 }
 </script>
