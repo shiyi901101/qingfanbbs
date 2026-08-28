@@ -718,7 +718,7 @@ input,textarea{font-family:var(--font);outline:none;border:none}
 <button class="ln-btn" onclick="doRegister()">注册</button>
 </div>
 <div class="ln-switch" id="lnSwitch" onclick="toggleRegForm()">没有账号？去注册</div>
-<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.27</span></div>
+<div class="ln-foot">© 2026 扬帆计划 · 青年成长社区 <span id="yfVer" style="opacity:.5;font-size:10px">v8.28</span></div>
 <svg class="ln-wave" viewBox="0 0 860 60" preserveAspectRatio="none" style="height:50px"><path d="M0 30Q100 10 215 25Q330 40 430 20Q530 0 645 25Q760 50 860 30L860 60L0 60Z" fill="rgba(255,255,255,.15)"/><path d="M0 40Q80 25 200 35Q320 50 430 30Q540 10 645 35Q760 55 860 40L860 60L0 60Z" fill="rgba(255,255,255,.85)"/></svg>
 </div>
 
@@ -1170,7 +1170,7 @@ if(filter.pinned!==undefined)posts=posts.filter(function(p){return !!p.pinned===
 }
 return JSON.parse(JSON.stringify(posts));
 },
-getPost:function(id){var posts=_YF_cache.posts||[];for(var i=0;i<posts.length;i++){if(posts[i].id==id)return JSON.parse(JSON.stringify(posts[i]));}return null;},
+getPost:function(id){if(id==null)return null;var posts=_YF_cache.posts||[];var sid=String(id);for(var i=0;i<posts.length;i++){if(posts[i]&&String(posts[i].id)===sid)return JSON.parse(JSON.stringify(posts[i]));}return null;},
 createPost:function(data){
 var posts=_YF_cache.posts||[];
 var np={id:_yfNextId('posts'),title:data.title||'',author:data.author||'匿名用户',time:data.time||_yfNow(),excerpt:data.excerpt||'',content:data.content||'',status:data.status||'approved',tag:data.tag||'成长思考',images:data.images||[],likes:0,comments:data.comments||[],cbg:data.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)',abg:data.abg||'linear-gradient(135deg,#4facfe,#00f2fe)',icon:data.icon||'star',featured:false,pinned:false};
@@ -1209,7 +1209,7 @@ if(filter.search){var q=filter.search.toLowerCase();stars=stars.filter(function(
 }
 return JSON.parse(JSON.stringify(stars));
 },
-getStar:function(id){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id==id)return JSON.parse(JSON.stringify(stars[i]));}return null;},
+getStar:function(id){if(id==null)return null;var stars=_YF_cache.stars||[];var sid=String(id);for(var i=0;i<stars.length;i++){if(stars[i]&&String(stars[i].id)===sid)return JSON.parse(JSON.stringify(stars[i]));}return null;},
 createStar:function(data){
 var stars=_YF_cache.stars||[];
 var ns={id:_yfNextId('stars'),name:data.name||'',field:data.field||'',type:data.type||'mentor',abg:data.abg||'linear-gradient(135deg,#4facfe,#7ec8ff)',role:data.role||'',quote:data.quote||'',status:data.status||'',story:data.story||'',yangfan:data.yangfan||'',current:data.current||'',qa:data.qa||[],tasks:data.tasks||[]};
@@ -1220,7 +1220,7 @@ updateStar:function(id,data){var stars=_YF_cache.stars||[];for(var i=0;i<stars.l
 deleteStar:function(id){var stars=_YF_cache.stars||[];var s=stars.find(function(x){return x.id==id;});stars=stars.filter(function(x){return x.id!=id;});_YF_cache.stars=stars;_yfSave('stars',stars);if(s)_yfLog('删除导师/学长',s.name);},
 
 getGroups:function(){return JSON.parse(JSON.stringify(_YF_cache.groups||[]));},
-getGroup:function(id){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id==id)return JSON.parse(JSON.stringify(groups[i]));}return null;},
+getGroup:function(id){if(id==null)return null;var groups=_YF_cache.groups||[];var sid=String(id);for(var i=0;i<groups.length;i++){if(groups[i]&&String(groups[i].id)===sid)return JSON.parse(JSON.stringify(groups[i]));}return null;},
 createGroup:function(data){
 var groups=_YF_cache.groups||[];
 var ng={id:_yfNextId('groups'),name:data.name||'',members:data.members||1,desc:data.desc||'',color:data.color||'linear-gradient(135deg,#4facfe,#7ec8ff)',cat:data.cat||'其他',posts:data.posts||[],members_list:data.members_list||[]};
@@ -1257,7 +1257,7 @@ if(filter.search){var q=filter.search.toLowerCase();opps=opps.filter(function(o)
 }
 return JSON.parse(JSON.stringify(opps));
 },
-getOpp:function(id){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id==id)return JSON.parse(JSON.stringify(opps[i]));}return null;},
+getOpp:function(id){if(id==null)return null;var opps=_YF_cache.opps||[];var sid=String(id);for(var i=0;i<opps.length;i++){if(opps[i]&&String(opps[i].id)===sid)return JSON.parse(JSON.stringify(opps[i]));}return null;},
 createOpp:function(data){var opps=_YF_cache.opps||[];var no={id:_yfNextId('opps'),title:data.title||'',type:data.type||'volunteer',region:data.region||'',deadline:data.deadline||'',desc:data.desc||''};opps.push(no);_YF_cache.opps=opps;_yfSave('opps',opps);_yfLog('发布机会',no.title);return no;},
 updateOpp:function(id,data){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id==id){for(var k in data){opps[i][k]=data[k];}break;}}_YF_cache.opps=opps;_yfSave('opps',opps);},
 deleteOpp:function(id){var opps=_YF_cache.opps||[];var o=opps.find(function(x){return x.id==id;});opps=opps.filter(function(x){return x.id!=id;});_YF_cache.opps=opps;_yfSave('opps',opps);if(o)_yfLog('删除机会',o.title);},
@@ -1284,7 +1284,14 @@ if(filter.search){var q=filter.search.toLowerCase();users=users.filter(function(
 }
 return JSON.parse(JSON.stringify(users));
 },
-getUser:function(id){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id==id)return JSON.parse(JSON.stringify(users[i]));}return null;},
+getUser:function(id){
+if(id==null||id===undefined)return null;
+var users=_YF_cache.users||[];
+// V8.28: 统一ID类型为字符串比较，兼容数字/字符串
+var sid=String(id);
+for(var i=0;i<users.length;i++){if(users[i]&&String(users[i].id)===sid)return JSON.parse(JSON.stringify(users[i]));}
+return null;
+},
 getUserByPhone:function(phone){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].phone==phone)return JSON.parse(JSON.stringify(users[i]));}return null;},
 getUserByAccount:function(account){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].account==account)return JSON.parse(JSON.stringify(users[i]));}return null;},
 createUser:function(data){
@@ -1873,6 +1880,11 @@ rec[bk]=blobData[bk];
 }
 }
 }
+// V8.28: 强制将id字段转为数字（飞书返回字符串"1"导致严格匹配失败）
+if(rec.id!==undefined&&rec.id!==null&&rec.id!==''){
+var _nid=Number(rec.id);
+if(!isNaN(_nid))rec.id=_nid;
+}
 return rec;
 },
 get proxyUrl(){try{return localStorage.getItem('yf_feishu_proxy')||this.DEFAULT_PROXY;}catch(e){return this.DEFAULT_PROXY;}},
@@ -1919,6 +1931,26 @@ for(var i=0;i<keys.length;i++){
 var k=keys[i];
 var recs=await this.fetchTable(k);
 if(recs&&recs.length>0){
+// V8.28: users表合并本地额外字段（signature/mbti/zodiac/mood等云端不存储的字段）
+if(k==='users'){
+try{
+var localUsers=_yfLoad(k)||[];
+var localMap={};
+for(var li=0;li<localUsers.length;li++){if(localUsers[li]&&localUsers[li].id!=null)localMap[String(localUsers[li].id)]=localUsers[li];}
+for(var ri2=0;ri2<recs.length;ri2++){
+var cr=recs[ri2];
+if(!cr||cr.id==null)continue;
+var lr=localMap[String(cr.id)];
+if(lr){
+for(var lk in lr){
+if(cr[lk]===undefined||cr[lk]===null||cr[lk]===''||(Array.isArray(cr[lk])&&cr[lk].length===0)){
+cr[lk]=lr[lk];
+}
+}
+}
+}
+}catch(e){console.warn('merge local users error:',e);}
+}
 // 云端有数据：云端作为唯一真相，直接替换本地
 var ridMap={};
 for(var ri=0;ri<recs.length;ri++){
@@ -1945,7 +1977,13 @@ console.log('[YF_CLOUD] sync done:',updated);
 if(typeof currentUser!=='undefined'&&currentUser){
 try{
 var freshU=YangFanData.getUser(currentUser.id);
-if(freshU){currentUser={id:freshU.id,name:freshU.name,phone:freshU.phone,account:freshU.account,points:freshU.points,role:freshU.role};lsSet('currentUser',currentUser);}
+if(freshU){
+// V8.28: 合并而非替换，保留本地额外字段（_level/signature/mood等）
+for(var _fk in freshU){if(freshU[_fk]!==undefined&&freshU[_fk]!==null)currentUser[_fk]=freshU[_fk];}
+// 确保ID是数字
+currentUser.id=parseInt(currentUser.id)||currentUser.id;
+lsSet('currentUser',currentUser);
+}
 }catch(e){}
 try{if(typeof renderDiscover==='function')renderDiscover();}catch(e){}
 try{if(typeof renderStars==='function')renderStars();}catch(e){}
@@ -2829,7 +2867,7 @@ if(u&&u.following){u.following=u.following.filter(function(x){return x!==id;});Y
 followedStars[id]=true;
 if(el){el.classList.add("on");el.textContent="已关注";}
 if(currentUser&&currentUser.id){
-var u=YangFanData.getUser(currentUser.id);
+var u=YangFanData.getUser(currentUser.id)||{};
 if(!u.following)u.following=[];if(u.following.indexOf(id)===-1)u.following.push(id);
 YangFanData.updateUser(currentUser.id,{following:u.following});
 }
@@ -3124,8 +3162,8 @@ var h='<div class="pr-bg" style="'+savedBgStyle+'"><div class="pr-bg-edit" oncli
 h+='<div class="pr-head" style="display:flex;align-items:center;gap:14px;padding:8px 16px 14px">';
 h+=buildAvatarHtml(userName,64,true);
 h+='<div style="flex:1;min-width:0">';
-var _su=currentUser&&currentUser.id?YangFanData.getUser(currentUser.id):{};
-var _sig=_su.signature||'用脚步丈量世界，用镜头记录成长';
+var _su=(currentUser&&currentUser.id)?(YangFanData.getUser(currentUser.id)||{}):{};
+var _sig=_su.signature||_su.bio||'用脚步丈量世界，用镜头记录成长';
 var _mood=_su.mood&&_su.moodDate===_yfToday()?_su.mood:'';
 var lvBadge='<span style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#ffa502,#ff6b6b);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;vertical-align:middle;margin-left:6px">Lv.'+levelInfo.level+'</span>';
 h+='<div class="pr-name" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'+userName+lvBadge+' <span style="font-size:12px;cursor:pointer;opacity:.6" onclick="openEditProfile()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span></div>';
@@ -3495,8 +3533,8 @@ openModal(z.name,body,foot);
 }
 
 function openFollowList(type){
-var u=YangFanData.getUser(currentUser.id);
-if(!u)return;
+if(!currentUser||!currentUser.id)return;
+var u=YangFanData.getUser(currentUser.id)||{};
 var list=[];
 if(type==='followers'){
 var allUsers=YangFanData.getUsers();
@@ -4505,7 +4543,7 @@ window.shakeEl=typeof shakeEl!=='undefined'?shakeEl:null;
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',function(){
-navigator.serviceWorker.register('sw.js?v=108').catch(function(e){console.log('SW reg failed:',e);});
+navigator.serviceWorker.register('sw.js?v=109').catch(function(e){console.log('SW reg failed:',e);});
 });
 }
 </script>

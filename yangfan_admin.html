@@ -373,7 +373,7 @@ textarea.form-input{min-height:80px;resize:vertical}
         <path d="M18 8L24 22H12L18 8Z" fill="#4facfe" opacity=".9"/>
         <path d="M18 12L22 22H14L18 12Z" fill="#fff" opacity=".5"/>
       </svg>
-      <div class="sidebar-brand">青帆社区<span>管理后台 v8.27</span></div>
+      <div class="sidebar-brand">青帆社区<span>管理后台 v8.28</span></div>
     </div>
     <div class="sidebar-nav" id="sideNav">
       <!-- Nav items injected by JS -->
@@ -992,7 +992,7 @@ if(filter.pinned!==undefined)posts=posts.filter(function(p){return !!p.pinned===
 }
 return JSON.parse(JSON.stringify(posts));
 },
-getPost:function(id){var posts=_YF_cache.posts||[];for(var i=0;i<posts.length;i++){if(posts[i].id==id)return JSON.parse(JSON.stringify(posts[i]));}return null;},
+getPost:function(id){if(id==null)return null;var posts=_YF_cache.posts||[];var sid=String(id);for(var i=0;i<posts.length;i++){if(posts[i]&&String(posts[i].id)===sid)return JSON.parse(JSON.stringify(posts[i]));}return null;},
 createPost:function(data){
 var posts=_YF_cache.posts||[];
 var np={id:_yfNextId('posts'),title:data.title||'',author:data.author||'匿名用户',time:data.time||_yfNow(),excerpt:data.excerpt||'',content:data.content||'',status:data.status||'approved',tag:data.tag||'成长思考',images:data.images||[],likes:0,comments:data.comments||[],cbg:data.cbg||'linear-gradient(135deg,#4facfe,#00f2fe)',abg:data.abg||'linear-gradient(135deg,#4facfe,#00f2fe)',icon:data.icon||'star',featured:false,pinned:false};
@@ -1030,7 +1030,7 @@ if(filter.search){var q=filter.search.toLowerCase();stars=stars.filter(function(
 }
 return JSON.parse(JSON.stringify(stars));
 },
-getStar:function(id){var stars=_YF_cache.stars||[];for(var i=0;i<stars.length;i++){if(stars[i].id==id)return JSON.parse(JSON.stringify(stars[i]));}return null;},
+getStar:function(id){if(id==null)return null;var stars=_YF_cache.stars||[];var sid=String(id);for(var i=0;i<stars.length;i++){if(stars[i]&&String(stars[i].id)===sid)return JSON.parse(JSON.stringify(stars[i]));}return null;},
 createStar:function(data){
 var stars=_YF_cache.stars||[];
 var ns={id:_yfNextId('stars'),name:data.name||'',field:data.field||'',type:data.type||'mentor',abg:data.abg||'linear-gradient(135deg,#4facfe,#7ec8ff)',role:data.role||'',quote:data.quote||'',status:data.status||'',story:data.story||'',yangfan:data.yangfan||'',current:data.current||'',qa:data.qa||[],tasks:data.tasks||[]};
@@ -1042,7 +1042,7 @@ deleteStar:function(id){var stars=_YF_cache.stars||[];var s=stars.find(function(
 
 // ---- Groups ----
 getGroups:function(){return JSON.parse(JSON.stringify(_YF_cache.groups||[]));},
-getGroup:function(id){var groups=_YF_cache.groups||[];for(var i=0;i<groups.length;i++){if(groups[i].id==id)return JSON.parse(JSON.stringify(groups[i]));}return null;},
+getGroup:function(id){if(id==null)return null;var groups=_YF_cache.groups||[];var sid=String(id);for(var i=0;i<groups.length;i++){if(groups[i]&&String(groups[i].id)===sid)return JSON.parse(JSON.stringify(groups[i]));}return null;},
 createGroup:function(data){
 var groups=_YF_cache.groups||[];
 var ng={id:_yfNextId('groups'),name:data.name||'',members:data.members||1,desc:data.desc||'',color:data.color||'linear-gradient(135deg,#4facfe,#7ec8ff)',cat:data.cat||'其他',posts:data.posts||[],members_list:data.members_list||[]};
@@ -1080,7 +1080,7 @@ if(filter.search){var q=filter.search.toLowerCase();opps=opps.filter(function(o)
 }
 return JSON.parse(JSON.stringify(opps));
 },
-getOpp:function(id){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id==id)return JSON.parse(JSON.stringify(opps[i]));}return null;},
+getOpp:function(id){if(id==null)return null;var opps=_YF_cache.opps||[];var sid=String(id);for(var i=0;i<opps.length;i++){if(opps[i]&&String(opps[i].id)===sid)return JSON.parse(JSON.stringify(opps[i]));}return null;},
 createOpp:function(data){var opps=_YF_cache.opps||[];var no={id:_yfNextId('opps'),title:data.title||'',type:data.type||'volunteer',region:data.region||'',deadline:data.deadline||'',desc:data.desc||''};opps.push(no);_YF_cache.opps=opps;_yfSave('opps',opps);_yfLog('发布机会',no.title);return no;},
 updateOpp:function(id,data){var opps=_YF_cache.opps||[];for(var i=0;i<opps.length;i++){if(opps[i].id==id){for(var k in data){opps[i][k]=data[k];}break;}}_YF_cache.opps=opps;_yfSave('opps',opps);},
 deleteOpp:function(id){var opps=_YF_cache.opps||[];var o=opps.find(function(x){return x.id==id;});opps=opps.filter(function(x){return x.id!=id;});_YF_cache.opps=opps;_yfSave('opps',opps);if(o)_yfLog('删除机会',o.title);},
@@ -1111,7 +1111,7 @@ if(filter.search){var q=filter.search.toLowerCase();users=users.filter(function(
 }
 return JSON.parse(JSON.stringify(users));
 },
-getUser:function(id){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].id==id)return JSON.parse(JSON.stringify(users[i]));}return null;},
+getUser:function(id){if(id==null)return null;var users=_YF_cache.users||[];var sid=String(id);for(var i=0;i<users.length;i++){if(users[i]&&String(users[i].id)===sid)return JSON.parse(JSON.stringify(users[i]));}return null;},
 getUserByPhone:function(phone){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].phone===phone)return JSON.parse(JSON.stringify(users[i]));}return null;},
 getUserByAccount:function(account){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].account===account)return JSON.parse(JSON.stringify(users[i]));}return null;},
 createUser:function(data){
@@ -1413,6 +1413,8 @@ else rec[appKey]=textVal;
 }
 }
 if(blobRaw){var blobData=this._blobParse(blobRaw);if(blobData){for(var bk in blobData){if(rec[bk]===undefined||rec[bk]===''||rec[bk]===null||(Array.isArray(rec[bk])&&rec[bk].length===0))rec[bk]=blobData[bk];}}}
+// V8.28: 强制将id字段转为数字（飞书返回字符串"1"导致严格匹配失败）
+if(rec.id!==undefined&&rec.id!==null&&rec.id!==''){var _nid=Number(rec.id);if(!isNaN(_nid))rec.id=_nid;}
 return rec;
 },
 get proxyUrl(){try{return localStorage.getItem('yf_feishu_proxy')||this.DEFAULT_PROXY;}catch(e){return this.DEFAULT_PROXY;}}
@@ -2881,7 +2883,19 @@ function pullAll(){
     var key=tableKeys[idx++];
     pullTable(key).then(function(records){
       if(records&&records.length>0){
-        // 云端有数据：直接替换本地
+        // V8.28: users表合并本地额外字段
+        if(key==='users'){
+          try{
+            var localU=_yfLoad(key)||[];
+            var lm={};
+            for(var li=0;li<localU.length;li++){if(localU[li]&&localU[li].id!=null)lm[String(localU[li].id)]=localU[li];}
+            for(var ri=0;ri<records.length;ri++){
+              var cr=records[ri]; if(!cr||cr.id==null)continue;
+              var lr=lm[String(cr.id)];
+              if(lr){for(var lk in lr){if(cr[lk]===undefined||cr[lk]===null||cr[lk]===''||(Array.isArray(cr[lk])&&cr[lk].length===0))cr[lk]=lr[lk];}}
+            }
+          }catch(e){}
+        }
         _yfSave(key,records);
         if(_YF_cache)_YF_cache[key]=records;
         syncLog('  '+key+': 同步 '+records.length+' 条');
@@ -2904,7 +2918,19 @@ function syncTable(tableKey){
   syncLog('同步 '+tableKey+' ...');
   pullTable(tableKey).then(function(records){
     if(records&&records.length>0){
-      // 云端有数据：直接替换本地
+      // V8.28: users表合并本地额外字段
+      if(tableKey==='users'){
+        try{
+          var localU=_yfLoad(tableKey)||[];
+          var lm={};
+          for(var li=0;li<localU.length;li++){if(localU[li]&&localU[li].id!=null)lm[String(localU[li].id)]=localU[li];}
+          for(var ri=0;ri<records.length;ri++){
+            var cr=records[ri]; if(!cr||cr.id==null)continue;
+            var lr=lm[String(cr.id)];
+            if(lr){for(var lk in lr){if(cr[lk]===undefined||cr[lk]===null||cr[lk]===''||(Array.isArray(cr[lk])&&cr[lk].length===0))cr[lk]=lr[lk];}}
+          }
+        }catch(e){}
+      }
       _yfSave(tableKey,records);
       if(_YF_cache)_YF_cache[tableKey]=records;
       try{YangFanData.refresh();}catch(e){}
@@ -2964,7 +2990,19 @@ window.addEventListener('load',function(){
     Promise.all(keys.map(function(k){
       return pullTable(k).then(function(r){
         if(r&&r.length>0){
-          // 云端有数据：直接作为真相替换本地
+          // V8.28: users表合并本地额外字段
+          if(k==='users'){
+            try{
+              var localU=_yfLoad(k)||[];
+              var lm={};
+              for(var li=0;li<localU.length;li++){if(localU[li]&&localU[li].id!=null)lm[String(localU[li].id)]=localU[li];}
+              for(var ri=0;ri<r.length;ri++){
+                var cr=r[ri]; if(!cr||cr.id==null)continue;
+                var lr=lm[String(cr.id)];
+                if(lr){for(var lk in lr){if(cr[lk]===undefined||cr[lk]===null||cr[lk]===''||(Array.isArray(cr[lk])&&cr[lk].length===0))cr[lk]=lr[lk];}}
+              }
+            }catch(e){}
+          }
           _yfSave(k,r);
           if(_YF_cache)_YF_cache[k]=r;
         }
