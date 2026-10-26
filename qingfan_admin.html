@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#16324F">
+<meta name="description" content="青帆社区 · 统一管理端 · 名单导入 / 教练捎话 / 签到签退 / 成长目标线 / 学生端内容 / 账号与配额">
+<title>青帆社区 · 管理端</title>
+<style>
+/* ============================================================
+   青帆社区 · 统一管理端（单文件 PWA）
+   ------------------------------------------------------------
+   一个入口管理「家长端 + 学生端」：
+     名单管理（站缩写编号，如叶集 YJ001）／教练捎话／签到签退／
+     成长目标线／学生端内容（公告·任务·商城·机会）／账号与配额
+   角色模型（与 admin-auth 一致）：super（跨站）／site_lead（单站）／coach（单站·仅捎话+签到）
+   设计语言与家长端同构：
+     火漆红 #8A2E2E（主操作）／青帆蓝 #00AEEC（品牌标识）／深海军蓝 #16324F
+   零外链 · 零 emoji · 320—414px 移动优先
+   演示态数据层：localStorage（yf_admin_* 管理端自有；yf_shared_* 跨端桥）
+   云端态：默认即云端（API_BASE 内置 CloudBase 静态托管同域基址）；仅 URL 显式带 ?mode=local 才进入本地演示态
+   ============================================================ */
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --surface-sunken:#EDF1F6;
+  --fg:#16324F; --muted:#5D6B78; --border:#DCE3EB; --border-soft:#EDF1F6;
+  --wax:#8a2e2e; --wax-lo:#6f2424; --gold:#c9a85a;
+  --brand-connect:#00AEEC;
+  --kraft:#fdfaf2; --kraft-line:#d8cbb2; --ink-brown:#8a7a5c;
+  --success:#1F9D6B; --danger:#C0504D; --warn:#B7791F;
+  --font-display:-apple-system,"SF Pro SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --font-body:-apple-system,"SF Pro SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --radius:14px; --radius-sm:10px;
+  --shadow:0 1px 2px rgba(22,50,79,.05),0 8px 20px rgba(22,50,79,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--fg);
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);}
+button{font-family:inherit;}
+h1,h2,h3{margin:0;font-family:var(--font-display);}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px;}
+
+/* ---------- 登录 ---------- */
+#loginView{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px 0;}
+.login-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:28px 22px;border-top:4px solid var(--wax);}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:var(--brand-connect);
+  display:flex;align-items:center;justify-content:center;flex:none;}
+.brand-mark svg{width:20px;height:20px;}
+.brand b{font-size:18px;letter-spacing:.5px;}
+.brand small{display:block;font-size:11px;color:var(--muted);letter-spacing:2.5px;font-weight:500;}
+.login-sub{color:var(--muted);font-size:13px;margin:0 0 18px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600;}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:11px 12px;font-size:15px;font-family:inherit;
+  background:var(--surface);color:var(--fg);outline:none;transition:border .15s;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand-connect);}
+.field textarea{resize:vertical;min-height:74px;line-height:1.6;}
+.btn{width:100%;border:0;border-radius:var(--radius-sm);padding:13px;font-size:15.5px;
+  font-weight:700;cursor:pointer;background:var(--wax);color:#fff;transition:background .15s;}
+.btn:active{background:var(--wax-lo);}
+.btn.ghost{background:var(--surface-sunken);color:var(--fg);font-weight:600;}
+.btn.mini{width:auto;padding:7px 14px;font-size:13px;border-radius:9px;}
+.demo-hint{margin-top:16px;background:var(--kraft);border:1px solid var(--kraft-line);
+  border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--ink-brown);line-height:1.7;}
+.demo-hint b{color:var(--wax);}
+.mode-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;
+  padding:3px 10px;letter-spacing:1px;background:var(--surface-sunken);color:var(--muted);}
+.mode-pill.cloud{background:rgba(31,157,107,.14);color:var(--success);}
+
+/* ---------- 应用壳 ---------- */
+#appView{display:none;min-height:100vh;}
+.topbar{background:var(--fg);color:#fff;padding:12px 0;position:sticky;top:0;z-index:30;
+  box-shadow:0 2px 10px rgba(22,50,79,.25);}
+.topbar .wrap{display:flex;align-items:center;gap:10px;}
+.topbar .bm{width:30px;height:30px;border-radius:8px;background:var(--brand-connect);
+  display:flex;align-items:center;justify-content:center;flex:none;}
+.topbar .bm svg{width:17px;height:17px;}
+.topbar .tt{flex:1;min-width:0;}
+.topbar .tt b{display:block;font-size:15px;line-height:1.25;}
+.topbar .tt span{display:block;font-size:10.5px;opacity:.66;letter-spacing:2px;}
+.uchip{text-align:right;flex:none;}
+.uchip b{display:block;font-size:12.5px;}
+.uchip span{display:block;font-size:10.5px;opacity:.7;}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;background:var(--bg);
+  position:sticky;top:54px;z-index:29;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:none;border:1px solid var(--border);background:var(--surface);color:var(--muted);
+  border-radius:99px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;}
+.tab.on{background:var(--fg);border-color:var(--fg);color:#fff;}
+main{padding:14px 0 40px;}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:18px 16px;margin-bottom:14px;}
+.card h2{font-size:15.5px;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.card h2 .tag{font-size:10.5px;font-weight:700;color:var(--wax);background:rgba(138,46,46,.08);
+  border-radius:6px;padding:2px 7px;letter-spacing:1px;}
+.card .desc{font-size:12.5px;color:var(--muted);margin:0 0 14px;}
+.row2{display:flex;gap:10px;}
+.row2 .field{flex:1;}
+.site-pill{display:inline-block;font-size:12px;font-weight:700;background:rgba(0,174,236,.1);
+  color:#1F5FA8;border-radius:8px;padding:3px 10px;}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:18px 0;}
+.notice{background:rgba(183,121,31,.09);border:1px solid rgba(183,121,31,.25);color:var(--warn);
+  border-radius:var(--radius-sm);padding:9px 12px;font-size:12px;line-height:1.7;margin-bottom:14px;}
+
+/* ---------- 列表 ---------- */
+.list{list-style:none;margin:0;padding:0;}
+.list li{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--border-soft);}
+.list li:last-child{border-bottom:0;}
+.list .no{font-weight:800;color:var(--wax);font-size:13.5px;letter-spacing:.5px;flex:none;min-width:56px;}
+.list .nm{flex:1;min-width:0;}
+.list .nm b{display:block;font-size:14px;}
+.list .nm span{display:block;font-size:11.5px;color:var(--muted);}
+.list .del{border:0;background:none;color:var(--danger);font-size:12px;cursor:pointer;flex:none;padding:4px 6px;}
+.list .li-t{display:flex;justify-content:space-between;gap:8px;width:100%;}
+.list .when{font-size:11px;color:var(--muted);flex:none;}
+
+/* ---------- 计数 / 统计 ---------- */
+.stats{display:flex;gap:10px;margin-bottom:14px;}
+.stat{flex:1;background:var(--surface);border-radius:var(--radius-sm);box-shadow:var(--shadow);
+  padding:12px;text-align:center;}
+.stat b{display:block;font-size:22px;font-family:var(--font-display);color:var(--fg);}
+.stat span{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ---------- 内容子页签 ---------- */
+.subtabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.subtab{border:1px solid var(--border);background:var(--surface);border-radius:9px;
+  padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;}
+.subtab.on{background:var(--brand-connect);border-color:var(--brand-connect);color:#fff;}
+
+/* ---------- 内容审核 ---------- */
+.rv-txt{display:block;font-size:12.5px;color:var(--fg);margin-top:2px;}
+.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;}
+.rv-acts{display:flex;gap:6px;flex:none;}
+.rv-acts button{border:0;border-radius:8px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;}
+.rv-acts .ok{background:rgba(31,157,107,.12);color:var(--success);}
+.rv-acts .no{background:rgba(192,80,77,.1);color:var(--danger);}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+  background:var(--fg);color:#fff;font-size:13.5px;border-radius:99px;padding:10px 20px;
+  opacity:0;pointer-events:none;transition:all .25s;z-index:99;max-width:86vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:var(--danger);}
+
+/* ---------- 遮罩确认 ---------- */
+.mask{position:fixed;inset:0;background:rgba(22,50,79,.45);display:none;
+  align-items:center;justify-content:center;z-index:80;padding:24px;}
+.mask.show{display:flex;}
+.dialog{background:var(--surface);border-radius:var(--radius);padding:20px;max-width:340px;width:100%;}
+.dialog h3{font-size:15px;margin-bottom:8px;}
+.dialog p{font-size:13px;color:var(--muted);margin:0 0 16px;}
+.dialog .acts{display:flex;gap:10px;}
+.dialog .acts .btn{flex:1;}
+</style>
+</head>
+<body>
+
+<!-- ==================== 登录 ==================== -->
+<div id="loginView">
+  <div class="wrap">
+    <div class="login-card">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 18c2.5-7 5.5-11 8-13 2.5 2 5.5 6 8 13-3-1.6-5.6-2.3-8-2.3S7 16.4 4 18Z" fill="#fff"/></svg>
+        </div>
+        <div><b>青帆社区 · 管理端</b><small>QINGFAN COMMUNITY ADMIN</small></div>
+      </div>
+      <p class="login-sub">站点统一入口 —— 名单导入、教练捎话、签到签退、成长目标线、学生端内容与账号配额。登录后按账号所属站点自动限定数据范围。</p>
+      <form id="fLogin">
+        <div class="field"><label for="lgUser">账号</label>
+          <input id="lgUser" autocomplete="username" placeholder="如：lead_yj"></div>
+        <div class="field"><label for="lgPass">密码</label>
+          <input id="lgPass" type="password" autocomplete="current-password" placeholder="请输入密码"></div>
+        <button class="btn" type="submit">登 录</button>
+      </form>
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span class="mode-pill cloud" id="modePill">云端模式</span>
+        <button class="btn ghost mini" id="btnSwitch" type="button">切换身份</button>
+      </div>
+      <div class="demo-hint" id="demoHint">
+        <b>演示账号</b>（上线前必须关闭）：super／super123（集团），lead_yj／lead123（叶集站长），coach_yj／coach123（叶集教练）。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 应用 ==================== -->
+<div id="appView">
+  <div class="topbar">
+    <div class="wrap">
+      <div class="bm" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 18c2.5-7 5.5-11 8-13 2.5 2 5.5 6 8 13-3-1.6-5.6-2.3-8-2.3S7 16.4 4 18Z" fill="#fff"/></svg>
+      </div>
+      <div class="tt"><b>青帆社区 · 管理端</b><span>QINGFAN ADMIN</span></div>
+      <div class="uchip"><b id="uName">--</b><span id="uRole">--</span></div>
+      <button class="btn ghost mini" id="btnLogout" type="button">退出</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="tabs" id="tabs"></div>
+    <main id="main"></main>
+  </div>
+</div>
+
+<div class="mask" id="pwdMask" style="z-index:90;">
+  <div class="dialog">
+    <h3>首次登录 · 请修改密码</h3>
+    <p>为保障账号安全，首次登录必须修改初始密码：新密码至少 8 位，且不能与旧密码相同。修改前无法使用管理端。</p>
+    <form id="fPwd">
+      <div class="field"><label for="pwdOld">旧密码</label>
+        <input id="pwdOld" type="password" autocomplete="current-password"></div>
+      <div class="field"><label for="pwdNew">新密码</label>
+        <input id="pwdNew" type="password" autocomplete="new-password" placeholder="至少 8 位"></div>
+      <div class="field"><label for="pwdNew2">确认新密码</label>
+        <input id="pwdNew2" type="password" autocomplete="new-password" placeholder="再次输入新密码"></div>
+      <button class="btn" type="submit">确认修改</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="mask" id="mask">
+  <div class="dialog">
+    <h3 id="dlgTitle">确认</h3>
+    <p id="dlgText"></p>
+    <div class="acts">
+      <button class="btn ghost mini" id="dlgNo" type="button">取消</button>
+      <button class="btn mini" id="dlgYes" type="button">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   常量与键位
+   yf_admin_*      —— 管理端自有数据（演示态；云端态落 admin_accounts / parent_sites）
+   yf_shared_admin —— 家长端桥（mergeSharedAdmin 契约，字段不动）
+   yf_shared_*     —— 学生端表桥（_YF_P='yf_shared_'；announces/tasks/shop_items/opps 仅空表播种，可安全写入）
+   ============================================================ */
+var K={sess:'yf_admin_session',acc:'yf_admin_accounts',sites:'yf_admin_sites',
+  roster:'yf_shared_roster',bridge:'yf_shared_admin',audit:'yf_admin_audit',
+  announces:'yf_shared_announces',tasks:'yf_shared_tasks',shop_items:'yf_shared_shop_items',opps:'yf_shared_opps'};
+/* ---- 云端态强制：默认即云端，API 基址内置；仅 ?mode=local 进入本地演示态 ---- */
+var QS=new URLSearchParams(location.search);
+var API=QS.get('api')||'https://qingfan-parent-d6gloe72ka6ed4b27.service.tcloudbase.com';
+var MODE=(QS.get('mode')==='local')?'local':'cloud';
+/* ---- P0-1 云端接线：登录走 /adminAuth（JWT），业务走 /parentAdmin（Bearer）---- */
+var TOKEN='';
+var MUST_PWD=false;
+var SITES=[],ROSTER=[],ACCOUNTS=[],CONTENT_ROWS=[];
+try{TOKEN=sessionStorage.getItem('yf_admin_token')||'';}catch(e){}
+function clearCloudSession(){TOKEN='';try{sessionStorage.removeItem('yf_admin_token');sessionStorage.removeItem('yf_admin_mustpwd');}catch(e){}}
+async function api(action,params){
+  if(!TOKEN){throw new Error('未登录');}
+  var r=await fetch(API+'/parentAdmin',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+    body:JSON.stringify(Object.assign({action:action},params||{}))});
+  var env=await r.json();
+  if(env.code===40103||env.code===40101){clearCloudSession();doLogout();throw new Error(env.message||'登录已过期');}
+  if(env.code!==0){throw new Error(env.message||('错误码 '+env.code));}
+  return env.data;
+}
+async function adminLoginApi(u,p){
+  var r=await fetch(API+'/adminAuth',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'adminLogin',username:u,password:p})});
+  var env=await r.json();
+  if(env.code!==0){throw new Error(env.message||('错误码 '+env.code));}
+  return env.data;
+}
+/* ---- 首登强制改密：验旧密码→设新密码（adminAuth.changePassword）---- */
+async function changePasswordApi(oldP,newP){
+  var r=await fetch(API+'/adminAuth',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+    body:JSON.stringify({action:'changePassword',token:TOKEN,username:SESS?SESS.username:'',
+      old_password:oldP,new_password:newP})});
+  var env=await r.json();
+  if(env.code!==0){throw new Error(env.message||('错误码 '+env.code));}
+  return env.data;
+}
+function saveCloudSession(d){
+  TOKEN=d.token;
+  try{sessionStorage.setItem('yf_admin_token',d.token);}catch(e){}
+  if(d.must_change_pwd){
+    MUST_PWD=true;
+    try{sessionStorage.setItem('yf_admin_mustpwd','1');}catch(e){}
+  }
+  SESS={uid:d.username,username:d.username,role:d.role,site_id:d.site_id||'',login_at:Date.now()};
+  save(K.sess,SESS);
+}
+async function refreshSites(){var d=await api('adminListSites',{});SITES=d.sites||[];}
+async function refreshRoster(siteId){var d=await api('adminListRoster',{siteId:siteId});ROSTER=d.rows||[];}
+async function refreshContent(){var d=await api('adminListContent',{type:CTAB,limit:20});CONTENT_ROWS=d.rows||[];}
+async function refreshAccounts(){var d=await api('adminListAccounts',{});ACCOUNTS=d.accounts||[];}
+async function cloudLoad(tab){
+  try{
+    if(tab==='roster'||tab==='coach'||tab==='checkin'||tab==='goal'){
+      var s=(SESS.role==='super')?rosterSite:SESS.site_id;
+      if(s){rosterSite=s;await refreshRoster(s);}
+    }else if(tab==='content'){
+      await refreshContent();
+    }else if(tab==='review'){
+      await refreshPending();
+    }else if(tab==='accounts'){
+      if(!SITES.length)await refreshSites();
+      await refreshAccounts();
+    }
+  }catch(e){toast(e.message||'加载失败',true);}
+}
+var ROLE_TXT={super:'集团管理员',site_lead:'站点负责人',coach:'教练'};
+var TABS=[
+  {id:'roster',  label:'名单管理', roles:['super','site_lead']},
+  {id:'coach',   label:'教练捎话', roles:['super','site_lead','coach']},
+  {id:'checkin', label:'签到签退', roles:['super','site_lead','coach']},
+  {id:'goal',    label:'成长目标线',roles:['super','site_lead']},
+  {id:'content', label:'学生端内容',roles:['super','site_lead']},
+  {id:'review',  label:'内容审核',  roles:['super','site_lead']},
+  {id:'accounts',label:'账号与配额',roles:['super','site_lead']}
+];
+
+/* ---------- 基础工具 ---------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){toast('本地存储写入失败',true);}}
+function pad3(n){return (n<10?'00':n<100?'0':'')+n;}
+function fmtTs(ts){var d=new Date(ts);function p(n){return (n<10?'0':'')+n;}
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function today(){var d=new Date();function p(n){return (n<10?'0':'')+n;}
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+var toastTimer=null;
+function toast(msg,err){var t=$('toast');t.textContent=msg;t.className='toast show'+(err?' err':'');
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.className='toast'+(err?' err':'');},2600);}
+function sha(s){
+  if(!(window.crypto&&crypto.subtle&&crypto.subtle.digest)) return Promise.resolve('demo:'+s);
+  var buf=new TextEncoder().encode('yf:'+s);
+  return crypto.subtle.digest('SHA-256',buf).then(function(ab){
+    return Array.prototype.map.call(new Uint8Array(ab),function(b){return ('0'+b.toString(16)).slice(-2);}).join('');
+  }).catch(function(){return 'demo:'+s;});
+}
+function confirmDlg(title,text){
+  return new Promise(function(res){
+    $('dlgTitle').textContent=title;$('dlgText').textContent=text;$('mask').classList.add('show');
+    function done(y){$('mask').classList.remove('show');
+      $('dlgYes').onclick=$('dlgNo').onclick=null;res(y);}
+    $('dlgYes').onclick=function(){done(true);};
+    $('dlgNo').onclick=function(){done(false);};
+  });
+}
+function audit(action,detail){
+  var log=load(K.audit,[]);log.unshift({ts:Date.now(),actor:SESS?SESS.username:'-',role:SESS?SESS.role:'-',action:action,detail:detail||''});
+  save(K.audit,log.slice(0,300));
+}
+
+/* ---------- 种子（仅空表写入，不覆盖） ---------- */
+function seed(){
+  if(MODE==='cloud')return;   /* 云端态账号/站点来自服务器，不落本地种子 */
+  if(!load(K.sites,null)){
+    save(K.sites,[{site_id:'YJ',name:'叶集浆站',code:'YJ',quota:{lead:1,coach:3},seq:0}]);
+  }
+  if(!load(K.acc,null)){
+    Promise.all([sha('super123'),sha('lead123'),sha('coach123')]).then(function(h){
+      if(load(K.acc,null)) return;
+      save(K.acc,[
+        {uid:'u_super',username:'super',pwd_sha:h[0],role:'super',site_id:'',status:'active',created_at:Date.now()},
+        {uid:'u_lead_yj',username:'lead_yj',pwd_sha:h[1],role:'site_lead',site_id:'YJ',status:'active',created_at:Date.now()},
+        {uid:'u_coach_yj',username:'coach_yj',pwd_sha:h[2],role:'coach',site_id:'YJ',status:'active',created_at:Date.now()}
+      ]);
+    });
+  }
+}
+
+/* ---------- 会话 ---------- */
+var SESS=null;
+function curUser(){return load(K.sess,null);}
+function siteOf(id){
+  var s=(MODE==='cloud')?SITES:load(K.sites,[]);
+  for(var i=0;i<s.length;i++){if(s[i].site_id===id)return s[i];}
+  return null;
+}
+function mySites(){
+  if(!SESS) return [];
+  if(MODE==='cloud') return SITES;
+  if(SESS.role==='super') return load(K.sites,[]);
+  var st=siteOf(SESS.site_id);return st?[st]:[];
+}
+function myRoster(siteId){
+  return ((MODE==='cloud')?ROSTER:load(K.roster,[]))
+    .filter(function(r){return r.site_id===siteId&&r.status!=='removed';});
+}
+function scopeOk(siteId){ /* 演示态客户端越权拦截；云端由服务端 site_id 过滤 */
+  if(!SESS) return false;
+  if(SESS.role==='super') return true;
+  return SESS.site_id===siteId;
+}
+
+/* ---------- 登录 / 登出 ---------- */
+$('fLogin').addEventListener('submit',function(e){
+  e.preventDefault();
+  var u=$('lgUser').value.trim(), p=$('lgPass').value;
+  if(!u||!p){toast('请输入账号和密码',true);return;}
+  if(MODE==='cloud'){
+    adminLoginApi(u,p).then(function(d){
+      saveCloudSession(d);
+      audit('login','云端登录 '+d.username+'（'+d.role+'）');
+      enterApp();
+    }).catch(function(e){toast(e.message||'登录失败',true);});
+    return;
+  }
+  sha(p).then(function(h){
+    var accs=load(K.acc,[]);
+    for(var i=0;i<accs.length;i++){
+      var a=accs[i];
+      if(a.username===u&&a.pwd_sha===h){
+        if(a.status!=='active'){toast('该账号已停用，请联系集团管理员',true);return;}
+        SESS={uid:a.uid,username:a.username,role:a.role,site_id:a.site_id,login_at:Date.now()};
+        save(K.sess,SESS);audit('login','登录成功');
+        enterApp();return;
+      }
+    }
+    toast('账号或密码不正确',true);
+  });
+});
+function doLogout(){
+  if(SESS){audit('logout','退出登录');}
+  clearCloudSession();
+  localStorage.removeItem(K.sess);SESS=null;
+  SITES=[];ROSTER=[];ACCOUNTS=[];CONTENT_ROWS=[];
+  $('appView').style.display='none';$('loginView').style.display='flex';
+  $('lgPass').value='';
+}
+$('btnSwitch').addEventListener('click',doLogout);
+$('btnLogout').addEventListener('click',doLogout);
+/* ---- 首登强制改密：遮罩全屏，未改密前其余页签不可用 ---- */
+$('fPwd').addEventListener('submit',function(e){
+  e.preventDefault();
+  if(!MUST_PWD)return;
+  var o=$('pwdOld').value,n1=$('pwdNew').value,n2=$('pwdNew2').value;
+  if(!o||!n1||!n2){toast('请填写完整',true);return;}
+  if(n1.length<8){toast('新密码至少 8 位',true);return;}
+  if(n1!==n2){toast('两次输入的新密码不一致',true);return;}
+  if(n1===o){toast('新密码不能与旧密码相同',true);return;}
+  changePasswordApi(o,n1).then(function(d){
+    MUST_PWD=false;
+    if(d&&d.token){ /* 改密成功后换发新 token（云函数侧契约） */
+      TOKEN=d.token;
+      try{sessionStorage.setItem('yf_admin_token',d.token);}catch(e3){}
+    }
+    try{sessionStorage.removeItem('yf_admin_mustpwd');}catch(e2){}
+    $('pwdMask').classList.remove('show');
+    $('pwdOld').value='';$('pwdNew').value='';$('pwdNew2').value='';
+    audit('change_password','首次登录改密成功');
+    toast('密码已修改，请牢记新密码');
+  }).catch(function(e){toast(e.message||'修改失败，请重试',true);});
+});
+async function enterApp(){
+  $('loginView').style.display='none';
+  $('appView').style.display='block';
+  $('uName').textContent=SESS.username;
+  $('uRole').textContent=ROLE_TXT[SESS.role]+(SESS.site_id?(' · '+SESS.site_id):'');
+  curTab='roster';
+  if(MODE==='cloud'){
+    try{await refreshSites();}catch(e){toast(e.message||'加载站点失败',true);}
+    if(!SESS)return;   /* 令牌失效已被 api() 登出，停在登录页 */
+    var s0=mySites();
+    rosterSite=(SESS.role==='super')?(s0[0]?s0[0].site_id:''):SESS.site_id;
+    if(rosterSite){try{await refreshRoster(rosterSite);}catch(e){}}
+  }
+  renderTabs();renderMain();
+  if(MUST_PWD){$('pwdMask').classList.add('show');}
+}
+
+/* ============================================================
+   名单管理：粘贴导入 → 站缩写+三位序号（如 YJ001）
+   ============================================================ */
+function nextIds(site,n){
+  var st=siteOf(site);if(!st)return [];
+  var sites=load(K.sites,[]);
+  var used={};load(K.roster,[]).forEach(function(r){if(r.site_id===site)used[r.student_id]=1;});
+  var out=[],i=0,seq=st.seq||0;
+  while(out.length<n&&i<n*10+50){
+    i++;seq++;
+    var id=st.code+pad3(seq);
+    if(used[id])continue;   /* 跳过已占用号（防删行后重号） */
+    used[id]=1;out.push({student_id:id,seq:seq});
+  }
+  for(var j=0;j<sites.length;j++){if(sites[j].site_id===site){sites[j].seq=seq;break;}}
+  save(K.sites,sites);
+  return out;
+}
+function renderRoster(){
+  var sites=mySites();
+  if(!sites.length){return '<div class="card"><p class="empty">账号未绑定站点，请联系集团管理员。</p></div>';}
+  var cur=(SESS.role==='super')?(rosterSite||sites[0].site_id):sites[0].site_id;
+  rosterSite=cur;
+  var st=siteOf(cur);
+  var rows=myRoster(cur);
+  var siteOpts=sites.map(function(s){
+    return '<option value="'+esc(s.site_id)+'"'+(s.site_id===cur?' selected':'')+'>'+esc(s.name)+'</option>';}).join('');
+  var listHtml=rows.length?('<ul class="list">'+rows.slice().reverse().map(function(r){
+    return '<li><span class="no">'+esc(r.student_id)+'</span>'+
+      '<div class="nm"><b>'+esc(r.name)+'</b><span>'+(r.phone?esc(r.phone)+' · ':'')+'导入于 '+fmtTs(r.created_at)+'</span></div>'+
+      ((SESS.role==='super'||SESS.role==='site_lead')?'<button class="del" data-del-stu="'+esc(r.student_id)+'">删除</button>':'')+
+      '</li>';}).join('')+'</ul>')
+    :'<p class="empty">本站还没有名单，先在上方粘贴导入。</p>';
+  return ''+
+  '<div class="card"><h2>入营名单导入 <span class="tag">每期一次</span></h2>'+
+    '<p class="desc">名单依据＝线下《社会实践知情同意书》签字页。一行一个学生：姓名（可加手机号，英文逗号分隔）。系统按站点缩写自动生成编号（如叶集＝YJ001、YJ002…），编号即学生在青帆社区的唯一身份。</p>'+
+    (SESS.role==='super'?'<div class="field"><label>站点</label><select id="rosterSiteSel">'+siteOpts+'</select></div>':'')+
+    '<div class="field"><label for="rosterPaste">粘贴名单</label>'+
+    '<textarea id="rosterPaste" rows="4" placeholder="张三&#10;李四，13800001111&#10;王五"></textarea></div>'+
+    '<button class="btn" id="btnImport" type="button">导入名单</button>'+
+  '</div>'+
+  '<div class="stats">'+
+    '<div class="stat"><b>'+rows.length+'</b><span>本站学生</span></div>'+
+    '<div class="stat"><b>'+esc(st?st.code:'--')+'</b><span>站点缩写</span></div>'+
+    '<div class="stat"><b>'+(st&&st.seq?st.seq:0)+'</b><span>已发号</span></div>'+
+  '</div>'+
+  '<div class="card"><h2>本站学生</h2>'+listHtml+'</div>';
+}
+var rosterSite='';
+function bindRoster(){
+  var sel=$('rosterSiteSel');
+  if(sel)sel.addEventListener('change',function(){
+    rosterSite=sel.value;
+    if(MODE==='cloud'){refreshRoster(rosterSite).then(renderMain).catch(function(e){toast(e.message,true);});}
+    else{renderMain();}
+  });
+  var bi=$('btnImport');
+  if(bi)bi.addEventListener('click',function(){
+    var site=(SESS.role==='super')?(($('rosterSiteSel')||{}).value||rosterSite):SESS.site_id;
+    if(!scopeOk(site)){toast('越权：账号不属于该站点',true);return;}
+    var raw=($('rosterPaste')||{}).value||'';
+    var lines=raw.split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);
+    if(!lines.length){toast('请先粘贴名单',true);return;}
+    if(MODE==='cloud'){
+      /* 云端：名单行提交服务器，服务端去重＋按站缩写发号（先去重后发号） */
+      var studs=[];
+      lines.forEach(function(line){
+        var parts=line.split(/[,，]/).map(function(x){return x.trim();});
+        if(!parts[0])return;
+        studs.push({name:parts[0],phone:parts[1]||''});
+      });
+      if(!studs.length){toast('未解析到有效名单行',true);return;}
+      audit('roster_import','站点 '+site+' 提交 '+studs.length+' 行');
+      api('adminImportRoster',{siteId:site,students:studs}).then(function(d){
+        if(d.skipped.length){toast('导入 '+d.added+' 人；重名跳过：'+d.skipped.join('、'),true);}
+        else{toast('导入成功，共 '+d.added+' 人');}
+        refreshRoster(site).then(renderMain);
+      }).catch(function(e){toast(e.message,true);});
+      return;
+    }
+    var st=siteOf(site);if(!st){toast('站点不存在',true);return;}
+    var roster=load(K.roster,[]);
+    /* 先解析并过滤重名，再按实际接受人数发号（避免重名占号产生断号） */
+    var accepted=[],skipped=[];
+    lines.forEach(function(line){
+      var parts=line.split(/[,，]/).map(function(x){return x.trim();});
+      var name=parts[0]||'';var phone=parts[1]||'';
+      if(!name){return;}
+      var dup=roster.some(function(r){return r.site_id===site&&r.name===name&&r.status!=='removed';});
+      if(dup){skipped.push(name);return;}
+      accepted.push({name:name,phone:phone});
+    });
+    if(accepted.length){
+      var ids=nextIds(site,accepted.length);
+      accepted.forEach(function(s,i){
+        roster.push({student_id:ids[i]?ids[i].student_id:'',site_id:site,name:s.name,phone:s.phone,
+          status:'imported',imported_by:SESS.username,created_at:Date.now()});
+      });
+      save(K.roster,roster);
+    }
+    var added=accepted.length;
+    audit('roster_import','站点 '+site+' 导入 '+added+' 人'+(skipped.length?'，重名跳过：'+skipped.join('、'):''));
+    if(skipped.length){toast('导入 '+added+' 人；重名跳过：'+skipped.join('、'),true);}
+    else{toast('导入成功，共 '+added+' 人');}
+    renderMain();
+  });
+  document.querySelectorAll('[data-del-stu]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=btn.getAttribute('data-del-stu');
+      confirmDlg('删除学生','删除后该编号将被停用且不可复用（防止换人顶号）。确定删除？').then(function(y){
+        if(!y)return;
+        if(MODE==='cloud'){
+          api('adminRemoveStudent',{studentId:id}).then(function(){
+            audit('roster_remove','删除学生 '+id);
+            refreshRoster(rosterSite).then(renderMain);toast('已删除');
+          }).catch(function(e){toast(e.message,true);});
+          return;
+        }
+        var roster=load(K.roster,[]).map(function(r){
+          if(r.student_id===id){r.status='removed';r.removed_at=Date.now();}
+          return r;});
+        save(K.roster,roster);audit('roster_remove','删除学生 '+id);renderMain();toast('已删除');
+      });
+    });
+  });
+}
+
+/* ============================================================
+   家长端桥（yf_shared_admin，契约＝parent.html mergeSharedAdmin）
+   ============================================================ */
+function pushBridge(rec){
+  var all=load(K.bridge,[]);all.unshift(rec);save(K.bridge,all.slice(0,500));
+}
+function studentOptions(site,selId){
+  var rows=myRoster(site);
+  if(!rows.length)return '<option value="">（本站暂无学生，请先导入名单）</option>';
+  return rows.map(function(r){
+    return '<option value="'+esc(r.student_id)+'"'+(r.student_id===selId?' selected':'')+'>'+
+      esc(r.student_id)+' · '+esc(r.name)+'</option>';}).join('');
+}
+
+/* ============================================================
+   教练捎话 / 签到签退 / 目标线
+   ============================================================ */
+function renderCoach(){
+  var sites=mySites();if(!sites.length)return '<div class="card"><p class="empty">账号未绑定站点。</p></div>';
+  var cur=(SESS.role==='super')?(rosterSite&&siteOf(rosterSite)?rosterSite:sites[0].site_id):sites[0].site_id;
+  var rows=myRoster(cur);
+  return '<div class="card"><h2>教练捎话</h2>'+
+    '<p class="desc">捎话经「先审后发」语义写入家长端通道'+((MODE==='cloud')?'：走 parentAdmin.adminCoach（落 parent_letters，type=coach_note）。':'：本地演示写入家长端桥（yf_shared_admin），云端走 parentAdmin.adminCoach。')+'</p>'+
+    '<div class="field"><label>学生</label><select id="ckStudent">'+studentOptions(cur,'')+'</select></div>'+
+    '<div class="field"><label for="ckContent">捎话内容</label>'+
+    '<textarea id="ckContent" rows="3" placeholder="写给家长看的一句话……"></textarea></div>'+
+    '<button class="btn" id="btnCoach" type="button"'+(rows.length?'':' disabled')+'>发送捎话</button>'+
+    (rows.length?'':'<p class="desc" style="margin-top:8px;">先到「名单管理」导入学生。</p>')+
+  '</div>';
+}
+function bindCoach(){
+  var b=$('btnCoach');if(!b)return;
+  b.addEventListener('click',function(){
+    var site=(SESS.role==='super')?rosterSite:SESS.site_id;
+    if(!scopeOk(site)){toast('越权：账号不属于该站点',true);return;}
+    var id=$('ckStudent').value,content=$('ckContent').value.trim();
+    if(!id){toast('请选择学生',true);return;}
+    if(!content){toast('请写捎话内容',true);return;}
+    var stu=myRoster(site).filter(function(r){return r.student_id===id;})[0]||{};
+    var author=SESS.role==='coach'?SESS.username:(ROLE_TXT[SESS.role]);
+    if(MODE==='cloud'){
+      api('adminCoach',{studentId:id,authorName:author,timeTxt:'刚刚',content:content})
+        .then(function(){audit('adminCoach','学生 '+id+' 捎话');$('ckContent').value='';toast('捎话已提交云端');})
+        .catch(function(e){toast(e.message,true);});
+      return;
+    }
+    pushBridge({student_id:id,type:'coach_note',
+      payload:{author_name:author,time_txt:'刚刚',content:content},created_at:Date.now()});
+    audit('adminCoach','学生 '+id+' 捎话：'+content.slice(0,20));
+    $('ckContent').value='';toast('捎话已录入');
+  });
+}
+function renderCheckin(){
+  var sites=mySites();if(!sites.length)return '<div class="card"><p class="empty">账号未绑定站点。</p></div>';
+  var cur=(SESS.role==='super')?(rosterSite&&siteOf(rosterSite)?rosterSite:sites[0].site_id):sites[0].site_id;
+  var rows=myRoster(cur);
+  return '<div class="card"><h2>签到签退</h2>'+
+    '<p class="desc">录入当日到站情况；服务端会按到离时间重算停留分钟（前端可传可不传）。</p>'+
+    '<div class="field"><label>学生</label><select id="inStudent">'+studentOptions(cur,'')+'</select></div>'+
+    '<div class="row2">'+
+      '<div class="field"><label for="inDate">日期</label><input id="inDate" type="date" value="'+today()+'"></div>'+
+      '<div class="field"><label for="inStatus">状态</label><select id="inStatus">'+
+        '<option value="present">已到站</option><option value="late">迟到</option><option value="absent">未到</option></select></div>'+
+    '</div>'+
+    '<div class="row2">'+
+      '<div class="field"><label for="inAt">到站时间</label><input id="inAt" type="time"></div>'+
+      '<div class="field"><label for="outAt">离站时间</label><input id="outAt" type="time"></div>'+
+    '</div>'+
+    '<button class="btn" id="btnCheckin" type="button"'+(rows.length?'':' disabled')+'>保存签到</button>'+
+  '</div>';
+}
+function bindCheckin(){
+  var b=$('btnCheckin');if(!b)return;
+  b.addEventListener('click',function(){
+    var site=(SESS.role==='super')?rosterSite:SESS.site_id;
+    if(!scopeOk(site)){toast('越权：账号不属于该站点',true);return;}
+    var id=$('inStudent').value,date=$('inDate').value,inAt=$('inAt').value,outAt=$('outAt').value,status=$('inStatus').value;
+    if(!id){toast('请选择学生',true);return;}
+    if(!date){toast('请选择日期',true);return;}
+    var stay='';if(inAt&&outAt){var a=inAt.split(':'),b2=outAt.split(':');
+      var m1=(+a[0])*60+(+a[1]),m2=(+b2[0])*60+(+b2[1]);if(m2>=m1)stay=m2-m1;}
+    if(MODE==='cloud'){
+      api('adminCheckin',{studentId:id,date:date,inAt:inAt,outAt:outAt,status:status})
+        .then(function(){audit('adminCheckin','学生 '+id+' '+date+' '+status);
+          $('inAt').value='';$('outAt').value='';toast('签到已提交云端');})
+        .catch(function(e){toast(e.message,true);});
+      return;
+    }
+    pushBridge({student_id:id,type:'checkin',
+      payload:{date:date,in_at:inAt,out_at:outAt,stay_minutes:stay,status:status},created_at:Date.now()});
+    audit('adminCheckin','学生 '+id+' '+date+' '+status);
+    $('inAt').value='';$('outAt').value='';toast('签到已录入');
+  });
+}
+function renderGoal(){
+  var sites=mySites();if(!sites.length)return '<div class="card"><p class="empty">账号未绑定站点。</p></div>';
+  var cur=(SESS.role==='super')?(rosterSite&&siteOf(rosterSite)?rosterSite:sites[0].site_id):sites[0].site_id;
+  var rows=myRoster(cur);
+  return '<div class="card"><h2>成长目标线 <span class="tag">家长端可见</span></h2>'+
+    '<p class="desc">为本站学生设定阶段目标，写入家长端「成长」页（每生一条，重复设定为覆盖更新）。</p>'+
+    '<div class="field"><label>学生</label><select id="glStudent">'+studentOptions(cur,'')+'</select></div>'+
+    '<div class="field"><label for="glValue">目标线</label>'+
+    '<input id="glValue" placeholder="如：本周完成一次独立访谈"></div>'+
+    '<button class="btn" id="btnGoal" type="button"'+(rows.length?'':' disabled')+'>保存目标</button>'+
+  '</div>';
+}
+function bindGoal(){
+  var b=$('btnGoal');if(!b)return;
+  b.addEventListener('click',function(){
+    var site=(SESS.role==='super')?rosterSite:SESS.site_id;
+    if(!scopeOk(site)){toast('越权：账号不属于该站点',true);return;}
+    var id=$('glStudent').value,v=$('glValue').value.trim();
+    if(!id){toast('请选择学生',true);return;}
+    if(!v){toast('请填写目标线',true);return;}
+    if(MODE==='cloud'){
+      api('adminGoal',{studentId:id,value:v})
+        .then(function(){audit('adminGoal','学生 '+id+' 目标');$('glValue').value='';toast('目标已提交云端');})
+        .catch(function(e){toast(e.message,true);});
+      return;
+    }
+    pushBridge({student_id:id,type:'goal_line',payload:{value:v},created_at:Date.now()});
+    audit('adminGoal','学生 '+id+' 目标：'+v.slice(0,20));
+    $('glValue').value='';toast('目标已录入');
+  });
+}
+
+/* ============================================================
+   学生端内容：公告 / 任务 / 商城 / 机会（写 yf_shared_*，学生端仅空表播种→安全）
+   注：banner／tags／bad_words 属学生端每次加载强制重置的配置键，v1 不开放管理。
+   ============================================================ */
+var CTAB='announces';
+var CONTENT=[
+  {key:'announces',label:'公告',fields:[{k:'content',label:'公告内容',type:'textarea',ph:'面向全体学生的公告……'}]},
+  {key:'tasks',label:'任务',fields:[
+    {k:'title',label:'任务标题',type:'input',ph:'完成暑期社会实践报告'},
+    {k:'desc',label:'任务说明',type:'textarea',ph:'撰写不少于2000字的实践总结报告'},
+    {k:'reward',label:'积分奖励',type:'number',ph:'50'},
+    {k:'deadline',label:'截止日期',type:'date',ph:''}]},
+  {key:'shop_items',label:'商城',fields:[
+    {k:'name',label:'商品名称',type:'input',ph:'扬帆文创笔记本'},
+    {k:'desc',label:'商品说明',type:'textarea',ph:'兑换说明……'},
+    {k:'price',label:'兑换积分',type:'number',ph:'100'},
+    {k:'cat',label:'分类',type:'input',ph:'文创'}]},
+  {key:'opps',label:'机会',fields:[
+    {k:'title',label:'机会标题',type:'input',ph:'新媒体运营实习岗位'},
+    {k:'type',label:'类型',type:'input',ph:'volunteer / intern / activity'},
+    {k:'region',label:'地区',type:'input',ph:'合肥'},
+    {k:'deadline',label:'截止日期',type:'date',ph:''},
+    {k:'desc',label:'说明',type:'textarea',ph:'岗位/活动说明……'}]}
+];
+function renderContent(){
+  var sub=CONTENT.map(function(c){
+    return '<button class="subtab'+(CTAB===c.key?' on':'')+'" data-ctab="'+c.key+'" type="button">'+c.label+'</button>';}).join('');
+  var cur=CONTENT.filter(function(c){return c.key===CTAB;})[0]||CONTENT[0];
+  var form=cur.fields.map(function(f){
+    if(f.type==='textarea')return '<div class="field"><label for="cf_'+f.k+'">'+f.label+'</label><textarea id="cf_'+f.k+'" rows="3" placeholder="'+esc(f.ph)+'"></textarea></div>';
+    return '<div class="field"><label for="cf_'+f.k+'">'+f.label+'</label><input id="cf_'+f.k+'" type="'+(f.type==='number'?'number':f.type==='date'?'date':'text')+'" placeholder="'+esc(f.ph)+'"></div>';
+  }).join('');
+  var rows=(MODE==='cloud')?CONTENT_ROWS:load(K[cur.key],[]);
+  var list=rows.length?('<ul class="list">'+rows.slice(0,12).map(function(r){
+    var main=r.title||r.name||r.content||'';var sub2=r.desc||r.region||r.cat||'';
+    return '<li><div class="nm"><b>'+esc(main).slice(0,40)+'</b>'+
+      '<span>'+(sub2?esc(String(sub2)).slice(0,30)+' · ':'')+esc(fmtTs(r.created_at||0))+'</span></div>'+
+      '<button class="del" data-del-item="'+esc(r.id)+'">删除</button></li>';}).join('')+'</ul>')
+    :'<p class="empty">暂无内容，学生端将显示对应板块的内置种子。</p>';
+  return '<div class="card"><h2>学生端内容管理</h2>'+
+    '<p class="desc">在此发布的内容写入学生端同一数据通道（yf_shared_*），学生端「公告／任务／商城／机会」板块直接展示。Banner 与标签为学生端配置常量，本版不开放。</p>'+
+    '<div class="subtabs">'+sub+'</div>'+
+    '<div class="notice">'+((MODE==='cloud')?'发布内容写入云端集合，学生端实时同读。':'演示态写本地同源存储；上线态走云端集合，两端同读。删除仅影响本机演示数据。')+'</div>'+
+    '<form id="fContent">'+form+'<button class="btn" type="submit">发布到学生端</button></form>'+
+  '</div>'+
+  '<div class="card"><h2>最近发布</h2>'+list+'</div>';
+}
+function bindContent(){
+  document.querySelectorAll('[data-ctab]').forEach(function(b){
+    b.addEventListener('click',function(){
+      CTAB=b.getAttribute('data-ctab');
+      if(MODE==='cloud'){refreshContent().then(renderMain).catch(function(e){toast(e.message,true);});}
+      else{renderMain();}
+    });});
+  var f=$('fContent');if(!f)return;
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var cur=CONTENT.filter(function(c){return c.key===CTAB;})[0];
+    var item={id:'A'+Date.now(),created_at:Date.now(),publisher:SESS.username};
+    var ok=false;
+    cur.fields.forEach(function(fd){
+      var el=$('cf_'+fd.k);if(!el)return;
+      var v=el.value.trim();
+      if(fd.type==='number')v=v===''?0:Number(v)||0;
+      item[fd.k]=v;
+      if(v&&(fd.k==='title'||fd.k==='name'||fd.k==='content'))ok=true;
+    });
+    if(!ok){toast('请填写主要内容（标题／内容）',true);return;}
+    if(MODE==='cloud'){
+      api('adminUpsertContent',{type:CTAB,item:item}).then(function(){
+        audit('content_'+CTAB,'发布：'+(item.title||item.name||item.content||'').slice(0,20));
+        refreshContent().then(renderMain);toast('已发布到云端');
+      }).catch(function(e){toast(e.message,true);});
+      return;
+    }
+    var arr=load(K[cur.key],[]);arr.unshift(item);save(K[cur.key],arr);
+    audit('content_'+cur.key,'发布：'+(item.title||item.name||item.content||'').slice(0,20));
+    renderMain();toast('已发布到学生端');
+  });
+  document.querySelectorAll('[data-del-item]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=btn.getAttribute('data-del-item');
+      confirmDlg('删除内容','确定删除这条发布？学生端将不再展示。').then(function(y){
+        if(!y)return;
+        if(MODE==='cloud'){
+          api('adminDeleteContent',{type:CTAB,id:id}).then(function(){
+            audit('content_del',CTAB+' #'+id);
+            refreshContent().then(renderMain);toast('已删除');
+          }).catch(function(e){toast(e.message,true);});
+          return;
+        }
+        var arr=load(K[CTAB],[]).filter(function(x){return String(x.id)!==String(id);});
+        save(K[CTAB],arr);audit('content_del',CTAB+' #'+id);renderMain();toast('已删除');
+      });
+    });
+  });
+}
+
+/* ============================================================
+   内容审核：帖子／作品 posts · 留声墙 voices · 学生家书 letters
+   契约：adminListPending {token} → {posts,voices,letters}
+         adminReview {token,type,id,action:'approve'|'reject',note?} → {ok}
+   ============================================================ */
+var PENDING={posts:[],voices:[],letters:[]};
+var REVIEW_GROUPS=[
+  {key:'posts',  label:'帖子与作品'},
+  {key:'voices', label:'留声墙'},
+  {key:'letters',label:'学生家书'}
+];
+/* adminListPending 返回键为复数，adminReview.type 为单数（契约） */
+var REVIEW_TYPE={posts:'post',voices:'voice',letters:'letter'};
+async function refreshPending(){
+  var d=await api('adminListPending',{token:TOKEN});
+  PENDING={posts:d.posts||[],voices:d.voices||[],letters:d.letters||[]};
+}
+function pendingField(r,keys){
+  for(var i=0;i<keys.length;i++){if(r[keys[i]])return r[keys[i]];}
+  return '';
+}
+function reviewItem(gk,r){
+  var author=pendingField(r,['author','author_name','username','student_name','student_id','nickname'])||'—';
+  var site=pendingField(r,['site_id','site_code','site']);
+  var when=r.created_at?fmtTs(r.created_at):pendingField(r,['time_txt','date','created_txt']);
+  var title=pendingField(r,['title','name']);
+  var txt=pendingField(r,['content','text','body','desc','note']);
+  var img=pendingField(r,['image','img','pic','cover','thumb']);
+  return '<li>'+
+    (img?'<img class="thumb" src="'+esc(img)+'" alt="" onerror="this.style.display=\'none\'">':'')+
+    '<div class="nm"><b>'+(title?esc(title)+' · ':'')+esc(author)+'</b>'+
+    '<span>'+(site?esc(site)+' · ':'')+(when?esc(when):'')+'</span>'+
+    (txt?'<span class="rv-txt">'+esc(String(txt)).slice(0,80)+'</span>':'')+
+    '</div>'+
+    '<div class="rv-acts">'+
+      '<button class="ok" data-review="'+gk+'|'+esc(r.id)+'|approve" type="button">通过</button>'+
+      '<button class="no" data-review="'+gk+'|'+esc(r.id)+'|reject" type="button">驳回</button>'+
+    '</div></li>';
+}
+function renderReview(){
+  if(MODE!=='cloud'){
+    return '<div class="card"><h2>内容审核</h2><p class="empty">内容审核在云端模式开放，请使用管理账号登录。</p></div>';
+  }
+  var secs=REVIEW_GROUPS.map(function(g){
+    var rows=PENDING[g.key]||[];
+    var list=rows.length?('<ul class="list">'+rows.map(function(r){return reviewItem(g.key,r);}).join('')+'</ul>')
+      :'<p class="empty">暂无待审内容</p>';
+    return '<div class="card"><h2>'+g.label+' <span class="tag">'+rows.length+' 条待审</span></h2>'+list+'</div>';
+  }).join('');
+  return '<div class="notice">学生发布内容采取「先审后发」：通过后才会出现在学生端与家长端；驳回可填写备注反馈给学生。</div>'+secs;
+}
+function doReview(type,id,act,note){
+  /* 契约冲突注：adminReview 的路由字段 body.action 已被占用，approve/reject 以 decision 传递
+     （JSON 单键无法同时表达两者；已同步云函数侧，最终键名以对齐结果为准，此处一行可改） */
+  api('adminReview',{token:TOKEN,type:(REVIEW_TYPE[type]||type),id:id,decision:act,note:note||''}).then(function(){
+    PENDING[type]=(PENDING[type]||[]).filter(function(x){return String(x.id)!==String(id);});
+    audit('review_'+act,type+' #'+id+(note?(' 备注：'+note):''));
+    renderMain();
+    toast(act==='approve'?'已通过，内容已发布':'已驳回');
+  }).catch(function(e){toast(e.message||'操作失败',true);});
+}
+function bindReview(){
+  document.querySelectorAll('[data-review]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var parts=b.getAttribute('data-review').split('|');
+      var type=parts[0],id=parts[1],act=parts[2];
+      if(act==='reject'){
+        var note=prompt('驳回备注（可留空，将反馈给学生）','');
+        if(note===null)return;
+        doReview(type,id,'reject',note.trim());
+      }else{
+        doReview(type,id,'approve','');
+      }
+    });
+  });
+}
+
+/* ============================================================
+   账号与配额：super 调配额+建任意号；site_lead 配额内建本站教练号
+   ============================================================ */
+/* ---------- 建站／建号公共调用（action 与参数保持契约原名） ---------- */
+function upsertSiteApi(name,code){return api('adminUpsertSite',{siteId:code,name:name,code:code});}
+function upsertAccountApi(u,p,role,siteId){return api('adminAccountUpsert',{username:u,password:p,role:role,siteId:siteId});}
+function countActive(role,site){
+  return load(K.acc,[]).filter(function(a){return a.role===role&&a.site_id===site&&a.status==='active';}).length;
+}
+function renderAccounts(){
+  var sites=mySites();
+  var isSuper=SESS.role==='super';
+  var cur=(isSuper)?(acctSite&&siteOf(acctSite)?acctSite:(sites[0]||{}).site_id):SESS.site_id;
+  acctSite=cur;
+  var st=siteOf(cur)||{quota:{lead:0,coach:0}};
+  var allAcc=(MODE==='cloud')?ACCOUNTS:load(K.acc,[]);
+  function activeCount(role,siteId){
+    return allAcc.filter(function(a){return a.role===role&&a.site_id===siteId&&a.status!=='disabled';}).length;
+  }
+  var rows=allAcc.filter(function(a){return isSuper?true:(a.site_id===SESS.site_id);});
+  var siteRows=sites.map(function(s){
+    var nL=activeCount('site_lead',s.site_id),nC=activeCount('coach',s.site_id);
+    return '<li><span class="no">'+esc(s.code)+'</span>'+
+      '<div class="nm"><b>'+esc(s.name)+'</b><span>负责人 '+nL+'/'+(s.quota.lead)+' · 教练 '+nC+'/'+(s.quota.coach)+'</span></div>'+
+      (isSuper?'<button class="del" data-quota="'+esc(s.site_id)+'">配额</button>':'')+
+      '</li>';}).join('');
+  var accRows=rows.length?('<ul class="list">'+rows.map(function(a){
+    var s=siteOf(a.site_id);
+    return '<li><span class="no">'+esc(ROLE_TXT[a.role].slice(0,2))+'</span>'+
+      '<div class="nm"><b>'+esc(a.username)+'</b><span>'+ROLE_TXT[a.role]+(s?(' · '+esc(s.name)):'')+(a.status==='active'?'':' · 已停用')+'</span></div>'+
+      (isSuper&&a.must_change_pwd?'<span class="tag" style="color:var(--warn);flex:none;">未改初始密码</span>':'')+
+      (a.username!==SESS.username?'<button class="del" data-toggle-acc="'+esc(a.uid)+'">'+(a.status==='active'?'停用':'启用')+'</button>':'<span style="font-size:11px;color:var(--muted);flex:none;">当前</span>')+
+      '</li>';}).join('')+'</ul>')
+    :'<p class="empty">本站暂无账号。</p>';
+  var siteOpts=sites.map(function(s){
+    return '<option value="'+esc(s.site_id)+'"'+(s.site_id===cur?' selected':'')+'>'+esc(s.name)+'</option>';}).join('');
+  var roleOpts=isSuper
+    ?'<option value="coach">教练</option><option value="site_lead">站点负责人</option>'
+    :'<option value="coach">教练</option>';
+  var batchCard=(isSuper&&MODE==='cloud')?'<div class="card"><h2>批量开号 <span class="tag">建站＋负责人</span></h2>'+
+    '<p class="desc">每行一条：站名,站缩写,负责人账号,初始密码（英文逗号分隔）。提交后逐行建站并创建站点负责人账号；同缩写为覆盖更新，可分批多次执行。</p>'+
+    '<div class="field"><label for="batchPaste">批量清单</label>'+
+    '<textarea id="batchPaste" rows="5" placeholder="叶集浆站,YJ,lead_yj,Abc123456789&#10;固始浆站,GS,lead_gs,Xyz987654321"></textarea></div>'+
+    '<div style="display:flex;gap:10px;">'+
+      '<button class="btn ghost mini" id="btnBatchPwd" type="button" style="flex:1;">生成随机密码</button>'+
+      '<button class="btn mini" id="btnBatch" type="button" style="flex:1;">开始批量导入</button>'+
+    '</div>'+
+    '<div id="batchResult" style="margin-top:10px;">'+(BATCH_LOG.length?'<ul class="list">'+BATCH_LOG.map(function(x){return '<li style="font-size:12.5px;">'+esc(x)+'</li>';}).join('')+'</ul>':'')+'</div>'+
+  '</div>':'';
+  return '<div class="card"><h2>站点与配额</h2>'+
+    '<p class="desc">每站账号配额自主可调：super 设定上限（默认负责人 1＋教练 3），site_lead 在配额内为本站自主建教练号。账号＝登录身份＋数据范围（服务端按 site_id 强制隔离）。</p>'+
+    (isSuper?'<div class="field"><label>站点</label><select id="acctSiteSel">'+siteOpts+'</select></div>':'')+
+    '<ul class="list">'+siteRows+'</ul>'+
+    (isSuper?'<button class="btn ghost mini" id="btnAddSite" type="button" style="margin-top:10px;">新增站点</button>'+
+      '<p class="desc" style="margin-top:8px;">点击「配额」调整该站账号上限；「新增站点」录入站名与两位以上大写缩写（缩写即编号前缀，如叶集 YJ → YJ001）。</p>':'')+
+  '</div>'+
+  '<div class="card"><h2>创建账号 <span class="tag">受配额约束</span></h2>'+
+    '<form id="fAcc">'+
+    '<div class="field"><label for="acUser">账号名</label><input id="acUser" placeholder="如 coach_yj2"></div>'+
+    '<div class="field"><label for="acPass">初始密码</label><input id="acPass" placeholder="至少 8 位"></div>'+
+    '<div class="field"><label for="acRole">角色</label><select id="acRole">'+roleOpts+'</select></div>'+
+    '<button class="btn" type="submit">创建账号</button></form>'+
+    '<p class="desc" style="margin-top:8px;">初始密码请线下单独告知本人（不进群、不进文档），首登后应修改。</p>'+
+  '</div>'+
+  batchCard+
+  '<div class="card"><h2>账号列表</h2>'+accRows+'</div>';
+}
+var acctSite='';
+var BATCH_LOG=[];
+/* ---------- 批量开号：逐行 建站＋建负责人，随机密码 12 位（大小写＋数字） ---------- */
+function randPwd(){
+  var U='ABCDEFGHJKLMNPQRSTUVWXYZ',L='abcdefghijkmnpqrstuvwxyz',D='23456789';
+  var all=U+L+D;
+  var out=[U[Math.floor(Math.random()*U.length)],L[Math.floor(Math.random()*L.length)],D[Math.floor(Math.random()*D.length)]];
+  while(out.length<12){out.push(all[Math.floor(Math.random()*all.length)]);}
+  for(var i=out.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=out[i];out[i]=out[j];out[j]=t;}
+  return out.join('');
+}
+function bindAccounts(){
+  var bp=$('btnBatchPwd');
+  if(bp)bp.addEventListener('click',function(){
+    var ta=$('batchPaste');if(!ta)return;
+    var out=ta.value.split(/\n+/).map(function(line){
+      if(!line.trim())return line;
+      var parts=line.split(/[,，]/);
+      if(parts.length<3)return line;
+      parts[3]=randPwd();
+      return parts.slice(0,4).join(',');
+    });
+    ta.value=out.join('\n');
+    toast('已为每行生成 12 位随机密码');
+  });
+  var bb=$('btnBatch');
+  if(bb)bb.addEventListener('click',function(){
+    var ta=$('batchPaste');if(!ta)return;
+    var lines=ta.value.split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);
+    if(!lines.length){toast('请先粘贴批量清单',true);return;}
+    var tasks=[],bad=[];
+    lines.forEach(function(line,i){
+      var parts=line.split(/[,，]/).map(function(x){return x.trim();});
+      if(parts.length<4||!parts[0]||!parts[1]||!parts[2]||!parts[3]){bad.push('第 '+(i+1)+' 行字段不全');return;}
+      if(!/^[A-Z]{2,6}$/.test(parts[1])){bad.push('第 '+(i+1)+' 行缩写须为 2-6 位大写字母');return;}
+      if(parts[3].length<8){bad.push('第 '+(i+1)+' 行密码至少 8 位');return;}
+      tasks.push({name:parts[0],code:parts[1],user:parts[2],pwd:parts[3]});
+    });
+    if(bad.length){toast('清单有误：'+bad.join('；'),true);return;}
+    BATCH_LOG=[];bb.disabled=true;toast('开始批量导入……');
+    (async function(){
+      var okN=0;
+      for(var i=0;i<tasks.length;i++){
+        var t=tasks[i];
+        try{
+          await upsertSiteApi(t.name,t.code);
+          await upsertAccountApi(t.user,t.pwd,'site_lead',t.code);
+          okN++;BATCH_LOG.push('成功：'+t.code+'（'+t.name+'）· 负责人 '+t.user);
+        }catch(e){
+          BATCH_LOG.push('失败：'+t.code+'（'+t.name+'）· 负责人 '+t.user+' —— '+(e.message||'未知错误'));
+        }
+      }
+      audit('batch_provision','批量开号 '+tasks.length+' 行（成功 '+okN+' 行）');
+      try{await refreshSites();}catch(e2){}
+      try{await refreshAccounts();}catch(e2){}
+      bb.disabled=false;
+      renderMain();
+      toast('批量导入完成：共 '+tasks.length+' 行，成功 '+okN+' 行');
+    })();
+  });
+  var sel=$('acctSiteSel');
+  if(sel)sel.addEventListener('change',function(){
+    acctSite=sel.value;
+    if(MODE==='cloud'){refreshAccounts().then(renderMain).catch(function(e){toast(e.message,true);});}
+    else{renderMain();}
+  });
+  var addSite=$('btnAddSite');
+  if(addSite)addSite.addEventListener('click',function(){
+    if(MODE!=='cloud'){toast('新增站点在云端模式开放',true);return;}
+    var name=prompt('新增站点——站名（如：叶集浆站）','');
+    if(!name)return;
+    var code=(prompt('站点缩写（2-4 位大写字母，作为编号前缀，如 YJ）','')||'').trim().toUpperCase();
+    if(!code)return;
+    upsertSiteApi(name,code).then(function(){
+      audit('adminUpsertSite',code+'（'+name+'）');
+      return refreshSites();
+    }).then(function(){acctSite=code;renderMain();toast('站点已创建：'+name+'（'+code+'）');})
+      .catch(function(e){toast(e.message,true);});
+  });
+  document.querySelectorAll('[data-quota]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sid=btn.getAttribute('data-quota');var st=siteOf(sid);if(!st)return;
+      var v=prompt('调整配额——站点：'+st.name+'（当前 负责人 '+st.quota.lead+'／教练 '+st.quota.coach+'）。输入新配额，格式：负责人数,教练数',st.quota.lead+','+st.quota.coach);
+      if(v==null)return;
+      var p=v.split(',').map(function(x){return parseInt(x,10)||0;});
+      if(p.length<2||p[0]<1||p[1]<0){toast('格式不正确',true);return;}
+      if(MODE==='cloud'){
+        api('adminSetQuota',{siteId:sid,lead:p[0],coach:p[1]}).then(function(){
+          audit('quota_set',sid+' → 负责人'+p[0]+'/教练'+p[1]);
+          return refreshSites();
+        }).then(function(){renderMain();toast('配额已更新');}).catch(function(e){toast(e.message,true);});
+        return;
+      }
+      var sites=load(K.sites,[]);
+      for(var i=0;i<sites.length;i++){if(sites[i].site_id===sid){sites[i].quota={lead:p[0],coach:p[1]};}}
+      save(K.sites,sites);audit('quota_set',sid+' → 负责人'+p[0]+'/教练'+p[1]);renderMain();toast('配额已更新');
+    });
+  });
+  var f=$('fAcc');if(!f)return;
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var site=(SESS.role==='super')?acctSite:SESS.site_id;
+    var role=$('acRole').value,u=$('acUser').value.trim(),p=$('acPass').value;
+    if(!u||!p){toast('请填写账号名和密码',true);return;}
+    if(p.length<8){toast('密码至少 8 位',true);return;}
+    if(MODE==='cloud'){
+      /* 云端：服务端校验角色权限＋配额＋口令强度（与 admin_accounts schema 一致，可被 adminAuth 直接登录） */
+      upsertAccountApi(u,p,role,site).then(function(){
+        audit('account_upsert',role+' '+u+' @ '+site);
+        refreshAccounts().then(renderMain);toast('账号已创建：'+u);
+      }).catch(function(e){toast(e.message,true);});
+      return;
+    }
+    var st=siteOf(site);if(!st){toast('站点不存在',true);return;}
+    var accs=load(K.acc,[]);
+    if(accs.some(function(a){return a.username===u;})){toast('账号名已存在',true);return;}
+    if(role==='site_lead'&&countActive('site_lead',site)>=st.quota.lead){toast('负责人配额已满（'+st.quota.lead+'），请先调额',true);return;}
+    if(role==='coach'&&countActive('coach',site)>=st.quota.coach){toast('教练配额已满（'+st.quota.coach+'），请先调额',true);return;}
+    sha(p).then(function(h){
+      accs.push({uid:'u_'+Date.now(),username:u,pwd_sha:h,role:role,site_id:site,status:'active',created_by:SESS.username,created_at:Date.now()});
+      save(K.acc,accs);audit('account_upsert',role+' '+u+' @ '+site);renderMain();toast('账号已创建：'+u);
+    });
+  });
+  document.querySelectorAll('[data-toggle-acc]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var uid=btn.getAttribute('data-toggle-acc');
+      var accs=(MODE==='cloud')?ACCOUNTS:load(K.acc,[]),a=null;
+      for(var i=0;i<accs.length;i++){if(accs[i].uid===uid)a=accs[i];}
+      if(!a)return;
+      confirmDlg(a.status==='active'?'停用账号':'启用账号','账号：'+a.username+'。'+(a.status==='active'?'停用后立即无法登录。':'启用后可重新登录。')).then(function(y){
+        if(!y)return;
+        if(MODE==='cloud'){
+          api('adminAccountToggle',{username:a.username}).then(function(){
+            audit('account_toggle',a.username);
+            refreshAccounts().then(renderMain);toast('已更新');
+          }).catch(function(e){toast(e.message,true);});
+          return;
+        }
+        accs.forEach(function(x){if(x.uid===uid){x.status=x.status==='active'?'disabled':'active';}});
+        save(K.acc,accs);audit('account_toggle',a.username+' → '+a.status);renderMain();toast('已更新');
+      });
+    });
+  });
+}
+
+/* ============================================================
+   页签与主渲染
+   ============================================================ */
+var curTab='roster';
+function renderTabs(){
+  var el=$('tabs');
+  el.innerHTML=TABS.filter(function(t){return t.roles.indexOf(SESS.role)>=0;}).map(function(t){
+    return '<button class="tab'+(t.id===curTab?' on':'')+'" data-tab="'+t.id+'" type="button">'+t.label+'</button>';}).join('');
+  el.querySelectorAll('[data-tab]').forEach(function(b){
+    b.addEventListener('click',function(){
+      curTab=b.getAttribute('data-tab');renderTabs();
+      if(MODE==='cloud'){cloudLoad(curTab).then(renderMain);}
+      else{renderMain();}
+    });});
+}
+function renderMain(){
+  var m=$('main');
+  if(curTab==='roster'){m.innerHTML=renderRoster();bindRoster();}
+  else if(curTab==='coach'){m.innerHTML=renderCoach();bindCoach();}
+  else if(curTab==='checkin'){m.innerHTML=renderCheckin();bindCheckin();}
+  else if(curTab==='goal'){m.innerHTML=renderGoal();bindGoal();}
+  else if(curTab==='content'){m.innerHTML=renderContent();bindContent();}
+  else if(curTab==='review'){m.innerHTML=renderReview();bindReview();}
+  else if(curTab==='accounts'){m.innerHTML=renderAccounts();bindAccounts();}
+}
+
+/* ---------- 初始化 ---------- */
+if(MODE==='cloud'){
+  $('modePill').textContent='云端模式';$('modePill').className='mode-pill cloud';
+  $('demoHint').innerHTML='<b>云端模式</b>：请使用集团分配的管理账号登录。账号与初始密码由线下单独送达，请勿转存到群或文档。';
+  if(TOKEN){
+    var _s=curUser();
+    if(_s&&_s.username&&_s.role){
+      SESS=_s;
+      try{MUST_PWD=sessionStorage.getItem('yf_admin_mustpwd')==='1';}catch(e){}
+      enterApp();
+    }
+  }
+}else{
+  $('modePill').textContent='本地演示模式';$('modePill').className='mode-pill';
+  seed();
+  SESS=curUser();
+  if(SESS&&load(K.acc,[]).some(function(a){return a.uid===SESS.uid&&a.status==='active';})){enterApp();}
+}
+})();
+</script>
+</body>
+</html>

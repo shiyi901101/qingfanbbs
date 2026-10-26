@@ -1,13 +1,13 @@
-// 青帆社区 Service Worker
-var CACHE_NAME = 'qingfan-v8.29';
+// 青帆社区 Service Worker（v110 上架版）
+var CACHE_NAME = 'qingfan-v110';
 var ASSETS = [
   './',
   './index.html',
   './yangfan_youth_platform.html',
-  './yangfan_admin.html',
   './manifest.json',
-  './icon-192.svg',
-  './icon-512.svg'
+  './icon-192.png',
+  './icon-512.png',
+  './splash-hero.webp'
 ];
 
 // Install: cache core assets
@@ -33,7 +33,7 @@ self.addEventListener('activate', function(event) {
   self.clients.claim();
 });
 
-// Network-first for HTML (so updates are picked up immediately), cache-first for other assets
+// HTML network-first（更新即时生效）；其余 cache-first；离线兜底缓存 HTML
 self.addEventListener('fetch', function(event) {
   var req = event.request;
   if (req.method !== 'GET') return;
@@ -43,7 +43,6 @@ self.addEventListener('fetch', function(event) {
   var isHTML = req.headers.get('accept') && req.headers.get('accept').indexOf('text/html') > -1;
 
   if (isHTML) {
-    // Network-first for HTML navigation
     event.respondWith(
       fetch(req).then(function(resp) {
         if (resp && resp.status === 200) {
@@ -58,7 +57,6 @@ self.addEventListener('fetch', function(event) {
       })
     );
   } else {
-    // Cache-first for static assets
     event.respondWith(
       caches.match(req).then(function(cached) {
         if (cached) return cached;
