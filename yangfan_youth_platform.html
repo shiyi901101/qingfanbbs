@@ -6,6 +6,7 @@
 <title>青帆社区 - 扬帆青年的成长部落</title>
 <link rel="manifest" href="manifest.json" data-page-node-id="PNNB6137VLCFd6GPCBRxb1">
 <meta name="theme-color" content="#F2F2F7" data-page-node-id="100Dp0rDtGDfQ0ycyFtkBC">
+<link rel="icon" href="icon-192.png" data-page-node-id="hExDtmCmNsbwftLkDuRmgb">
 <link rel="apple-touch-icon" href="icon-192.png" data-page-node-id="hExDtmCmNsbwftLkDuRmgo">
 <link rel="stylesheet" href="fonts/noto.css" data-page-node-id="SB6Cdi85z8z0CZ8sVm2cXp">
 <style>
@@ -2815,6 +2816,8 @@ for(var i=0;i<users.length;i++){if(users[i]&&String(users[i].id)===sid)return JS
 return null;
 },
 getUserByPhone:function(phone){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].phone==phone)return JSON.parse(JSON.stringify(users[i]));}return null;},
+// [云端态匹配] users 上云只存 phoneLast4+phoneHash（无明文 phone），按哈希等值查询
+getUserByPhoneHash:function(hash){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].phoneHash&&hash&&users[i].phoneHash===hash)return JSON.parse(JSON.stringify(users[i]));}return null;},
 getUserByAccount:function(account){var users=_YF_cache.users||[];for(var i=0;i<users.length;i++){if(users[i].account==account)return JSON.parse(JSON.stringify(users[i]));}return null;},
 createUser:function(data){
 var users=_YF_cache.users||[];
@@ -3283,6 +3286,8 @@ function yfSha256(ascii){
   }catch(e){ return ''; }
 }
 function yfHashPassword(salt,pass){ return yfSha256(String(salt||'')+':'+String(pass||'')); }
+// [B4 配套] 手机号哈希：与 pushDoc 上云脱敏格式一致（'yfphone:'+明文）
+function yfPhoneHash(phone){ return yfSha256('yfphone:'+String(phone||'')); }
 
 // ===================== [B3] 同设备多账号隔离：用户级 localStorage key 加 yf_u_<uid>_ 前缀 =====================
 function yfMyUidKey(){ try{ return (currentUser&&currentUser.id)?String(currentUser.id):'guest'; }catch(e){ return 'guest'; } }
@@ -3488,10 +3493,24 @@ var YfBackend = {
     }catch(e){ return false; }
   },
   // ---- CloudBase 初始化（手机号注册/登录，会话由 SDK 本地持久化） ----
-  _cbApp:null, _cbDb:null, _ready:false, _initPromise:null,
+  _cbApp:null, _cbDb:null, _ready:false, _initPromise:null, _authed:false, _authError:'', _lastSyncError:'',
+  // SDK 可能 reject 对象而非 Error（实测 [object Object]）——规范化提取可读错误
+  _errText:function(e){
+    try{
+      if(!e)return'未知错误';
+      if(typeof e==='string')return e;
+      if(e.message)return e.message;
+      if(e.error_description)return e.error_description;
+      if(e.description)return e.description;
+      if(e.code||e.error){var c='';if(e.code)c+=String(e.code);if(e.error)c+=(c?' ':'')+String(e.error);if(c)return c;}
+      var s='';try{s=JSON.stringify(e);}catch(e2){}
+      if(s&&s!=='{}')return s.slice(0,200);
+      return String(e);
+    }catch(e2){ return '未知错误'; }
+  },
   async _ensureReady(){
-    if(this._ready && this._cbDb) return this._cbDb;
-    if(this._initPromise) return this._initPromise;
+    if(this._ready && this._cbDb && this._authed) return this._cbDb;
+    if(this._initPromise) return this._initPromise; // once 并发去重
     var self=this;
     this._initPromise = (async function(){
       try{
@@ -3503,9 +3522,35 @@ var YfBackend = {
         var app=window.cloudbase.init({ env: env });
         self._cbApp=app;
         self._cbDb=app.database();
+        // [阻断修复] SDK init ≠ 登录态：未 signIn 时所有 db 读写返回 unauthenticated。
+        // 初始化后立即匿名登录；失败重试 1 次；仍失败则抛出真实原因（pushDoc/pullAll 上层不再静默成功）。
+        try{
+          var auth=app.auth({ persistence:'local' });
+          try{
+            await auth.anonymousAuthProvider().signIn();
+          }catch(e1){
+            console.warn('[YfBackend] 匿名登录首次失败，重试 1 次：',self._errText(e1));
+            await auth.anonymousAuthProvider().signIn();
+          }
+          // [假成功加固] 实测 SDK 的 signIn 在网络失败时也可能静默 resolve——用一次轻量读探针验证真实登录态
+          try{
+            await self._cbDb.collection('banners').limit(1).get();
+          }catch(pe){
+            self._authed=false;
+            self._authError=self._errText(pe);
+            self._ready=false; self._initPromise=null;
+            throw new Error('匿名登录校验失败：'+self._authError);
+          }
+          self._authed=true; self._authError='';
+        }catch(ae){
+          self._authed=false;
+          self._authError=self._errText(ae.message||ae).replace(/^匿名登录失败：/,'');
+          self._ready=false; self._initPromise=null;
+          throw new Error('匿名登录失败：'+self._authError);
+        }
         self._ready=true;
         return self._cbDb;
-      }catch(e){ console.warn('[YfBackend] 初始化失败：',e&&e.message); self._ready=false; throw e; }
+      }catch(e){ console.warn('[YfBackend] 初始化失败：',e&&e.message); self._ready=false; self._initPromise=null; if(!self._authError)self._authError=(e&&e.message)||String(e); throw e; }
     })();
     return this._initPromise;
   },
@@ -3521,7 +3566,12 @@ var YfBackend = {
       var data=JSON.parse(JSON.stringify(doc));
       delete data._id; delete data._rid;
       await this._cbCol(name).doc(id).set(data);
-    }catch(e){ console.warn('[YfBackend] 上传 '+name+' 失败：', e&&e.message); }
+    }catch(e){
+      // [假成功修复] 上传失败透出真实原因（不再只 console 静默）
+      this._lastSyncError='上传失败（'+name+'）：'+((e&&e.message)||String(e));
+      console.warn('[YfBackend] 上传 '+name+' 失败：',e&&e.message);
+      try{showSyncDot('error');}catch(e2){}
+    }
   },
   _cbRemove:async function(name, id){
     if(!this.enabled()) return;
@@ -3611,6 +3661,7 @@ var YfBackend = {
   _needPhone(){
     if(this.backend!=='cloudbase') return false;
     if(this._anonSync()) return false;
+    if(this._authed) return false; // [阻断修复] 匿名登录成功即具备云端身份，不再卡手机号门禁
     var p=null; try{p=localStorage.getItem('yf_cb_phone');}catch(e){}
     return !p;
   },
@@ -3647,10 +3698,20 @@ var YfBackend = {
   deletePostCloud:function(postId){ if(!this.enabled())return; this._cbRemove('posts', postId); },
   async pullAll(){
     if(!this.enabled()) return;
+    // [阻断修复] 先确保后端就绪（含匿名登录），失败即透出真实原因并终止，不再静默
+    try{ await this._ensureReady(); }
+    catch(e){
+      this._lastSyncError='同步失败：'+((e&&e.message)||String(e));
+      console.warn('[YfBackend] pullAll 中止：',e&&e.message);
+      try{showSyncDot('error');}catch(e2){}
+      try{var _sm0=document.getElementById('syncMsg'); if(_sm0)_sm0.textContent=this._lastSyncError;}catch(e2){}
+      return;
+    }
     if(this._needPhone()){ console.warn('[YfBackend] 未登录手机号，跳过云端拉取'); return; }
     if(!this._collectionsEnsured){ try{ await this._ensureCollections(); }catch(e){ console.warn('[YfBackend] 预建集合失败',e&&e.message); } }
     try{
       var updated={};
+      var _failed=[],_lastErr='';
       for(var i=0;i<this.COLLECTIONS.length;i++){
         var cloudName=this.COLLECTIONS[i];
         var k=this.cloudToLocal(cloudName);
@@ -3667,12 +3728,28 @@ var YfBackend = {
             if(localCheck.length===0){ _yfSave(k,[]); _YF_cache[k]=[]; }
             updated[k]='(cloud empty, local kept)';
           }
-        }catch(e){ console.warn('[YfBackend] pull '+k+' error:',e&&e.message); }
+        }catch(e){
+          // [假成功修复] 逐集合失败不再吞掉：汇总真实错误
+          _failed.push(k);
+          _lastErr=(e&&e.message)||String(e);
+          console.warn('[YfBackend] pull '+k+' error:',_lastErr);
+        }
       }
-      try{ localStorage.setItem('yf_cloud_last_sync',String(Date.now())); }catch(e){}
-      // [家信收件箱] 合并后检测新送达的家长来信 → 未读标记 + 本地通知
-      try{ if(typeof yfDetectParentLetters==='function')yfDetectParentLetters(); }catch(e){}
-      console.log('[YfBackend] sync done:',updated);
+      if(_failed.length){
+        // 任一集合失败：不推进 lastSync（下次仍全量/增量重试），错误透出到同步面板与状态点
+        this._lastSyncError='同步失败：'+_lastErr+(_failed.length>1?('（'+_failed.length+' 个集合未成功）'):'');
+        this._authError=(this._authError&&_lastErr.indexOf('匿名')>-1)?this._authError:'';
+        console.warn('[YfBackend] '+this._lastSyncError);
+        try{showSyncDot('error');}catch(e){}
+        try{var _sm=document.getElementById('syncMsg'); if(_sm)_sm.textContent=this._lastSyncError;}catch(e){}
+      }else{
+        this._lastSyncError='';
+        try{ localStorage.setItem('yf_cloud_last_sync',String(Date.now())); }catch(e){}
+        // [家信收件箱] 合并后检测新送达的家长来信 → 未读标记 + 本地通知
+        try{ if(typeof yfDetectParentLetters==='function')yfDetectParentLetters(); }catch(e){}
+        console.log('[YfBackend] sync done:',updated);
+        try{showSyncDot('ok');}catch(e){}
+      }
       // 刷新 currentUser 与当前可见页
       if(typeof currentUser!=='undefined'&&currentUser){
         try{
@@ -3695,7 +3772,13 @@ var YfBackend = {
           if(_pgId==='pageLetter'&&typeof renderLetterCompose==='function'){renderLetterCompose();}
         }catch(e){}
       }
-    }catch(e){ console.warn('[YfBackend] pullAll error:',e&&e.message); }
+    }catch(e){
+      // [假成功修复] pullAll 整体异常也透出真实原因
+      this._lastSyncError='同步失败：'+((e&&e.message)||String(e));
+      console.warn('[YfBackend] pullAll error:',e&&e.message);
+      try{showSyncDot('error');}catch(e2){}
+      try{var _sm2=document.getElementById('syncMsg'); if(_sm2)_sm2.textContent=this._lastSyncError;}catch(e2){}
+    }
   },
   // [C2/A4/A5] 拉取后的可见性过滤：UGC 按站点、私信按参与双方、通知按收件人
   _filterPulled:function(key, recs){
@@ -3846,9 +3929,12 @@ var p=document.getElementById("loginPass").value.trim();
 if(!u||!p){alert('请输入账号和密码');return;}
 // [B2] 账号密码登录：手机号或账号 + 密码（本地散列校验，演示账号已下线）
 var acc=YangFanData.getUserByAccount(u)||YangFanData.getUserByPhone(u);
+if(!acc&&(typeof YfBackend!=='undefined'&&YfBackend&&YfBackend.enabled())&&/^1\d{10}$/.test(u))acc=YangFanData.getUserByPhoneHash(yfPhoneHash(u));
 if(!acc||!acc.pwdHash){alert('账号不存在或未设置密码，请切换到注册页创建账号');return;}
 if(yfHashPassword(acc.pwdSalt,p)!==acc.pwdHash){alert('账号或密码错误，请重试');return;}
 if(acc.status==='banned'){alert('你的账号已被封禁，如有疑问请联系管理员');return;}
+// [云端态] 按 phoneHash 命中时回填明文 phone（本地保留，云端 push 仍脱敏）
+if(!acc.phone&&/^1\d{10}$/.test(u)){try{YangFanData.updateUser(acc.id,{phone:u});acc.phone=u;}catch(e){}}
 yfAfterLogin(acc,false);
 });
 
@@ -3925,16 +4011,29 @@ document.getElementById('lnSwitch').textContent='没有账号？去注册';
 document.getElementById('lnSwitch').onclick=toggleRegForm;
 }
 
-function doPhoneLogin(){
+async function doPhoneLogin(){
 var phone=document.getElementById('loginPhone').value.trim();
 var pass=document.getElementById('loginPhonePass')?document.getElementById('loginPhonePass').value:'';
 if(!phone||phone.length<11){alert('请输入正确的手机号');return;}
 if(!pass){alert('请输入密码');return;}
+var isCloud=(typeof YfBackend!=='undefined'&&YfBackend&&YfBackend.enabled());
+// [云端态匹配] users 上云无明文 phone，先刷新 users 缓存（尽力而为，失败继续用本地缓存），再按 phoneHash 等值查询
+if(isCloud){
+try{
+if(YfBackend._authed){
+var _urecs=await YfBackend._cbPull('users');
+if(_urecs&&_urecs.length){var _merged=YfBackend._mergeLocal('users',_urecs);_yfSave('users',_merged);_YF_cache.users=_merged;}
+}
+}catch(e){console.warn('[login] users 刷新失败（用本地缓存继续）：',e&&e.message);}
+}
 var u=YangFanData.getUserByPhone(phone);
+if(!u&&isCloud)u=YangFanData.getUserByPhoneHash(yfPhoneHash(phone));
 if(!u){alert('该手机号尚未注册，请先在下方注册');return;}
 if(!u.pwdHash){alert('该账号尚未设置密码，请先用「账号密码登录」旁的注册入口设置');return;}
 if(yfHashPassword(u.pwdSalt,pass)!==u.pwdHash){alert('手机号或密码错误，请重试');return;}
 if(u.status==='banned'){alert('你的账号已被封禁，如有疑问请联系管理员');return;}
+// [云端态] 命中 phoneHash 后把明文 phone 回填本地（云端 push 时仍会脱敏）
+if(!u.phone&&phone){try{YangFanData.updateUser(u.id,{phone:phone});u.phone=phone;}catch(e){}}
 yfAfterLogin(u,false);
 }
 
@@ -4153,7 +4252,10 @@ if(!phone||phone.length<11){alert('请输入正确的手机号');return;}
 if(!nick){alert('请输入昵称');return;}
 if(!pass||pass.length<4){alert('密码至少需要4位，请重新设置');return;}
 if(!siteName){alert('请选择或填写所属浆站');return;}
-if(YangFanData.getUserByPhone(phone)){alert('该手机号已注册，请直接登录');return;}
+// [云端态去重] 本地按 phone 查、云端按 phoneHash 查（users 上云无明文 phone）
+var _existU=YangFanData.getUserByPhone(phone);
+if(!_existU&&(typeof YfBackend!=='undefined'&&YfBackend&&YfBackend.enabled()))_existU=YangFanData.getUserByPhoneHash(yfPhoneHash(phone));
+if(_existU){alert('该手机号已注册，请直接登录');return;}
 // [C1] 站点：优先匹配云端 parent_sites，取其 id；手输站名也接受
 var _siteId='';
 try{
@@ -4311,7 +4413,13 @@ renderLetterCompose();
 function closeOv(id){try{document.getElementById(id).classList.remove("show");}catch(e){}}
 
 function getFilteredPosts(){
-var allPosts=YangFanData.getPosts({status:'approved'});
+// [pending 可见性] 云端先审后发：feed = approved ∪ 本人 pending（卡片带"审核中"角标，见 buildFeedCardHtml）
+var allPosts=YangFanData.getPosts({}).filter(function(p){
+if(!p)return false;
+if(p.status==='approved')return true;
+if(p.status==='pending'&&currentUser&&((p.author_uid&&p.author_uid===currentUser.uid)||(p.author===currentUser.name)))return true;
+return false;
+});
 allPosts.sort(function(a,b){return (b.pinned?1:0)-(a.pinned?1:0);});
 var list=allPosts;
 if(feedTab==="follow"){
@@ -5245,6 +5353,9 @@ function openSyncPanel(){
     var body='<div class="sync-card">';
     body+='<div class="sync-status"><span class="sync-status-dot '+statusDot+'" id="syncStatusDot"></span><span id="syncStatusText">'+statusText+'</span></div>';
     body+='<div class="sync-meta" id="syncLastTime">上次同步：'+lastSync+'</div>';
+    // [假成功修复] 后端初始化/匿名登录/同步失败的真实原因透出给用户
+    var _syncErr=YfBackend._lastSyncError||(YfBackend._authError?('匿名登录失败：'+YfBackend._authError):'');
+    if(enabled&&_syncErr){ body+='<div id="syncMsg" style="margin-top:8px;font-size:11px;color:#e74c3c;word-break:break-all">'+yfEsc(_syncErr)+'</div>'; }
     body+='</div>';
 
     body+='<div class="sync-section-title">存储后端</div>';
@@ -8078,7 +8189,7 @@ var myPosts=YangFanData.getPosts({}).filter(function(p){return p.author===userNa
 if(!myPosts.length)return '<div class="yf-empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#b2bec3" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><p>还没有动态<br>发布你的第一篇故事吧</p><button onclick="togglePub()">立即发布</button></div>';
 var h='<div class="pr-dyn-list">';
 for(var i=0;i<myPosts.length;i++){var p=myPosts[i];
-h+='<div class="pr-dyn-card" onclick="showPost('+p.id+')"><div class="fc-img" style="background:'+(p.cbg||'linear-gradient(135deg,#00AEEC,#6BC9F5)')+';width:60px;height:60px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+(ICONS[p.icon]||ICONS.star)+'</div><div class="dyn-info"><h4>'+p.title+'</h4><p>'+p.time+'</p></div></div>';
+h+='<div class="pr-dyn-card" onclick="showPost('+p.id+')"><div class="fc-img" style="background:'+(p.cbg||'linear-gradient(135deg,#00AEEC,#6BC9F5)')+';width:60px;height:60px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+(ICONS[p.icon]||ICONS.star)+'</div><div class="dyn-info"><h4>'+p.title+(p.status==='pending'?' <span style="font-size:9px;color:#ffa502;background:rgba(255,165,2,.12);padding:1px 5px;border-radius:3px;vertical-align:1px">审核中</span>':'')+'</h4><p>'+p.time+'</p></div></div>';
 }
 h+='</div>';return h;
 }
