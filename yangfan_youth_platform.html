@@ -3591,7 +3591,8 @@ var YfBackend = {
     var all=[]; var skip=0; var BATCH=100;
     for(var loop=0;loop<200;loop++){
       var q=col;
-      if(lastSync){ q=col.where('updatedAt','>',Number(lastSync)); }
+      // [where形态修复] 本环境 SDK 仅支持对象+command 指令形态；三参数形态报"查询参数必须为对象"（fix-verify 实测矩阵 2026-10-26）
+      if(lastSync){ q=col.where({ updatedAt: this._cbDb.command.gt(Number(lastSync)) }); }
       var res=await q.skip(skip).limit(BATCH).get();
       var list=(res&&res.data)?res.data:[];
       for(var i=0;i<list.length;i++){ var c=JSON.parse(JSON.stringify(list[i])); delete c._id; all.push(c); }

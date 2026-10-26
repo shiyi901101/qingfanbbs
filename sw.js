@@ -1,5 +1,5 @@
-// 青帆社区 Service Worker（v110 上架版）
-var CACHE_NAME = 'qingfan-v110';
+// 青帆社区 Service Worker（v111 where形态修复）
+var CACHE_NAME = 'qingfan-v111';
 var ASSETS = [
   './',
   './index.html',
